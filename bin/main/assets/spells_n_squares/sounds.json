@@ -1,0 +1,52 @@
+{
+  "rubber_duck_squeak": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "spells_n_squares:rubber_duck_squeak",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.spells_n_squares.rubber_duck_squeak"
+  },
+  "flashlight_on": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "spells_n_squares:flashlight_on",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.spells_n_squares.flashlight_on"
+  },
+  "flashlight_off": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "spells_n_squares:flashlight_off",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.spells_n_squares.flashlight_off"
+  },
+  "lumos": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "spells_n_squares:lumos",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.spells_n_squares.lumos"
+  },
+  "nox": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "spells_n_squares:nox",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.spells_n_squares.nox"
+  }
+}

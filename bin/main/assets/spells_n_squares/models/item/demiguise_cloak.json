@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "spells_n_squares:item/demiguise_cloak"
+  }
+}

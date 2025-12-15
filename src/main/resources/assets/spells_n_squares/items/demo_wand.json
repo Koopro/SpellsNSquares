@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "spells_n_squares:item/demo_wand",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}
+

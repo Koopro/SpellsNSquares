@@ -1,0 +1,50 @@
+{
+  "stats": {
+    "minecraft:custom": {
+      "minecraft:damage_resisted": 80,
+      "minecraft:time_since_rest": 22406,
+      "minecraft:walk_one_cm": 213647,
+      "minecraft:leave_game": 22,
+      "minecraft:damage_taken": 720,
+      "minecraft:damage_dealt": 0,
+      "minecraft:play_time": 164350,
+      "minecraft:damage_absorbed": 120,
+      "minecraft:jump": 164,
+      "minecraft:time_since_death": 22384,
+      "minecraft:drop": 12,
+      "minecraft:sprint_one_cm": 11198,
+      "minecraft:fall_one_cm": 859,
+      "minecraft:total_world_time": 420708,
+      "minecraft:fly_one_cm": 14516,
+      "minecraft:crouch_one_cm": 8368,
+      "minecraft:sneak_time": 3349,
+      "minecraft:deaths": 1
+    },
+    "minecraft:mined": {
+      "minecraft:fire": 9
+    },
+    "minecraft:picked_up": {
+      "spells_n_squares:demo_wand": 2,
+      "spells_n_squares:flashlight": 2,
+      "spells_n_squares:fleshlight": 3,
+      "spells_n_squares:rubber_duck": 4,
+      "minecraft:spruce_door": 1
+    },
+    "minecraft:broken": {
+      "spells_n_squares:deathly_hallow_cloak": 1
+    },
+    "minecraft:used": {
+      "spells_n_squares:deathly_hallow_cloak": 1,
+      "spells_n_squares:rubber_duck": 4,
+      "minecraft:sandstone": 14
+    },
+    "minecraft:dropped": {
+      "minecraft:spruce_door": 1,
+      "spells_n_squares:rubber_duck": 4,
+      "spells_n_squares:demo_wand": 2,
+      "spells_n_squares:flashlight": 2,
+      "spells_n_squares:fleshlight": 3
+    }
+  },
+  "DataVersion": 4671
+}

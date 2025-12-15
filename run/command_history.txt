@@ -1,0 +1,19 @@
+/give @a spells_n_squares:bouncy_block
+/give @a spells_n_squares:rubber_duck
+/playsound spells_n_squares:rubber_duck_squeak
+/give Dev spells_n_squares:flashlight
+/time set night
+/item replace entity Dev armor.head with spells_n_squares:fleshlight
+/summon spells_n_squares:shield_orb
+/item replace entity Dev armor.head with spells_n_squares:fleshlight
+/summon minecraft:arrow
+/summon minecraft:arrow ~ 100 ~
+/summon spells_n_squares:shield_orb
+/summon minecraft:arrow ~ 100 ~
+/summon spells_n_squares:light_orb
+/summon spells_n_squares:shield_orb
+/summon spells_n_squares:shield_orb ~ ~ ~
+/spells_n_squaresdebug dummy
+/spells_n_squaresdebug lightning
+/summon spells_n_squares:lightning_beam
+/summon spells_n_squares:lightning_beam ~ ~ ~ 100s
