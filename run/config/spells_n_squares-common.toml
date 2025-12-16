@@ -1,0 +1,43 @@
+[visual_effects]
+	#Enable high-FX mode (full particles, shaders, effects)
+	highFxMode = false
+	#Enable wand particle trails and effects
+	enableWandParticles = true
+	#Enable invisibility cloak shimmer effects
+	enableCloakShimmer = true
+	#Enable artifact visual effects (Time-Turner, Deluminator, etc.)
+	enableArtifactEffects = true
+	#Particle count multiplier (0.0 = no particles, 1.0 = normal, 2.0 = double)
+	# Default: 1.0
+	# Range: 0.0 ~ 2.0
+	particleMultiplier = 1.0
+	#Screen effect intensity (0.0 = disabled, 1.0 = full intensity)
+	# Default: 0.8
+	# Range: 0.0 ~ 1.0
+	screenEffectIntensity = 0.8
+	#Enable shader-based post-processing effects (requires shader support)
+	shaderEffectsEnabled = true
+	#Enable environmental effects (auras, ambient particles, world effects)
+	environmentalEffectsEnabled = true
+	#Maximum distance to render particles (in blocks)
+	# Default: 64
+	# Range: 16 ~ 128
+	maxParticleDistance = 64
+	#Overall effect quality preset (LOW, MEDIUM, HIGH, ULTRA)
+	#Allowed Values: LOW, MEDIUM, HIGH, ULTRA
+	effectQuality = "MEDIUM"
+
+[gameplay]
+	#Spell balance settings
+	spellCooldownMultiplier = 1.0
+	spellDamageMultiplier = 1.0
+	enableDarkMagic = true
+	#Creature settings
+	creatureSpawnRate = 1.0
+	enableHostileCreatures = true
+	#Economy settings
+	currencyDropRate = 1.0
+	enableTrading = true
+	#Education settings
+	enableHousePoints = true
+	enableHomework = true

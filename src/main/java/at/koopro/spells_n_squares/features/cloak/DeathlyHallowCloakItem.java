@@ -23,3 +23,11 @@ public class DeathlyHallowCloakItem extends Item {
         return true; // Make it glow to show it's special
     }
 }
+
+
+
+
+
+
+
+

@@ -5,10 +5,10 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
 
 /**
  * Network payload for syncing Lumos state from server to client.
+ * Indicates whether Lumos is currently active for the player.
  */
 public record LumosStateSyncPayload(boolean active) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<LumosStateSyncPayload> TYPE =

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "spells_n_squares:block/magical_light_green"
+  }
+}

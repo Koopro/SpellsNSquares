@@ -1,0 +1,47 @@
+{
+  "blend": {
+    "func": "add"
+  },
+  "vertex": "spells_n_squares:grayscale.vsh",
+  "fragment": "spells_n_squares:grayscale.fsh",
+  "attributes": [
+    "Position",
+    "Color",
+    "UV0",
+    "UV1",
+    "UV2",
+    "Normal"
+  ],
+  "uniforms": [
+    {
+      "name": "ModelViewMat",
+      "type": "matrix4",
+      "count": 16,
+      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "name": "ProjMat",
+      "type": "matrix4",
+      "count": 16,
+      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "name": "ColorModulator",
+      "type": "vec4",
+      "count": 4,
+      "values": [1.0, 1.0, 1.0, 1.0]
+    },
+    {
+      "name": "Intensity",
+      "type": "float",
+      "count": 1,
+      "values": [1.0]
+    }
+  ]
+}
+
+
+
+
+
+

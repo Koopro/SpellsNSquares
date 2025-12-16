@@ -27,6 +27,15 @@ public final class ModDataComponents {
                 .build()
         );
     
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> HOWLER_MESSAGE =
+        DATA_COMPONENTS.register(
+            "howler_message",
+            () -> DataComponentType.<String>builder()
+                .persistent(Codec.STRING)
+                .networkSynchronized(ByteBufCodecs.STRING_UTF8)
+                .build()
+        );
+    
     // Note: WandData components are registered separately in WandData class
 }
 

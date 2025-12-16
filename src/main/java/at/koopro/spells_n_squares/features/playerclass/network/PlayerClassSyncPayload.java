@@ -8,23 +8,75 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
- * Network payload for syncing player class from server to client.
+ * Network payload for syncing player classes from server to client.
+ * Supports multiple classes per player.
  */
 public record PlayerClassSyncPayload(
-    PlayerClass playerClass
+    Set<PlayerClass> playerClasses
 ) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<PlayerClassSyncPayload> TYPE =
         new CustomPacketPayload.Type<>(ModIdentifierHelper.modId("player_class_sync"));
     
-    public static final StreamCodec<ByteBuf, PlayerClassSyncPayload> STREAM_CODEC = StreamCodec.composite(
+    private static final StreamCodec<ByteBuf, PlayerClass> PLAYER_CLASS_CODEC = 
         ByteBufCodecs.STRING_UTF8.map(
             PlayerClass::fromName,
             PlayerClass::name
-        ),
-        PlayerClassSyncPayload::playerClass,
+        );
+    
+    public static final StreamCodec<ByteBuf, PlayerClassSyncPayload> STREAM_CODEC = StreamCodec.composite(
+        PLAYER_CLASS_CODEC.apply(ByteBufCodecs.collection(HashSet::new)),
+        PlayerClassSyncPayload::playerClasses,
         PlayerClassSyncPayload::new
     );
+    
+    /**
+     * Gets the primary class for backward compatibility.
+     * @return The primary class, or NONE if no classes
+     */
+    public PlayerClass getPrimaryClass() {
+        if (playerClasses == null || playerClasses.isEmpty()) {
+            return PlayerClass.NONE;
+        }
+        
+        // Priority order: BASE > ROLE > TRANSFORMATION > ALIGNMENT > ORGANIZATION > BLOOD_STATUS
+        for (PlayerClass clazz : playerClasses) {
+            if (clazz.getCategory() == at.koopro.spells_n_squares.features.playerclass.ClassCategory.BASE) {
+                return clazz;
+            }
+        }
+        for (PlayerClass clazz : playerClasses) {
+            if (clazz.getCategory() == at.koopro.spells_n_squares.features.playerclass.ClassCategory.ROLE) {
+                return clazz;
+            }
+        }
+        for (PlayerClass clazz : playerClasses) {
+            if (clazz.getCategory() == at.koopro.spells_n_squares.features.playerclass.ClassCategory.TRANSFORMATION) {
+                return clazz;
+            }
+        }
+        for (PlayerClass clazz : playerClasses) {
+            if (clazz.getCategory() == at.koopro.spells_n_squares.features.playerclass.ClassCategory.ALIGNMENT) {
+                return clazz;
+            }
+        }
+        for (PlayerClass clazz : playerClasses) {
+            if (clazz.getCategory() == at.koopro.spells_n_squares.features.playerclass.ClassCategory.ORGANIZATION) {
+                return clazz;
+            }
+        }
+        for (PlayerClass clazz : playerClasses) {
+            if (clazz.getCategory() == at.koopro.spells_n_squares.features.playerclass.ClassCategory.BLOOD_STATUS) {
+                return clazz;
+            }
+        }
+        
+        // Fallback: return first class
+        return playerClasses.iterator().next();
+    }
     
     @Override
     public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {

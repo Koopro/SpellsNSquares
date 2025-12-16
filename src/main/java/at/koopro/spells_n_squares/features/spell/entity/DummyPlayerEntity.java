@@ -1,51 +1,42 @@
 package at.koopro.spells_n_squares.features.spell.entity;
 
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 /**
- * Simple standing humanoid dummy entity for testing spells.
- * Has health and can be damaged, but no AI/movement.
+ * Dummy player entity for spell testing/targeting.
+ * TODO: Implement dummy player functionality
  */
-public class DummyPlayerEntity extends Mob {
-
+public class DummyPlayerEntity extends Entity {
     public DummyPlayerEntity(EntityType<? extends DummyPlayerEntity> type, Level level) {
         super(type, level);
     }
-
+    
     @Override
-    protected void registerGoals() {
-        // No AI – dummy just stands still.
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        // Define synced data if needed
     }
-
-    public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes()
-            .add(Attributes.MAX_HEALTH, 40.0D)
-            .add(Attributes.MOVEMENT_SPEED, 0.0D)
-            .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
-    }
-
+    
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
-    }
-
-    @Override
-    protected void readAdditionalSaveData(ValueInput input) {
-    }
-
-    @Override
-    public boolean isPushable() {
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        // Dummy players can be damaged for testing purposes
         return true;
     }
-
+    
     @Override
-    protected void doPush(net.minecraft.world.entity.Entity entity) {
-        // Keep default small push behaviour if needed
-        super.doPush(entity);
+    protected void addAdditionalSaveData(ValueOutput output) {
+        // No additional data to save
+    }
+    
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        // No additional data to load
     }
 }
+

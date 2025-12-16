@@ -3,7 +3,7 @@
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="unob"></stringAttribute>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.neoforged.devlaunch.Main"></stringAttribute>
     <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value=" @C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\build\\moddev\\clientRunProgramArgs.txt"></stringAttribute>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value=" @C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\build\\moddev\\clientRunVmArgs.txt -Dfml.modFolders=spells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main"></stringAttribute>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value=" @C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\build\\moddev\\clientRunVmArgs.txt -Dfml.modFolders=spells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main;spells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\datagen"></stringAttribute>
     <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\Users\chris\Desktop\Development\Java\unob\run"></stringAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.STOP_IN_MAIN" value="false"></booleanAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"></booleanAttribute>

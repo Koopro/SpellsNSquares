@@ -1,0 +1,9 @@
+[visual_effects]
+	#Enable high-FX mode (full particles, shaders, effects)
+	highFxMode = false
+	#Enable wand particle trails and effects
+	enableWandParticles = true
+	#Enable invisibility cloak shimmer effects
+	enableCloakShimmer = true
+	#Enable artifact visual effects (Time-Turner, Deluminator, etc.)
+	enableArtifactEffects = true

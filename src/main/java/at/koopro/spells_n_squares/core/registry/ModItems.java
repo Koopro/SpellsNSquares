@@ -22,6 +22,13 @@ import at.koopro.spells_n_squares.features.transportation.BroomstickItem;
 import at.koopro.spells_n_squares.features.transportation.FlooPowderItem;
 import at.koopro.spells_n_squares.features.transportation.PortkeyItem;
 import at.koopro.spells_n_squares.features.wand.WandItem;
+import at.koopro.spells_n_squares.features.potions.DraughtOfLivingDeathItem;
+import at.koopro.spells_n_squares.features.potions.DraughtOfPeaceItem;
+import at.koopro.spells_n_squares.features.potions.FelixFelicisItem;
+import at.koopro.spells_n_squares.features.potions.MurtlapEssenceItem;
+import at.koopro.spells_n_squares.features.potions.ShrinkingSolutionItem;
+import at.koopro.spells_n_squares.features.potions.SwellingSolutionItem;
+import at.koopro.spells_n_squares.features.potions.VeritaserumItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -183,6 +190,22 @@ public class ModItems {
                 createProperties(id)
                     .humanoidArmor(ModArmorMaterials.HOUSE_ROBE_MATERIAL_HOLDER.value(), ArmorType.BOOTS)
                     .stacksTo(1)));
+    
+    // Potion items
+    public static final DeferredItem<DraughtOfLivingDeathItem> DRAUGHT_OF_LIVING_DEATH_POTION = ITEMS.register(
+            "draught_of_living_death_potion", id -> new DraughtOfLivingDeathItem(createProperties(id)));
+    public static final DeferredItem<DraughtOfPeaceItem> DRAUGHT_OF_PEACE_POTION = ITEMS.register(
+            "draught_of_peace_potion", id -> new DraughtOfPeaceItem(createProperties(id)));
+    public static final DeferredItem<FelixFelicisItem> FELIX_FELICIS = ITEMS.register(
+            "felix_felicis", id -> new FelixFelicisItem(createProperties(id)));
+    public static final DeferredItem<MurtlapEssenceItem> MURTLAP_ESSENCE_POTION = ITEMS.register(
+            "murtlap_essence_potion", id -> new MurtlapEssenceItem(createProperties(id)));
+    public static final DeferredItem<ShrinkingSolutionItem> SHRINKING_SOLUTION_POTION = ITEMS.register(
+            "shrinking_solution_potion", id -> new ShrinkingSolutionItem(createProperties(id)));
+    public static final DeferredItem<SwellingSolutionItem> SWELLING_SOLUTION_POTION = ITEMS.register(
+            "swelling_solution_potion", id -> new SwellingSolutionItem(createProperties(id)));
+    public static final DeferredItem<VeritaserumItem> VERITASERUM = ITEMS.register(
+            "veritaserum", id -> new VeritaserumItem(createProperties(id)));
     
     private static Item.Properties createProperties(Identifier id) {
         ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);

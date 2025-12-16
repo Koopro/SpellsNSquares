@@ -1,0 +1,40 @@
+{
+  "targets": ["swap"],
+  "uniforms": [
+    {
+      "name": "Intensity",
+      "type": "float",
+      "count": 1,
+      "values": [1.0]
+    }
+  ],
+  "passes": [
+    {
+      "name": "inverted_colors",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+      "auxtargets": [
+        {
+          "name": "PrevSampler",
+          "id": "minecraft:main"
+        }
+      ],
+      "vertex": "spells_n_squares:post/inverted_colors",
+      "fragment": "spells_n_squares:post/inverted_colors",
+      "uniforms": [
+        {
+          "name": "Intensity",
+          "type": "float",
+          "count": 1,
+          "values": [1.0]
+        }
+      ]
+    }
+  ]
+}
+
+
+
+
+
+

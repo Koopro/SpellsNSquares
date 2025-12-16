@@ -16,7 +16,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\build\\moddev\\clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003dspells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main"
+        "-Dfml.modFolders\u003dspells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main;spells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\datagen"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -38,7 +38,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\build\\moddev\\dataRunVmArgs.txt",
-        "-Dfml.modFolders\u003dspells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main"
+        "-Dfml.modFolders\u003dspells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main;spells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\datagen"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -60,7 +60,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\build\\moddev\\gameTestServerRunVmArgs.txt",
-        "-Dfml.modFolders\u003dspells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main"
+        "-Dfml.modFolders\u003dspells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main;spells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\datagen"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -82,7 +82,29 @@
       ],
       "vmArgs": [
         "@C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\build\\moddev\\serverRunVmArgs.txt",
-        "-Dfml.modFolders\u003dspells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main"
+        "-Dfml.modFolders\u003dspells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main;spells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\datagen"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "ServerData",
+      "presentation": {
+        "group": "Mod Development - unob",
+        "order": 4
+      },
+      "projectName": "unob",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\build\\moddev\\serverDataRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\build\\moddev\\serverDataRunVmArgs.txt",
+        "-Dfml.modFolders\u003dspells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\main;spells_n_squares%%C:\\Users\\chris\\Desktop\\Development\\Java\\unob\\bin\\datagen"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},

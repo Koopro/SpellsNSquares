@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "spells_n_squares:item/broomstick_racing"
+  }
+}

@@ -1,14 +1,15 @@
 package at.koopro.spells_n_squares.features.spell.client;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.init.client.ModKeybinds;
+// TODO: Re-enable when ModKeybinds and SpellCastPayload are implemented
+// import at.koopro.spells_n_squares.init.client.ModKeybinds;
 import at.koopro.spells_n_squares.core.client.KeyStateTracker;
-import at.koopro.spells_n_squares.core.network.SpellCastPayload;
+// import at.koopro.spells_n_squares.features.spell.network.SpellCastPayload;
 import at.koopro.spells_n_squares.core.registry.ModTags;
 import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import at.koopro.spells_n_squares.features.spell.Spell;
 import at.koopro.spells_n_squares.features.spell.SpellManager;
-import at.koopro.spells_n_squares.features.spell.SpellRegistry;
+import at.koopro.spells_n_squares.core.registry.SpellRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -98,7 +99,9 @@ public class SpellSelectorHUD {
         // Tick client-side cooldowns
         ClientSpellData.tickCooldowns();
 
+        // TODO: Re-enable when ModKeybinds and SpellCastPayload are implemented
         // Detect key press (transition from not pressed to pressed) and switch selection
+        /*
         if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_TOP)) {
             selectedField = SpellManager.SLOT_TOP;
         } else if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_BOTTOM)) {
@@ -121,6 +124,7 @@ public class SpellSelectorHUD {
         if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTION_SCREEN) && mc.player != null) {
             mc.setScreen(new SpellSelectionScreen());
         }
+        */
     }
 
     /**
@@ -321,6 +325,9 @@ public class SpellSelectorHUD {
      * Gets the keybind for a specific slot.
      */
     private static KeyMapping getKeybindForSlot(int slot) {
+        // TODO: Re-enable when ModKeybinds is implemented
+        return null;
+        /*
         return switch (slot) {
             case SpellManager.SLOT_TOP -> ModKeybinds.SPELL_SELECTOR_TOP;
             case SpellManager.SLOT_BOTTOM -> ModKeybinds.SPELL_SELECTOR_BOTTOM;
@@ -328,6 +335,7 @@ public class SpellSelectorHUD {
             case SpellManager.SLOT_RIGHT -> ModKeybinds.SPELL_SELECTOR_RIGHT;
             default -> null;
         };
+        */
     }
     
     /**

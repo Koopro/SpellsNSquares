@@ -98,11 +98,12 @@ public class ModInitialization {
         
         modEventBus.addListener(ModNetwork::registerPayloadHandlers);
         // Game event bus listeners
-        NeoForge.EVENT_BUS.addListener(ServerEventHandler::onRegisterCommands);
+        // TODO: Re-enable when ServerEventHandler is implemented
+        // NeoForge.EVENT_BUS.addListener(ServerEventHandler::onRegisterCommands);
         // Initialize wand attunement handler
         WandAttunementHandler.initialize();
         // Initialize particle effect registry
-        at.koopro.spells_n_squares.core.fx.ParticleEffectRegistry.initializeDefaults();
+        at.koopro.spells_n_squares.core.registry.ParticleEffectRegistry.initializeDefaults();
         // Initialize sound-visual sync
         at.koopro.spells_n_squares.features.fx.SoundVisualSync.initialize();
         // Note: spells_n_squares.class is not registered to event bus as it has no @SubscribeEvent methods

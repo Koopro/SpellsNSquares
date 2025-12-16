@@ -1,48 +1,87 @@
 {
   "stats": {
     "minecraft:picked_up": {
+      "spells_n_squares:galleon": 3,
+      "spells_n_squares:broomstick_firebolt": 1,
       "spells_n_squares:demo_wand": 3,
+      "spells_n_squares:revealer_dust": 1,
       "spells_n_squares:flashlight": 2,
+      "spells_n_squares:beech_trapdoor": 1,
       "spells_n_squares:rubber_duck": 4,
       "minecraft:spruce_door": 1
-    },
-    "minecraft:custom": {
-      "minecraft:damage_resisted": 80,
-      "minecraft:time_since_rest": 160079,
-      "minecraft:walk_one_cm": 236545,
-      "minecraft:leave_game": 23,
-      "minecraft:damage_taken": 720,
-      "minecraft:damage_dealt": 0,
-      "minecraft:play_time": 324562,
-      "minecraft:damage_absorbed": 120,
-      "minecraft:jump": 194,
-      "minecraft:time_since_death": 160047,
-      "minecraft:drop": 13,
-      "minecraft:sprint_one_cm": 15553,
-      "minecraft:fall_one_cm": 859,
-      "minecraft:total_world_time": 583215,
-      "minecraft:fly_one_cm": 25433,
-      "minecraft:crouch_one_cm": 8445,
-      "minecraft:sneak_time": 4281,
-      "minecraft:deaths": 2
     },
     "minecraft:broken": {
       "spells_n_squares:deathly_hallow_cloak": 1
     },
-    "minecraft:used": {
-      "spells_n_squares:deathly_hallow_cloak": 1,
-      "spells_n_squares:rubber_duck": 4,
-      "minecraft:sandstone": 14,
-      "spells_n_squares:wizard_tower": 1
-    },
     "minecraft:mined": {
-      "minecraft:fire": 9
+      "minecraft:fire": 9,
+      "minecraft:glass": 1,
+      "spells_n_squares:elder_log": 1,
+      "spells_n_squares:whomping_willow": 1
+    },
+    "minecraft:custom": {
+      "minecraft:damage_resisted": 80,
+      "minecraft:time_since_rest": 58283,
+      "minecraft:walk_one_cm": 302157,
+      "minecraft:leave_game": 32,
+      "minecraft:mob_kills": 2,
+      "minecraft:damage_taken": 1130,
+      "minecraft:play_time": 538241,
+      "minecraft:damage_dealt": 564,
+      "minecraft:damage_absorbed": 120,
+      "minecraft:jump": 325,
+      "minecraft:time_since_death": 58256,
+      "minecraft:drop": 23,
+      "minecraft:sprint_one_cm": 26130,
+      "minecraft:fall_one_cm": 859,
+      "minecraft:total_world_time": 809197,
+      "minecraft:fly_one_cm": 106380,
+      "minecraft:crouch_one_cm": 23013,
+      "minecraft:sneak_time": 7350,
+      "minecraft:deaths": 4
+    },
+    "minecraft:killed_by": {
+      "spells_n_squares:dragon": 1
+    },
+    "minecraft:used": {
+      "spells_n_squares:rubber_duck": 4,
+      "spells_n_squares:elder_log": 1,
+      "spells_n_squares:chocolate_frog": 1,
+      "minecraft:allay_spawn_egg": 1,
+      "spells_n_squares:gillyweed": 2,
+      "spells_n_squares:beech_trapdoor": 1,
+      "minecraft:tadpole_spawn_egg": 1,
+      "spells_n_squares:stripped_yew_wood": 2,
+      "spells_n_squares:beech_pressure_plate": 1,
+      "minecraft:oak_stairs": 22,
+      "spells_n_squares:deathly_hallow_cloak": 2,
+      "minecraft:shulker_spawn_egg": 1,
+      "spells_n_squares:blackthorn_stairs": 6,
+      "spells_n_squares:pear_wood": 3,
+      "spells_n_squares:yew_stairs": 14,
+      "spells_n_squares:stripped_elder_log": 2,
+      "spells_n_squares:yew_button": 1,
+      "minecraft:copper_axe": 2,
+      "minecraft:sandstone": 103,
+      "spells_n_squares:yew_planks": 2,
+      "spells_n_squares:wizard_tower": 64
     },
     "minecraft:dropped": {
       "minecraft:spruce_door": 1,
+      "spells_n_squares:revealer_dust": 1,
+      "spells_n_squares:beech_trapdoor": 1,
       "spells_n_squares:rubber_duck": 4,
       "spells_n_squares:demo_wand": 3,
-      "spells_n_squares:flashlight": 2
+      "spells_n_squares:chocolate_frog": 2,
+      "spells_n_squares:flashlight": 2,
+      "spells_n_squares:elder_wand": 1,
+      "spells_n_squares:broomstick_firebolt": 1,
+      "spells_n_squares:galleon": 3,
+      "spells_n_squares:snitch": 1
+    },
+    "minecraft:killed": {
+      "minecraft:shulker": 1,
+      "spells_n_squares:cat": 1
     }
   },
   "DataVersion": 4671

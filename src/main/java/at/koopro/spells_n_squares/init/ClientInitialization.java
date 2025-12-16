@@ -2,10 +2,11 @@ package at.koopro.spells_n_squares.init;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.ModEntities;
-import at.koopro.spells_n_squares.features.spell.client.DummyPlayerRenderer;
-import at.koopro.spells_n_squares.features.spell.client.LightOrbRenderer;
-import at.koopro.spells_n_squares.features.spell.client.LightningBeamRenderer;
-import at.koopro.spells_n_squares.features.spell.client.ShieldOrbRenderer;
+// TODO: Re-enable when renderer classes are implemented
+// import at.koopro.spells_n_squares.features.spell.client.DummyPlayerRenderer;
+// import at.koopro.spells_n_squares.features.spell.client.LightOrbRenderer;
+// import at.koopro.spells_n_squares.features.spell.client.LightningBeamRenderer;
+// import at.koopro.spells_n_squares.features.spell.client.ShieldOrbRenderer;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Entity;
@@ -39,11 +40,14 @@ public class ClientInitialization {
     
     @SubscribeEvent
     public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        // TODO: Re-enable when renderer classes and entities are implemented
         // Register entity renderers using helper method to reduce repetition
+        /*
         registerRenderer(event, ModEntities.SHIELD_ORB, ShieldOrbRenderer::new);
         registerRenderer(event, ModEntities.LIGHT_ORB, LightOrbRenderer::new);
         registerRenderer(event, ModEntities.LIGHTNING_BEAM, LightningBeamRenderer::new);
         registerRenderer(event, ModEntities.DUMMY_PLAYER, DummyPlayerRenderer::new);
+        */
         // Owl entity would need a renderer - using default for now
     }
     

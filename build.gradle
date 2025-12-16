@@ -74,6 +74,13 @@ neoForge {
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
 
+        serverData {
+            serverData()
+
+            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+
         // applies to all the run configs above
         configureEach {
             // Recommended logging data for a userdev environment
@@ -97,6 +104,7 @@ neoForge {
         // but multi mod projects should define one per mod
         "${mod_id}" {
             sourceSet(sourceSets.main)
+            sourceSet(sourceSets.datagen)
         }
     }
 }
@@ -116,6 +124,11 @@ dependencies {
     
     // Datagen dependencies - needs access to main source set
     datagenImplementation sourceSets.main.output
+}
+
+// Handle duplicate resources - generated resources override main resources
+tasks.withType(ProcessResources).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -155,6 +168,87 @@ publishing {
         maven {
             url "file://${project.projectDir}/repo"
         }
+    }
+}
+
+// Combined task to run both server and client data generation
+// This ensures both loot tables (server) and models (client) are generated
+// NeoForge clears the output directory before each run, so we need to preserve
+// the assets/ directory when running serverData
+tasks.named('runServerData').configure {
+    mustRunAfter 'runData'
+}
+
+// Task to preserve assets directory before server data generation
+def assetsDir = file('src/generated/resources/assets')
+def tempAssetsDir = file('build/temp/preserved-assets')
+
+tasks.register('preserveAssets', Copy) {
+    doFirst {
+        if (!assetsDir.exists()) {
+            throw new GradleException('Assets directory does not exist. Run runData first.')
+        }
+    }
+    from assetsDir
+    into tempAssetsDir
+}
+
+// Task to restore assets directory after server data generation
+tasks.register('restoreAssets', Copy) {
+    doFirst {
+        if (!tempAssetsDir.exists()) {
+            throw new GradleException('Preserved assets directory does not exist.')
+        }
+    }
+    from tempAssetsDir
+    into assetsDir
+}
+
+// Task to copy GeckoLib item JSON files from main resources to generated resources
+def geckoLibItemsSource = file('src/main/resources/assets/spells_n_squares/items')
+tasks.register('copyGeckoLibItems', Copy) {
+    from geckoLibItemsSource
+    into 'src/generated/resources/assets/spells_n_squares/items'
+    include '*.json'
+    onlyIf { geckoLibItemsSource.exists() }
+}
+
+tasks.named('restoreAssets').configure {
+    finalizedBy 'copyGeckoLibItems'
+    doLast {
+        println 'Assets restored, copying GeckoLib items...'
+    }
+}
+
+tasks.register('runAllData') {
+    group = 'neoforge'
+    description = 'Runs both server and client data generation tasks'
+    dependsOn 'runData'
+    finalizedBy 'preserveAssets'
+    doLast {
+        println 'Client data generation completed, preserving assets...'
+    }
+}
+
+tasks.named('preserveAssets').configure {
+    mustRunAfter 'runData'
+}
+
+tasks.named('runServerData').configure {
+    dependsOn 'preserveAssets'
+    finalizedBy 'restoreAssets'
+    doLast {
+        println 'Server data generation completed, restoring assets...'
+    }
+}
+
+tasks.named('runAllData').configure {
+    finalizedBy 'runServerData'
+}
+
+tasks.named('restoreAssets').configure {
+    doLast {
+        println 'All data generation tasks completed! Both assets/ and data/ are present.'
     }
 }
 

@@ -1,0 +1,65 @@
+{
+  "blend": {
+    "func": "add"
+  },
+  "vertex": "spells_n_squares:cut_effect.vsh",
+  "fragment": "spells_n_squares:cut_effect.fsh",
+  "attributes": [
+    "Position",
+    "Color",
+    "UV0",
+    "UV1",
+    "UV2",
+    "Normal"
+  ],
+  "uniforms": [
+    {
+      "name": "ModelViewMat",
+      "type": "matrix4",
+      "count": 16,
+      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "name": "ProjMat",
+      "type": "matrix4",
+      "count": 16,
+      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "name": "ColorModulator",
+      "type": "vec4",
+      "count": 4,
+      "values": [1.0, 1.0, 1.0, 1.0]
+    },
+    {
+      "name": "Time",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
+    },
+    {
+      "name": "CutStart",
+      "type": "vec2",
+      "count": 2,
+      "values": [0.0, 0.0]
+    },
+    {
+      "name": "CutEnd",
+      "type": "vec2",
+      "count": 2,
+      "values": [1.0, 1.0]
+    },
+    {
+      "name": "Intensity",
+      "type": "float",
+      "count": 1,
+      "values": [1.0]
+    }
+  ]
+}
+
+
+
+
+
+

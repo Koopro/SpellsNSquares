@@ -1,50 +1,50 @@
-/summon spells_n_squares:shield_orb
-/summon minecraft:arrow ~ 100 ~
-/summon spells_n_squares:light_orb
-/summon spells_n_squares:shield_orb
-/summon spells_n_squares:shield_orb ~ ~ ~
-/spells_n_squaresdebug dummy
-/spells_n_squaresdebug lightning
-/summon spells_n_squares:lightning_beam
-/summon spells_n_squares:lightning_beam ~ ~ ~ 100s
-/kill @e
-/spells_n_squaresdebug
-/spells_n_squaresdebug dummyplayer
-/give Dev spells_n_squares:gryffindor_robe_boots
-/spells_n_squaresdebug lightning
-/spells_n_squaresdebug slot set 1
-/spells_n_squaresdebug cast lumos
-/spells_n_squaresdebug dummy
-/spells_n_squaresdebug help
-/spells_n_squaresdebug lumos on
-/spells_n_squaresdebug player class set wizard
-/spells_n_squaresdebug cast spells_n_squares:apparition
-/spells_n_squaresdebug wand set dragon_heartstring ash true
-/spells_n_squaresdebug test lightorb
-/spells_n_squaresdebug test sound minecraft:entity.experience_orb.pickup
-/spells_n_squaresdebug test sound minecraft:block.note_block.note
-/spells_n_squaresdebug summary Dev
-/give Dev spells_n_squares:time_turner
-/waypoint
-/waypoint modify Dev
-/waypoint modify
-/waypoint modify Dev color aqua
-/waypoint create
-/waypoint list
-/waypoint modify Dev style set
-/waypoint create test
-/waypoint tp test
-/waypoint list
-/waypoint create auto
-/waypoint create auto2
-/summon spells_n_squares:owl
-/setblock ~ ~ ~ spells_n_squares:self_stirring_cauldron
-/setblock ~ ~ ~ spells_n_squares:magical_light_blue
-/setblock ~ ~ ~ spells_n_squares:resource_generator
-/setblock ~ ~ ~ spells_n_squares:
-/setblock ~ ~ ~ spells_n_squares:magical_trunk
-/give @a spells_n_squares:wizard_tower
-/give @a spells_n_squares:two_way_mirror
-/give @a spells_n_squares:broomstick_basic
-/give @a spells_n_squares:pocket_dimension
+/spells_n_squaresdebug fx shader invisibility
+/spells_n_squaresdebug fx shader magical_aura
+/spells_n_squaresdebug fx shader spell_cast
+/spells_n_squaresdebug fx shader time_distortion
+/spells_n_squaresdebug fx shake 1 100
+/spells_n_squaresdebug fx shader hue_max 1
+/spells_n_squaresdebug fx shader hue_max 0.5
+/spells_n_squaresdebug fx shader acid
+/spells_n_squaresdebug fx shader chromatic
+/spells_n_squaresdebug fx shader chromatic 1
+/spells_n_squaresdebug fx shader grayscale
+/spells_n_squaresdebug fx shader inverted
+/spells_n_squaresdebug fx shader night_vision
+/spells_n_squaresdebug fx shader sepia
+/spells_n_squaresdebug fx pipeline cut_effect
+/spells_n_squaresdebug fx pipeline lumos_orb
+/spells_n_squaresdebug fx shake 1 100
+/spells_n_squaresdebug fx shader grayscale 1
+/spells_n_squaresdebug fx shader grayscale
+/spells_n_squaresdebug fx pipeline status
+/spells_n_squaresdebug fx shader inverted
+/spells_n_squaresdebug fx shader inverted 1
+/spells_n_squaresdebug fx shader inverted
+/spells_n_squaresdebug cast spells_n_squares:incendio
+/spells_n_squaresdebug cast spells_n_squares:incendio d
 /give @a spells_n_squares:enchanted_bag_bottomless
+/waypoint create auto
+/give @a spells_n_squares:elder_wand
+/summon spells_n_squares:dementor
+/kill @e
+/summon spells_n_squares:thestral
+/summon spells_n_squares:acromantula
+/summon spells_n_squares:boggart
+/summon spells_n_squares:cat
+/summon spells_n_squares:dragon
+/summon spells_n_squares:hippogriff
+/summon spells_n_squares:house_elf
+/give @a spells_n_squares:gillyweed
+/setblock -5 56 -8 spells_n_squares:whomping_willow
+/setblock -5 56 -8 spells_n_squares:whomping_willow strict
+/give @a spells_n_squares:gillyweed
+/give @a spells_n_squares:galleon
+/give @a spells_n_squares:yew_stairs
+/give @a spells_n_squares:bestiary
+/locate biome spells_n_squares:azkaban
+/locate biome spells_n_squares:dark_forest_edge
+/fillbiome ~ ~ ~ ~ ~ ~ spells_n_squares:magical_meadow
+/fillbiome 0 0 0 1000 1000 1000 spells_n_squares:magical_meadow
+/fillbiome 0 0 0 100 100 100 spells_n_squares:magical_meadow
+/fillbiome 0 0 0 50 50 50 spells_n_squares:magical_meadow
