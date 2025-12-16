@@ -1,11 +1,11 @@
 package at.koopro.spells_n_squares.features.spell;
 
-import java.util.Random;
-
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Random;
 
 /**
  * Reusable lightning / beam-like visual for spells.

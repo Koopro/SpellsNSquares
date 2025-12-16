@@ -1,19 +1,23 @@
 package at.koopro.spells_n_squares.features.spell;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
+import at.koopro.spells_n_squares.core.api.addon.events.AddonEventBus;
+import at.koopro.spells_n_squares.core.api.addon.events.SpellCastEvent;
+import at.koopro.spells_n_squares.core.api.addon.events.SpellSlotChangeEvent;
+import at.koopro.spells_n_squares.core.network.SpellCooldownSyncPayload;
+import at.koopro.spells_n_squares.core.network.SpellSlotsSyncPayload;
+import at.koopro.spells_n_squares.features.wand.WandAffinity;
+import at.koopro.spells_n_squares.features.wand.WandAffinityManager;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import at.koopro.spells_n_squares.core.network.SpellCooldownSyncPayload;
-import at.koopro.spells_n_squares.core.network.SpellSlotsSyncPayload;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Manages spell slots and casting for players.
@@ -26,10 +30,23 @@ public class SpellManager {
     public static final int SLOT_LEFT = 2;
     public static final int SLOT_RIGHT = 3;
     
+    // Maximum number of spell slots
+    public static final int MAX_SLOTS = 4;
+    
+    // Slot constants array for iteration
+    public static final int[] SLOTS = {
+        SLOT_TOP,
+        SLOT_BOTTOM,
+        SLOT_LEFT,
+        SLOT_RIGHT
+    };
+    
     // Per-player spell slot assignments
+    // Using HashMap - order doesn't matter, O(1) lookup needed
     private static final Map<Player, Identifier[]> playerSpellSlots = new HashMap<>();
     
     // Per-player cooldown tracking (spell ID -> ticks remaining)
+    // Using HashMap - order doesn't matter, O(1) lookup needed
     private static final Map<Player, Map<Identifier, Integer>> playerCooldowns = new HashMap<>();
     
     /**
@@ -39,16 +56,35 @@ public class SpellManager {
      * @param spellId The spell ID to assign, or null to clear
      */
     public static void setSpellInSlot(Player player, int slot, Identifier spellId) {
-        if (slot < 0 || slot > 3) {
-            throw new IllegalArgumentException("Slot must be between 0 and 3");
+        if (!isValidSlot(slot)) {
+            throw new IllegalArgumentException("Slot must be between 0 and " + (MAX_SLOTS - 1));
         }
         
-        playerSpellSlots.computeIfAbsent(player, p -> new Identifier[4])[slot] = spellId;
+        // Get old spell ID for event
+        Identifier oldSpellId = getSpellInSlot(player, slot);
+        
+        playerSpellSlots.computeIfAbsent(player, p -> new Identifier[MAX_SLOTS])[slot] = spellId;
+        
+        // Fire event if spell changed
+        if (oldSpellId != spellId && (oldSpellId != null || spellId != null)) {
+            SpellSlotChangeEvent event = new SpellSlotChangeEvent(player, slot, oldSpellId, spellId);
+            AddonEventBus.getInstance().post(event);
+        }
         
         // Sync to client if this is a server player
-        if (player instanceof ServerPlayer serverPlayer) {
+        ServerPlayer serverPlayer = at.koopro.spells_n_squares.core.util.PlayerValidationUtils.asServerPlayer(player);
+        if (serverPlayer != null) {
             syncSpellSlotsToClient(serverPlayer);
         }
+    }
+    
+    /**
+     * Validates if a slot index is valid.
+     * @param slot The slot index to validate
+     * @return true if the slot is valid (0 to MAX_SLOTS-1)
+     */
+    public static boolean isValidSlot(int slot) {
+        return slot >= 0 && slot < MAX_SLOTS;
     }
     
     /**
@@ -58,7 +94,7 @@ public class SpellManager {
      * @return The spell ID, or null if no spell assigned
      */
     public static Identifier getSpellInSlot(Player player, int slot) {
-        if (slot < 0 || slot > 3) {
+        if (!isValidSlot(slot)) {
             return null;
         }
         
@@ -112,12 +148,37 @@ public class SpellManager {
             return false;
         }
         
+        // Fire spell cast event - addons can cancel the cast
+        SpellCastEvent event = new SpellCastEvent(player, spell, level, slot);
+        AddonEventBus.getInstance().post(event);
+        
+        if (event.isCanceled()) {
+            return false;
+        }
+        
+        // Get wand affinity for cooldown modification
+        WandAffinity affinity = WandAffinityManager.getPlayerWandAffinity(player);
+        
+        // Check for miscast
+        if (WandAffinityManager.checkMiscast(affinity, level.getRandom())) {
+            // Miscast: apply random spell effect or cooldown penalty
+            // For now, just add a cooldown penalty
+            setCooldown(player, spell.getId(), spell.getCooldown() + 20); // +1 second penalty
+            return false; // Spell fails to cast
+        }
+        
         // Cast the spell
         boolean success = spell.cast(player, level);
         
-        // Set cooldown if successful
+        // Spawn spell-specific visual effects
+        if (success) {
+            spell.spawnCastEffects(player, level, true);
+        }
+        
+        // Set cooldown if successful (with affinity modifier)
         if (success && spell.getCooldown() > 0) {
-            setCooldown(player, spell.getId(), spell.getCooldown());
+            int modifiedCooldown = WandAffinityManager.applyCooldownModifier(spell.getCooldown(), affinity);
+            setCooldown(player, spell.getId(), modifiedCooldown);
         }
         
         return success;
@@ -133,7 +194,8 @@ public class SpellManager {
         playerCooldowns.computeIfAbsent(player, p -> new HashMap<>()).put(spellId, ticks);
         
         // Sync cooldowns to client if this is a server player
-        if (player instanceof ServerPlayer serverPlayer) {
+        ServerPlayer serverPlayer = at.koopro.spells_n_squares.core.util.PlayerValidationUtils.asServerPlayer(player);
+        if (serverPlayer != null) {
             syncCooldownsToClient(serverPlayer);
         }
     }
@@ -168,6 +230,20 @@ public class SpellManager {
         
         Integer remaining = cooldowns.get(spellId);
         return remaining != null ? remaining : 0;
+    }
+    
+    /**
+     * Gets all cooldowns for a player.
+     * @param player The player
+     * @return Map of spell ID to remaining cooldown ticks, or empty map if none
+     */
+    public static Map<Identifier, Integer> getPlayerCooldowns(Player player) {
+        Map<Identifier, Integer> cooldowns = playerCooldowns.get(player);
+        if (cooldowns == null) {
+            return new java.util.HashMap<>();
+        }
+        // Return a copy to prevent external modification
+        return new java.util.HashMap<>(cooldowns);
     }
     
     /**
@@ -206,7 +282,7 @@ public class SpellManager {
     public static void syncSpellSlotsToClient(ServerPlayer serverPlayer) {
         Identifier[] slots = playerSpellSlots.get(serverPlayer);
         if (slots == null) {
-            slots = new Identifier[4];
+            slots = new Identifier[MAX_SLOTS];
         }
         
         SpellSlotsSyncPayload payload = new SpellSlotsSyncPayload(

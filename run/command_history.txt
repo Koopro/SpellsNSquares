@@ -1,13 +1,3 @@
-/give @a spells_n_squares:bouncy_block
-/give @a spells_n_squares:rubber_duck
-/playsound spells_n_squares:rubber_duck_squeak
-/give Dev spells_n_squares:flashlight
-/time set night
-/item replace entity Dev armor.head with spells_n_squares:fleshlight
-/summon spells_n_squares:shield_orb
-/item replace entity Dev armor.head with spells_n_squares:fleshlight
-/summon minecraft:arrow
-/summon minecraft:arrow ~ 100 ~
 /summon spells_n_squares:shield_orb
 /summon minecraft:arrow ~ 100 ~
 /summon spells_n_squares:light_orb
@@ -17,3 +7,44 @@
 /spells_n_squaresdebug lightning
 /summon spells_n_squares:lightning_beam
 /summon spells_n_squares:lightning_beam ~ ~ ~ 100s
+/kill @e
+/spells_n_squaresdebug
+/spells_n_squaresdebug dummyplayer
+/give Dev spells_n_squares:gryffindor_robe_boots
+/spells_n_squaresdebug lightning
+/spells_n_squaresdebug slot set 1
+/spells_n_squaresdebug cast lumos
+/spells_n_squaresdebug dummy
+/spells_n_squaresdebug help
+/spells_n_squaresdebug lumos on
+/spells_n_squaresdebug player class set wizard
+/spells_n_squaresdebug cast spells_n_squares:apparition
+/spells_n_squaresdebug wand set dragon_heartstring ash true
+/spells_n_squaresdebug test lightorb
+/spells_n_squaresdebug test sound minecraft:entity.experience_orb.pickup
+/spells_n_squaresdebug test sound minecraft:block.note_block.note
+/spells_n_squaresdebug summary Dev
+/give Dev spells_n_squares:time_turner
+/waypoint
+/waypoint modify Dev
+/waypoint modify
+/waypoint modify Dev color aqua
+/waypoint create
+/waypoint list
+/waypoint modify Dev style set
+/waypoint create test
+/waypoint tp test
+/waypoint list
+/waypoint create auto
+/waypoint create auto2
+/summon spells_n_squares:owl
+/setblock ~ ~ ~ spells_n_squares:self_stirring_cauldron
+/setblock ~ ~ ~ spells_n_squares:magical_light_blue
+/setblock ~ ~ ~ spells_n_squares:resource_generator
+/setblock ~ ~ ~ spells_n_squares:
+/setblock ~ ~ ~ spells_n_squares:magical_trunk
+/give @a spells_n_squares:wizard_tower
+/give @a spells_n_squares:two_way_mirror
+/give @a spells_n_squares:broomstick_basic
+/give @a spells_n_squares:pocket_dimension
+/give @a spells_n_squares:enchanted_bag_bottomless

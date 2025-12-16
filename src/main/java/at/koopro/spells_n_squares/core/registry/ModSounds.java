@@ -1,6 +1,7 @@
 package at.koopro.spells_n_squares.core.registry;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
@@ -15,26 +16,26 @@ public class ModSounds {
 
     public static final DeferredHolder<SoundEvent, SoundEvent> RUBBER_DUCK_SQUEAK = SOUNDS.register(
             "rubber_duck_squeak", 
-            () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "rubber_duck_squeak"))
+            () -> SoundEvent.createVariableRangeEvent(ModIdentifierHelper.modId("rubber_duck_squeak"))
     );
     
     public static final DeferredHolder<SoundEvent, SoundEvent> FLASHLIGHT_ON = SOUNDS.register(
             "flashlight_on",
-            () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "flashlight_on"))
+            () -> SoundEvent.createVariableRangeEvent(ModIdentifierHelper.modId("flashlight_on"))
     );
     
     public static final DeferredHolder<SoundEvent, SoundEvent> FLASHLIGHT_OFF = SOUNDS.register(
             "flashlight_off",
-            () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "flashlight_off"))
+            () -> SoundEvent.createVariableRangeEvent(ModIdentifierHelper.modId("flashlight_off"))
     );
     
     public static final DeferredHolder<SoundEvent, SoundEvent> LUMOS = SOUNDS.register(
             "lumos",
-            () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "lumos"))
+            () -> SoundEvent.createVariableRangeEvent(ModIdentifierHelper.modId("lumos"))
     );
     
     public static final DeferredHolder<SoundEvent, SoundEvent> NOX = SOUNDS.register(
             "nox",
-            () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "nox"))
+            () -> SoundEvent.createVariableRangeEvent(ModIdentifierHelper.modId("nox"))
     );
 }

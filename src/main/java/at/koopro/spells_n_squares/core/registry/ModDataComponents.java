@@ -26,5 +26,7 @@ public final class ModDataComponents {
                 .networkSynchronized(ByteBufCodecs.BOOL)
                 .build()
         );
+    
+    // Note: WandData components are registered separately in WandData class
 }
 

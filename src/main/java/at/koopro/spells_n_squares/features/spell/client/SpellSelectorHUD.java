@@ -1,6 +1,14 @@
 package at.koopro.spells_n_squares.features.spell.client;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.init.client.ModKeybinds;
+import at.koopro.spells_n_squares.core.client.KeyStateTracker;
+import at.koopro.spells_n_squares.core.network.SpellCastPayload;
+import at.koopro.spells_n_squares.core.registry.ModTags;
+import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
+import at.koopro.spells_n_squares.features.spell.Spell;
+import at.koopro.spells_n_squares.features.spell.SpellManager;
+import at.koopro.spells_n_squares.features.spell.SpellRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,68 +23,51 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import at.koopro.spells_n_squares.client.ModKeybinds;
-import at.koopro.spells_n_squares.core.network.SpellCastPayload;
-import at.koopro.spells_n_squares.core.registry.ModTags;
-import at.koopro.spells_n_squares.features.spell.Spell;
-import at.koopro.spells_n_squares.features.spell.SpellManager;
-import at.koopro.spells_n_squares.features.spell.SpellRegistry;
-
 /**
  * Renders a spell selector HUD element that displays movement keybinds (W, S, A, D)
  * and allows switching between them. The selected field is highlighted with a selection texture.
  */
 @EventBusSubscriber(modid = SpellsNSquares.MODID, value = Dist.CLIENT)
 public class SpellSelectorHUD {
-    // Selection state enum values: 0 = Top, 1 = Bottom, 2 = Left, 3 = Right
-    private static final int FIELD_TOP = 0;
-    private static final int FIELD_BOTTOM = 1;
-    private static final int FIELD_LEFT = 2;
-    private static final int FIELD_RIGHT = 3;
+    // Current selected field (defaults to top) - uses SpellManager slot constants
+    private static int selectedField = SpellManager.SLOT_TOP;
 
-    // Current selected field (defaults to top)
-    private static int selectedField = FIELD_TOP;
-
-    // Track previous key states to detect key presses (not just held down)
-    private static boolean lastForwardPressed = false;
-    private static boolean lastBackPressed = false;
-    private static boolean lastLeftPressed = false;
-    private static boolean lastRightPressed = false;
-    private static boolean lastCastPressed = false;
-    private static boolean lastSelectionScreenPressed = false;
+    // Key state tracker for detecting key presses
+    private static final KeyStateTracker keyTracker = new KeyStateTracker();
 
     // Texture identifiers
-    private static final Identifier HUD_TEXTURE = Identifier.fromNamespaceAndPath(
-        SpellsNSquares.MODID,
-        "textures/gui/container/hud_element.png"
-    );
+    private static final Identifier HUD_TEXTURE = ModIdentifierHelper.modId("textures/gui/container/hud_element.png");
 
-    private static final Identifier SELECT_TEXTURE = Identifier.fromNamespaceAndPath(
-        SpellsNSquares.MODID,
-        "textures/gui/container/select.png"
-    );
+    private static final Identifier SELECT_TEXTURE = ModIdentifierHelper.modId("textures/gui/container/select.png");
 
     // HUD element base size (actual position is computed dynamically each frame)
-    private static final int HUD_X = 10; // kept for reference, no longer used directly
-    private static final int HUD_Y = 80; // kept for reference, no longer used directly
     private static final int HUD_SIZE = 64;
     private static final int SELECT_SIZE = 32; // Half of HUD_SIZE
 
+    // Hotbar dimensions for HUD positioning
+    private static final int HOTBAR_WIDTH = 182;
+    private static final int HOTBAR_HEIGHT = 22;
+    private static final int HOTBAR_OFFSET = 4;
+    private static final int BOTTOM_MARGIN = 4;
+    
+    // HUD slot position offsets (relative to hudX/hudY)
+    private static final int SLOT_TOP_Y_OFFSET = 12;
+    private static final int SLOT_BOTTOM_Y_OFFSET = 52;
+    private static final int SLOT_LEFT_X_OFFSET = 16;
+    private static final int SLOT_RIGHT_X_OFFSET = 48;
+    private static final int SLOT_MIDDLE_Y_OFFSET = 28;
+    
     // Dynamic HUD placement helpers (anchored to the right of the hotbar)
     private static int getHudX(Minecraft mc) {
         int screenWidth = mc.getWindow().getGuiScaledWidth();
-        int hotbarWidth = 182; // vanilla hotbar width in px
-        int hotbarX = (screenWidth - hotbarWidth) / 2;
-        int offset = 4; // small gap to the right of the hotbar
-        return hotbarX + hotbarWidth + offset;
+        int hotbarX = (screenWidth - HOTBAR_WIDTH) / 2;
+        return hotbarX + HOTBAR_WIDTH + HOTBAR_OFFSET;
     }
 
     private static int getHudY(Minecraft mc) {
         int screenHeight = mc.getWindow().getGuiScaledHeight();
         // Align vertically with the hotbar region near the bottom
-        int hotbarHeight = 22;
-        int bottomMargin = 4;
-        return screenHeight - hotbarHeight - bottomMargin - HUD_SIZE;
+        return screenHeight - HOTBAR_HEIGHT - BOTTOM_MARGIN - HUD_SIZE;
     }
     
     /**
@@ -86,10 +77,7 @@ public class SpellSelectorHUD {
         if (mc.player == null) {
             return false;
         }
-        ItemStack mainHand = mc.player.getMainHandItem();
-        ItemStack offHand = mc.player.getOffhandItem();
-        return (!mainHand.isEmpty() && mainHand.is(ModTags.WANDS)) || 
-               (!offHand.isEmpty() && offHand.is(ModTags.WANDS));
+        return at.koopro.spells_n_squares.core.util.PlayerItemUtils.isHoldingItemByTag(mc.player, ModTags.WANDS);
     }
     
     /**
@@ -110,26 +98,19 @@ public class SpellSelectorHUD {
         // Tick client-side cooldowns
         ClientSpellData.tickCooldowns();
 
-        // Check current key states using custom keybinds
-        boolean topPressed = ModKeybinds.SPELL_SELECTOR_TOP.isDown();
-        boolean bottomPressed = ModKeybinds.SPELL_SELECTOR_BOTTOM.isDown();
-        boolean leftPressed = ModKeybinds.SPELL_SELECTOR_LEFT.isDown();
-        boolean rightPressed = ModKeybinds.SPELL_SELECTOR_RIGHT.isDown();
-
         // Detect key press (transition from not pressed to pressed) and switch selection
-        if (topPressed && !lastForwardPressed) {
-            selectedField = FIELD_TOP;
-        } else if (bottomPressed && !lastBackPressed) {
-            selectedField = FIELD_BOTTOM;
-        } else if (leftPressed && !lastLeftPressed) {
-            selectedField = FIELD_LEFT;
-        } else if (rightPressed && !lastRightPressed) {
-            selectedField = FIELD_RIGHT;
+        if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_TOP)) {
+            selectedField = SpellManager.SLOT_TOP;
+        } else if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_BOTTOM)) {
+            selectedField = SpellManager.SLOT_BOTTOM;
+        } else if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_LEFT)) {
+            selectedField = SpellManager.SLOT_LEFT;
+        } else if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_RIGHT)) {
+            selectedField = SpellManager.SLOT_RIGHT;
         }
 
         // Handle spell casting
-        boolean castPressed = ModKeybinds.SPELL_CAST.isDown();
-        if (castPressed && !lastCastPressed && mc.player != null && mc.level != null) {
+        if (keyTracker.wasJustPressed(ModKeybinds.SPELL_CAST) && mc.player != null && mc.level != null) {
             // Send spell cast request to server via network packet
             // This works for both single-player (integrated server) and multiplayer
             SpellCastPayload payload = new SpellCastPayload(selectedField);
@@ -137,18 +118,9 @@ public class SpellSelectorHUD {
         }
         
         // Handle spell selection screen
-        boolean selectionScreenPressed = ModKeybinds.SPELL_SELECTION_SCREEN.isDown();
-        if (selectionScreenPressed && !lastSelectionScreenPressed && mc.player != null) {
+        if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTION_SCREEN) && mc.player != null) {
             mc.setScreen(new SpellSelectionScreen());
         }
-        
-        // Update previous states
-        lastForwardPressed = topPressed;
-        lastBackPressed = bottomPressed;
-        lastLeftPressed = leftPressed;
-        lastRightPressed = rightPressed;
-        lastCastPressed = castPressed;
-        lastSelectionScreenPressed = selectionScreenPressed;
     }
 
     /**
@@ -205,18 +177,18 @@ public class SpellSelectorHUD {
      * Icons are displayed when a spell is assigned, otherwise keybinds are shown.
      */
     private static void renderSpellText(GuiGraphics guiGraphics, Minecraft mc) {
-        final int textColor = 0xFFFFFF00; // Bright yellow
-        final int cooldownColor = 0xFF808080; // Gray for cooldown
+        final int textColor = SpellUIConstants.TEXT_COLOR_NORMAL;
+        final int cooldownColor = SpellUIConstants.TEXT_COLOR_COOLDOWN;
 
         int hudX = getHudX(mc);
         int hudY = getHudY(mc);
 
         int centerX = hudX + HUD_SIZE / 2;
-        int topY = hudY + 12;
-        int bottomY = hudY + 52;
-        int leftX = hudX + 16;
-        int rightX = hudX + 48;
-        int middleY = hudY + 28;
+        int topY = hudY + SLOT_TOP_Y_OFFSET;
+        int bottomY = hudY + SLOT_BOTTOM_Y_OFFSET;
+        int leftX = hudX + SLOT_LEFT_X_OFFSET;
+        int rightX = hudX + SLOT_RIGHT_X_OFFSET;
+        int middleY = hudY + SLOT_MIDDLE_Y_OFFSET;
         
         // Render spell icons/keybinds for each slot
         renderSpellInSlot(guiGraphics, mc, SpellManager.SLOT_TOP, centerX, topY, textColor, cooldownColor);
@@ -244,14 +216,14 @@ public class SpellSelectorHUD {
             Spell spell = SpellRegistry.get(spellId);
             if (spell != null) {
                 Identifier iconTexture = spell.getIcon();
-                int iconSize = 16; // 16x16 icon size
+                int iconSize = SpellUIConstants.ICON_SIZE_HUD;
                 int iconX = x - iconSize / 2;
                 int iconY = y - iconSize / 2;
                 
                 // Check if texture exists (will gracefully fail if missing)
                 try {
                     // Render icon with cooldown tinting (gray overlay when on cooldown)
-                    int tint = isOnCooldown ? 0xFF808080 : 0xFFFFFFFF;
+                    int tint = isOnCooldown ? SpellUIConstants.TINT_COOLDOWN : SpellUIConstants.TINT_NORMAL;
                     
                     guiGraphics.blit(
                         RenderPipelines.GUI_TEXTURED,
@@ -276,8 +248,8 @@ public class SpellSelectorHUD {
                     int textColor = isOnCooldown ? cooldownColor : normalColor;
 
                     // Slightly transparent dark background with brighter border
-                    int bgColor = 0x80000000;       // semi-transparent black
-                    int borderColor = 0xCCFFFFAA;   // soft yellow border
+                    int bgColor = SpellUIConstants.BG_COLOR_SEMI_TRANSPARENT;
+                    int borderColor = SpellUIConstants.BORDER_COLOR_KEYBIND;
                     drawKeybindChip(guiGraphics, mc, keyText, x, textY, textColor, bgColor, borderColor);
                 }
                 return;
@@ -293,8 +265,8 @@ public class SpellSelectorHUD {
             displayText = "";
         }
 
-        int bgColor = 0x80000000;       // semi-transparent black
-        int borderColor = 0xCCFFFFFF;   // soft white border
+        int bgColor = SpellUIConstants.BG_COLOR_SEMI_TRANSPARENT;
+        int borderColor = SpellUIConstants.BORDER_COLOR_KEYBIND_WHITE;
         drawKeybindChip(guiGraphics, mc, displayText, x, y, normalColor, bgColor, borderColor);
     }
 
@@ -412,28 +384,28 @@ public class SpellSelectorHUD {
         int hudY = getHudY(mc);
 
         int centerX = hudX + HUD_SIZE / 2;
-        int topY = hudY + 12;
-        int bottomY = hudY + 52;
-        int leftX = hudX + 16;
-        int rightX = hudX + 48;
-        int middleY = hudY + 28;
+        int topY = hudY + SLOT_TOP_Y_OFFSET;
+        int bottomY = hudY + SLOT_BOTTOM_Y_OFFSET;
+        int leftX = hudX + SLOT_LEFT_X_OFFSET;
+        int rightX = hudX + SLOT_RIGHT_X_OFFSET;
+        int middleY = hudY + SLOT_MIDDLE_Y_OFFSET;
 
         int selectX, selectY;
         
         switch (selectedField) {
-            case FIELD_TOP:
+            case SpellManager.SLOT_TOP:
                 selectX = centerX - SELECT_SIZE / 2;
                 selectY = topY + 3 - SELECT_SIZE / 2; // Adjusted for visual alignment
                 break;
-            case FIELD_BOTTOM:
+            case SpellManager.SLOT_BOTTOM:
                 selectX = centerX - SELECT_SIZE / 2;
                 selectY = bottomY - 3 - SELECT_SIZE / 2; // Adjusted for visual alignment
                 break;
-            case FIELD_LEFT:
+            case SpellManager.SLOT_LEFT:
                 selectX = leftX - 1 - SELECT_SIZE / 2; // Adjusted for visual alignment
                 selectY = middleY + 4 - SELECT_SIZE / 2;
                 break;
-            case FIELD_RIGHT:
+            case SpellManager.SLOT_RIGHT:
                 selectX = rightX + 1 - SELECT_SIZE / 2; // Adjusted for visual alignment
                 selectY = middleY + 4 - SELECT_SIZE / 2;
                 break;

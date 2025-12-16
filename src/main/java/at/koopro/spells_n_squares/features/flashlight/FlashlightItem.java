@@ -1,7 +1,7 @@
 package at.koopro.spells_n_squares.features.flashlight;
 
-import java.util.function.Consumer;
-
+import at.koopro.spells_n_squares.core.registry.ModSounds;
+import at.koopro.spells_n_squares.features.flashlight.client.FlashlightItemRenderer;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -22,8 +22,7 @@ import software.bernie.geckolib.animatable.manager.AnimatableManager;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import at.koopro.spells_n_squares.core.registry.ModSounds;
-import at.koopro.spells_n_squares.item.client.FlashlightItemRenderer;
+import java.util.function.Consumer;
 
 /**
  * Flashlight item that can be toggled on/off and emits light when held.

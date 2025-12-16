@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.features.spell;
 
+import at.koopro.spells_n_squares.core.util.TranslationUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
@@ -30,9 +31,7 @@ public interface Spell {
      * @return The translatable Component for the spell name
      */
     default Component getTranslatableName() {
-        Identifier id = getId();
-        String translationKey = "spell." + id.getNamespace() + "." + id.getPath() + ".name";
-        return Component.translatable(translationKey);
+        return TranslationUtils.spellTranslatableName(getId());
     }
     
     /**
@@ -84,4 +83,36 @@ public interface Spell {
      * @return true if the spell was successfully cast
      */
     boolean cast(Player player, Level level);
+    
+    /**
+     * Gets the visual effect intensity for this spell.
+     * Higher values create more dramatic visual effects.
+     * @return Effect intensity (0.0 to 1.0, default 0.5)
+     */
+    default float getVisualEffectIntensity() {
+        return 0.5f;
+    }
+    
+    /**
+     * Spawns spell-specific visual effects on cast.
+     * Called after the spell is successfully cast.
+     * @param player The player casting
+     * @param level The level/world
+     * @param success Whether the spell cast was successful
+     */
+    default void spawnCastEffects(Player player, Level level, boolean success) {
+        // Default implementation: trigger screen flash
+        if (level.isClientSide()) {
+            at.koopro.spells_n_squares.features.fx.ScreenEffectManager.triggerSpellFlash();
+        }
+    }
+    
+    /**
+     * Spawns spell-specific impact effects when the spell hits.
+     * @param level The level/world
+     * @param position The impact position
+     */
+    default void spawnImpactEffects(Level level, net.minecraft.world.phys.Vec3 position) {
+        // Default implementation: no special effects
+    }
 }

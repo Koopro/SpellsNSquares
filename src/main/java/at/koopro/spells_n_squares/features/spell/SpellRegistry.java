@@ -1,12 +1,11 @@
 package at.koopro.spells_n_squares.features.spell;
 
+import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
+import net.minecraft.resources.Identifier;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import net.minecraft.resources.Identifier;
-
-import at.koopro.spells_n_squares.SpellsNSquares;
 
 /**
  * Registry for all spells in the mod.
@@ -76,6 +75,6 @@ public class SpellRegistry {
      * @return The Identifier
      */
     public static Identifier spellId(String path) {
-        return Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, path);
+        return ModIdentifierHelper.modId(path);
     }
 }

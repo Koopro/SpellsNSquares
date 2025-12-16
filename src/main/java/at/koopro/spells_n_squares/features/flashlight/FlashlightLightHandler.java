@@ -1,16 +1,14 @@
 package at.koopro.spells_n_squares.features.flashlight;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.core.registry.ModItems;
+import at.koopro.spells_n_squares.core.util.LightBlockManager;
+import at.koopro.spells_n_squares.core.util.LightConstants;
+import at.koopro.spells_n_squares.features.flashlight.FlashlightItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -18,7 +16,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
-import at.koopro.spells_n_squares.core.registry.ModItems;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Client-side handler for flashlight light emission.
@@ -26,44 +25,25 @@ import at.koopro.spells_n_squares.core.registry.ModItems;
  */
 @EventBusSubscriber(modid = SpellsNSquares.MODID, value = Dist.CLIENT)
 public class FlashlightLightHandler {
-    // Store original blocks that we've replaced with lights
-    private static final Map<BlockPos, BlockState> originalBlocks = new HashMap<>();
-    // Track which positions currently have our lights
-    private static final Set<BlockPos> activeLightPositions = new HashSet<>();
+    // Light block manager for this handler instance
+    private static final LightBlockManager lightManager = new LightBlockManager();
     private static BlockPos lastPlayerBlockPos = null;
     private static float lastYaw = Float.NaN;
-    private static final int LIGHT_RANGE = 10; // How far the light reaches
-    private static final int LIGHT_LEVEL = 15; // Maximum light level
     
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
-            clearAllLights(mc);
+            lightManager.clearAllLights(mc);
             return;
         }
         
         Player player = mc.player;
-        ItemStack mainHand = player.getMainHandItem();
-        ItemStack offHand = player.getOffhandItem();
         
-        boolean hasFlashlight = false;
-        boolean isOn = false;
-        ItemStack flashlightStack = null;
-        
-        // Check main hand
-        if (mainHand.is(ModItems.FLASHLIGHT.get())) {
-            hasFlashlight = true;
-            isOn = FlashlightItem.isOn(mainHand);
-            flashlightStack = mainHand;
-        }
-        
-        // Check off hand if main hand doesn't have it
-        if (!hasFlashlight && offHand.is(ModItems.FLASHLIGHT.get())) {
-            hasFlashlight = true;
-            isOn = FlashlightItem.isOn(offHand);
-            flashlightStack = offHand;
-        }
+        // Find held flashlight using utility
+        var flashlightStackOpt = at.koopro.spells_n_squares.core.util.PlayerItemUtils.findHeldItem(player, ModItems.FLASHLIGHT.get());
+        boolean hasFlashlight = flashlightStackOpt.isPresent();
+        boolean isOn = flashlightStackOpt.map(FlashlightItem::isOn).orElse(false);
         
         BlockPos currentBlockPos = player.blockPosition();
         float currentYaw = player.getYRot();
@@ -71,11 +51,11 @@ public class FlashlightLightHandler {
         // Clear lights if flashlight is off, not held, or player moved/turned significantly
         boolean shouldClear = !hasFlashlight || !isOn;
         boolean playerMoved = lastPlayerBlockPos != null && !currentBlockPos.equals(lastPlayerBlockPos);
-        boolean playerTurned = !Float.isNaN(lastYaw) && Math.abs(currentYaw - lastYaw) > 5.0f;
+        boolean playerTurned = !Float.isNaN(lastYaw) && Math.abs(currentYaw - lastYaw) > LightConstants.FLASHLIGHT_TURN_THRESHOLD;
         
         if (shouldClear || playerMoved || playerTurned) {
             if (shouldClear) {
-                clearAllLights(mc);
+                lightManager.clearAllLights(mc);
             } else {
                 // Update lights when player moves or turns
                 updateLights(mc, player);
@@ -91,7 +71,7 @@ public class FlashlightLightHandler {
     
     private static void placeLightIfPossible(Minecraft mc, BlockPos playerPos, BlockPos lightPos, Set<BlockPos> newLightPositions) {
         // Don't place lights too close to player
-        if (lightPos.distSqr(playerPos) < 2) {
+        if (lightPos.distSqr(playerPos) < LightConstants.MIN_DISTANCE_SQR) {
             return;
         }
         
@@ -124,17 +104,14 @@ public class FlashlightLightHandler {
         // Only place lights in air or replaceable blocks
         if (currentState.isAir() || currentState.canBeReplaced()) {
             // Check if we already have a light here
-            if (!activeLightPositions.contains(targetPos)) {
-                // Store original block state
-                originalBlocks.put(targetPos, currentState);
+            if (!lightManager.hasLightAt(targetPos)) {
                 // Place a light block
-                BlockState lightBlock = getLightBlock(mc);
-                if (lightBlock != null) {
-                    mc.level.setBlock(targetPos, lightBlock, 3);
-                    activeLightPositions.add(targetPos);
+                if (lightManager.placeLightBlock(mc, targetPos)) {
+                    newLightPositions.add(targetPos);
                 }
+            } else {
+                newLightPositions.add(targetPos);
             }
-            newLightPositions.add(targetPos);
         }
     }
     
@@ -157,7 +134,7 @@ public class FlashlightLightHandler {
         
         // Place lights in a cone pattern in front of the player
         // Use a more efficient approach: place lights along the look direction with a cone spread
-        for (int distance = 2; distance <= LIGHT_RANGE; distance += 1) {
+        for (int distance = 2; distance <= LightConstants.FLASHLIGHT_LIGHT_RANGE; distance += 1) {
             Vec3 targetPos = playerPos.add(lookVec.scale(distance));
             BlockPos targetBlockPos = BlockPos.containing(targetPos);
             
@@ -191,66 +168,6 @@ public class FlashlightLightHandler {
         }
         
         // Remove lights that are no longer needed
-        activeLightPositions.removeIf(pos -> {
-            if (!newLightPositions.contains(pos)) {
-                restoreBlock(mc, pos);
-                return true;
-            }
-            return false;
-        });
-    }
-    
-    private static BlockState getLightBlock(Minecraft mc) {
-        // Try to use Light block first (available in 1.17+)
-        try {
-            // Light block with maximum light level (15)
-            // The Light block uses a property to set the light level
-            BlockState lightState = Blocks.LIGHT.defaultBlockState();
-            // Try to set the light level property if it exists
-            if (lightState.hasProperty(net.minecraft.world.level.block.LightBlock.LEVEL)) {
-                return lightState.setValue(net.minecraft.world.level.block.LightBlock.LEVEL, LIGHT_LEVEL);
-            }
-            return lightState;
-        } catch (Exception e) {
-            // Fallback to torch if Light block is not available or has issues
-            return Blocks.TORCH.defaultBlockState();
-        }
-    }
-    
-    private static void restoreBlock(Minecraft mc, BlockPos pos) {
-        if (mc.level == null) {
-            return;
-        }
-        
-        BlockState originalState = originalBlocks.remove(pos);
-        if (originalState != null) {
-            BlockState currentState = mc.level.getBlockState(pos);
-            // Only restore if it's still our light block
-            // Check for Light block or Torch (our fallback)
-            boolean isOurLight = currentState.is(Blocks.LIGHT) || currentState.is(Blocks.TORCH);
-            if (isOurLight) {
-                mc.level.setBlock(pos, originalState, 3);
-            }
-        }
-    }
-    
-    private static void clearAllLights(Minecraft mc) {
-        if (mc.level == null) {
-            originalBlocks.clear();
-            activeLightPositions.clear();
-            lastPlayerBlockPos = null;
-            lastYaw = Float.NaN;
-            return;
-        }
-        
-        // Restore all original blocks
-        for (BlockPos pos : new HashSet<>(activeLightPositions)) {
-            restoreBlock(mc, pos);
-        }
-        
-        originalBlocks.clear();
-        activeLightPositions.clear();
-        lastPlayerBlockPos = null;
-        lastYaw = Float.NaN;
+        lightManager.removeObsoleteLights(mc, newLightPositions);
     }
 }

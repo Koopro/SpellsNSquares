@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.registry;
 
-import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -23,7 +23,7 @@ public class ModArmorMaterials {
     // Create an empty tag for items that cannot be repaired
     private static final TagKey<Item> NO_REPAIR = TagKey.create(
         BuiltInRegistries.ITEM.key(),
-        Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "no_repair")
+        ModIdentifierHelper.modId("no_repair")
     );
     
     public static final ArmorMaterial DEMIGUISE_CLOAK_MATERIAL = new ArmorMaterial(
@@ -40,7 +40,7 @@ public class ModArmorMaterials {
         0.0f, // toughness
         0.0f, // knockbackResistance
         NO_REPAIR, // repairIngredient - empty tag means cannot be repaired
-        ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "demiguise_cloak"))
+        ResourceKey.create(EquipmentAssets.ROOT_ID, ModIdentifierHelper.modId("demiguise_cloak"))
     );
     
     public static final ArmorMaterial DEATHLY_HALLOW_CLOAK_MATERIAL = new ArmorMaterial(
@@ -57,7 +57,7 @@ public class ModArmorMaterials {
         0.0f, // toughness
         0.0f, // knockbackResistance
         NO_REPAIR, // repairIngredient - empty tag means cannot be repaired
-        ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "deathly_hallow_cloak"))
+        ResourceKey.create(EquipmentAssets.ROOT_ID, ModIdentifierHelper.modId("deathly_hallow_cloak"))
     );
     
     // Create Holders for use with Item.Properties.humanoidArmor()
@@ -66,4 +66,25 @@ public class ModArmorMaterials {
     
     public static final Holder<ArmorMaterial> DEATHLY_HALLOW_CLOAK_MATERIAL_HOLDER = 
         Holder.direct(DEATHLY_HALLOW_CLOAK_MATERIAL);
+    
+    // House robe material (shared by all houses)
+    public static final ArmorMaterial HOUSE_ROBE_MATERIAL = new ArmorMaterial(
+        300, // durability
+        Util.make(new EnumMap<>(ArmorType.class), map -> {
+            map.put(ArmorType.BOOTS, 0);
+            map.put(ArmorType.LEGGINGS, 0);
+            map.put(ArmorType.CHESTPLATE, 0);
+            map.put(ArmorType.HELMET, 0);
+            map.put(ArmorType.BODY, 0);
+        }),
+        15, // enchantmentValue
+        SoundEvents.ARMOR_EQUIP_LEATHER, // equipSound
+        0.0f, // toughness
+        0.0f, // knockbackResistance
+        NO_REPAIR, // repairIngredient
+        ResourceKey.create(EquipmentAssets.ROOT_ID, ModIdentifierHelper.modId("house_robe"))
+    );
+    
+    public static final Holder<ArmorMaterial> HOUSE_ROBE_MATERIAL_HOLDER = 
+        Holder.direct(HOUSE_ROBE_MATERIAL);
 }

@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.network;
 
-import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
  */
 public record SpellCastPayload(int slot) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<SpellCastPayload> TYPE =
-        new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "spell_cast"));
+        new CustomPacketPayload.Type<>(ModIdentifierHelper.modId("spell_cast"));
     
     public static final StreamCodec<ByteBuf, SpellCastPayload> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.VAR_INT,

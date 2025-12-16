@@ -1,16 +1,16 @@
 package at.koopro.spells_n_squares.features.flashlight;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.core.registry.ModItems;
+import at.koopro.spells_n_squares.core.util.PlayerItemUtils;
+import at.koopro.spells_n_squares.features.flashlight.FlashlightItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
-
-import at.koopro.spells_n_squares.core.registry.ModItems;
 
 /**
  * Client-side handler for flashlight visual light overlay effect.
@@ -28,23 +28,11 @@ public class FlashlightShaderHandler {
         }
         
         Player player = mc.player;
-        ItemStack mainHand = player.getMainHandItem();
-        ItemStack offHand = player.getOffhandItem();
         
-        boolean hasFlashlight = false;
-        boolean isOn = false;
-        
-        // Check main hand
-        if (mainHand.is(ModItems.FLASHLIGHT.get())) {
-            hasFlashlight = true;
-            isOn = FlashlightItem.isOn(mainHand);
-        }
-        
-        // Check off hand if main hand doesn't have it
-        if (!hasFlashlight && offHand.is(ModItems.FLASHLIGHT.get())) {
-            hasFlashlight = true;
-            isOn = FlashlightItem.isOn(offHand);
-        }
+        // Find held flashlight using utility
+        var flashlightStackOpt = PlayerItemUtils.findHeldItem(player, ModItems.FLASHLIGHT.get());
+        boolean hasFlashlight = flashlightStackOpt.isPresent();
+        boolean isOn = flashlightStackOpt.map(FlashlightItem::isOn).orElse(false);
         
         if (!hasFlashlight || !isOn) {
             return;

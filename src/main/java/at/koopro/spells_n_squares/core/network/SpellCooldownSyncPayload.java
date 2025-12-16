@@ -1,15 +1,15 @@
 package at.koopro.spells_n_squares.core.network;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Network payload for syncing spell cooldowns from server to client.
@@ -19,7 +19,7 @@ public record SpellCooldownSyncPayload(List<CooldownEntry> entries) implements C
     public record CooldownEntry(Identifier spellId, int ticks) {}
     
     public static final CustomPacketPayload.Type<SpellCooldownSyncPayload> TYPE =
-        new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "spell_cooldown_sync"));
+        new CustomPacketPayload.Type<>(ModIdentifierHelper.modId("spell_cooldown_sync"));
     
     private static final StreamCodec<ByteBuf, CooldownEntry> ENTRY_CODEC = StreamCodec.composite(
         ByteBufCodecs.fromCodec(Identifier.CODEC),

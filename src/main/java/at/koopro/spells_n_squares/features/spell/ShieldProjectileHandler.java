@@ -1,5 +1,7 @@
 package at.koopro.spells_n_squares.features.spell;
 
+import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.features.spell.entity.ShieldOrbEntity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -11,9 +13,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-
-import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.features.spell.entity.ShieldOrbEntity;
 
 /**
  * Handles projectile blocking for Protego shields.

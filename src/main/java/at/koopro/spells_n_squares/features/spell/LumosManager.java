@@ -1,12 +1,12 @@
 package at.koopro.spells_n_squares.features.spell;
 
-import java.util.Optional;
-
+import at.koopro.spells_n_squares.core.registry.ModDataComponents;
+import at.koopro.spells_n_squares.core.registry.ModTags;
+import at.koopro.spells_n_squares.core.util.PlayerItemUtils;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import at.koopro.spells_n_squares.core.registry.ModDataComponents;
-import at.koopro.spells_n_squares.core.registry.ModTags;
+import java.util.Optional;
 
 /**
  * Manages Lumos spell state for players via item data components.
@@ -70,17 +70,7 @@ public class LumosManager {
     }
 
     private static Optional<ItemStack> findHeldWand(Player player) {
-        ItemStack mainHand = player.getMainHandItem();
-        if (!mainHand.isEmpty() && mainHand.is(ModTags.WANDS)) {
-            return Optional.of(mainHand);
-        }
-
-        ItemStack offHand = player.getOffhandItem();
-        if (!offHand.isEmpty() && offHand.is(ModTags.WANDS)) {
-            return Optional.of(offHand);
-        }
-
-        return Optional.empty();
+        return PlayerItemUtils.findHeldItemByTag(player, ModTags.WANDS);
     }
 
     private static boolean toggleStackState(ItemStack stack) {

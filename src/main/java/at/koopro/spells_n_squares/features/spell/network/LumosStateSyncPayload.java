@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.features.spell.network;
 
-import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
  */
 public record LumosStateSyncPayload(boolean active) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<LumosStateSyncPayload> TYPE =
-        new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, "lumos_state_sync"));
+        new CustomPacketPayload.Type<>(ModIdentifierHelper.modId("lumos_state_sync"));
     
     public static final StreamCodec<ByteBuf, LumosStateSyncPayload> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.BOOL,

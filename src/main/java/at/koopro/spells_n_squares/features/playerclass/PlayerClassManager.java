@@ -1,13 +1,14 @@
 package at.koopro.spells_n_squares.features.playerclass;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import at.koopro.spells_n_squares.core.api.addon.events.AddonEventBus;
+import at.koopro.spells_n_squares.core.api.addon.events.PlayerClassChangeEvent;
+import at.koopro.spells_n_squares.features.playerclass.network.PlayerClassSyncPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import at.koopro.spells_n_squares.features.playerclass.network.PlayerClassSyncPayload;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages player classes for all players.
@@ -15,6 +16,7 @@ import at.koopro.spells_n_squares.features.playerclass.network.PlayerClassSyncPa
  */
 public class PlayerClassManager {
     // Per-player class assignments
+    // Using HashMap - order doesn't matter, O(1) lookup needed
     private static final Map<Player, PlayerClass> playerClasses = new HashMap<>();
     
     /**
@@ -27,10 +29,20 @@ public class PlayerClassManager {
             playerClass = PlayerClass.NONE;
         }
         
+        // Get old class for event
+        PlayerClass oldClass = getPlayerClass(player);
+        
         playerClasses.put(player, playerClass);
         
+        // Fire event if class changed
+        if (oldClass != playerClass) {
+            PlayerClassChangeEvent event = new PlayerClassChangeEvent(player, oldClass, playerClass);
+            AddonEventBus.getInstance().post(event);
+        }
+        
         // Sync to client if this is a server player
-        if (player instanceof ServerPlayer serverPlayer) {
+        ServerPlayer serverPlayer = at.koopro.spells_n_squares.core.util.PlayerValidationUtils.asServerPlayer(player);
+        if (serverPlayer != null) {
             syncPlayerClassToClient(serverPlayer);
         }
     }

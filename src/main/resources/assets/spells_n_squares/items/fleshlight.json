@@ -1,9 +1,0 @@
-{
-  "model": {
-    "type": "minecraft:special",
-    "base": "spells_n_squares:item/fleshlight",
-    "model": {
-      "type": "geckolib:geckolib"
-    }
-  }
-}

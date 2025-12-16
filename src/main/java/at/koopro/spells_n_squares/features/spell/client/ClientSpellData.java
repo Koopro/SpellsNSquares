@@ -1,11 +1,11 @@
 package at.koopro.spells_n_squares.features.spell.client;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import at.koopro.spells_n_squares.features.playerclass.PlayerClass;
+import at.koopro.spells_n_squares.features.spell.SpellManager;
 import net.minecraft.resources.Identifier;
 
-import at.koopro.spells_n_squares.features.playerclass.PlayerClass;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Client-side storage for spell slot data and cooldowns.
@@ -13,9 +13,10 @@ import at.koopro.spells_n_squares.features.playerclass.PlayerClass;
  */
 public class ClientSpellData {
     // Client-side spell slot assignments
-    private static final Identifier[] clientSpellSlots = new Identifier[4];
+    private static final Identifier[] clientSpellSlots = new Identifier[SpellManager.MAX_SLOTS];
     
     // Client-side cooldown tracking
+    // Using HashMap - order doesn't matter, O(1) lookup needed
     private static final Map<Identifier, Integer> clientCooldowns = new HashMap<>();
     
     // Client-side player class
@@ -27,7 +28,7 @@ public class ClientSpellData {
      * @param spellId The spell ID, or null to clear
      */
     public static void setSpellSlot(int slot, Identifier spellId) {
-        if (slot >= 0 && slot < 4) {
+        if (SpellManager.isValidSlot(slot)) {
             clientSpellSlots[slot] = spellId;
         }
     }
@@ -38,7 +39,7 @@ public class ClientSpellData {
      * @return The spell ID, or null if no spell assigned
      */
     public static Identifier getSpellInSlot(int slot) {
-        if (slot < 0 || slot >= 4) {
+        if (!SpellManager.isValidSlot(slot)) {
             return null;
         }
         return clientSpellSlots[slot];

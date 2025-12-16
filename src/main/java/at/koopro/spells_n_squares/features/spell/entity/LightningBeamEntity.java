@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.features.spell.entity;
 
+import at.koopro.spells_n_squares.core.registry.ModEntities;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -13,8 +14,6 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import at.koopro.spells_n_squares.core.registry.ModEntities;
 
 /**
  * Short-lived beam entity between wand tip and target.

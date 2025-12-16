@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.features.spell.entity;
 
+import at.koopro.spells_n_squares.core.registry.ModEntities;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -12,8 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
-
-import at.koopro.spells_n_squares.core.registry.ModEntities;
 
 /**
  * Small flying light orb projectile: no damage, just travels forward, emits particles, then expires.
