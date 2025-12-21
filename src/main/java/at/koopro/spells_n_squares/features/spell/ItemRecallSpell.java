@@ -22,7 +22,7 @@ public class ItemRecallSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("item_recall");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("item_recall");
     }
     
     @Override

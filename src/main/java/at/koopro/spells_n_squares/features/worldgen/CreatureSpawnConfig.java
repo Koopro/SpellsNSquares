@@ -1,13 +1,9 @@
 package at.koopro.spells_n_squares.features.worldgen;
 
-import at.koopro.spells_n_squares.core.registry.ModBiomes;
-import at.koopro.spells_n_squares.core.registry.ModEntities;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.MobSpawnSettings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,43 +40,25 @@ public final class CreatureSpawnConfig {
      */
     private static void initializeSpawnConfigs() {
         // Forbidden Forest spawns
-        // TODO: Re-enable when creature entities are implemented
-        // addSpawn(ModBiomes.FORBIDDEN_FOREST, ModEntities.CENTAUR.get(), MobCategory.CREATURE, 5, 1, 3);
-        // addSpawn(ModBiomes.FORBIDDEN_FOREST, ModEntities.UNICORN.get(), MobCategory.CREATURE, 3, 1, 2);
-        // addSpawn(ModBiomes.FORBIDDEN_FOREST, ModEntities.ACROMANTULA.get(), MobCategory.MONSTER, 4, 1, 2);
-        // addSpawn(ModBiomes.FORBIDDEN_FOREST, ModEntities.THESTRAL.get(), MobCategory.CREATURE, 2, 1, 2);
-        // addSpawn(ModBiomes.FORBIDDEN_FOREST, ModEntities.BOWTRUCKLE.get(), MobCategory.CREATURE, 8, 2, 4);
-        // addSpawn(ModBiomes.FORBIDDEN_FOREST, ModEntities.PUFFSKEIN.get(), MobCategory.CREATURE, 6, 1, 3);
-        // addSpawn(ModBiomes.FORBIDDEN_FOREST, ModEntities.NIFFLER.get(), MobCategory.CREATURE, 4, 1, 2);
-        // addSpawn(ModBiomes.FORBIDDEN_FOREST, ModEntities.KNEAZLE.get(), MobCategory.CREATURE, 3, 1, 2);
+        // TODO: Re-enable when creature entities are implemented (CENTAUR, UNICORN, ACROMANTULA, THESTRAL, BOWTRUCKLE, PUFFSKEIN, NIFFLER, KNEAZLE)
         
         // Black Lake spawns
-        // TODO: Re-enable when creature entities are implemented
-        // addSpawn(ModBiomes.BLACK_LAKE, ModEntities.MERPEOPLE.get(), MobCategory.WATER_CREATURE, 5, 1, 3);
-        // addSpawn(ModBiomes.BLACK_LAKE, ModEntities.GRINDYLOW.get(), MobCategory.WATER_CREATURE, 4, 1, 2);
-        // addSpawn(ModBiomes.BLACK_LAKE, ModEntities.KELPIE.get(), MobCategory.WATER_CREATURE, 3, 1, 2);
-        // addSpawn(ModBiomes.BLACK_LAKE, ModEntities.HIPPOCAMPUS.get(), MobCategory.WATER_CREATURE, 2, 1, 2);
-        // addSpawn(ModBiomes.BLACK_LAKE, ModEntities.RAMORA.get(), MobCategory.WATER_CREATURE, 6, 2, 4);
+        // TODO: Re-enable when creature entities are implemented (MERPEOPLE, GRINDYLOW, KELPIE, HIPPOCAMPUS, RAMORA)
         
         // Azkaban spawns
-        // TODO: Re-enable when creature entities are implemented
-        // addSpawn(ModBiomes.AZKABAN, ModEntities.DEMENTOR.get(), MobCategory.MONSTER, 8, 2, 4);
+        // TODO: Re-enable when creature entities are implemented (DEMENTOR)
         
         // Magical Meadow spawns
-        // TODO: Re-enable when creature entities are implemented
-        // addSpawn(ModBiomes.MAGICAL_MEADOW, ModEntities.UNICORN.get(), MobCategory.CREATURE, 6, 1, 3);
-        // addSpawn(ModBiomes.MAGICAL_MEADOW, ModEntities.FAIRY.get(), MobCategory.CREATURE, 10, 3, 6);
-        // addSpawn(ModBiomes.MAGICAL_MEADOW, ModEntities.PUFFSKEIN.get(), MobCategory.CREATURE, 5, 1, 3);
-        // addSpawn(ModBiomes.MAGICAL_MEADOW, ModEntities.MOONCALF.get(), MobCategory.CREATURE, 4, 1, 2);
+        // TODO: Re-enable when creature entities are implemented (UNICORN, FAIRY, PUFFSKEIN, MOONCALF)
         
         // Dark Forest Edge spawns (transitional)
-        // TODO: Re-enable when creature entities are implemented
-        // addSpawn(ModBiomes.DARK_FOREST_EDGE, ModEntities.BOWTRUCKLE.get(), MobCategory.CREATURE, 4, 1, 2);
-        // addSpawn(ModBiomes.DARK_FOREST_EDGE, ModEntities.PUFFSKEIN.get(), MobCategory.CREATURE, 3, 1, 2);
+        // TODO: Re-enable when creature entities are implemented (BOWTRUCKLE, PUFFSKEIN)
     }
     
     /**
      * Adds a spawn configuration for a biome.
+     * Note: Currently unused as all spawn configurations are disabled.
+     * This method will be used when creature entities are implemented.
      */
     private static void addSpawn(ResourceKey<Biome> biome, EntityType<?> entityType, MobCategory category, 
                                  int weight, int minCount, int maxCount) {
@@ -102,6 +80,3 @@ public final class CreatureSpawnConfig {
         return biomeSpawns.keySet();
     }
 }
-
-
-

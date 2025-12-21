@@ -22,7 +22,7 @@ public class ExtensionCharmSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("extension_charm");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("extension_charm");
     }
     
     @Override

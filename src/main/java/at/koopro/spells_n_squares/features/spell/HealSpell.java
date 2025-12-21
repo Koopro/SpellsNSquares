@@ -18,7 +18,7 @@ public class HealSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("heal");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("heal");
     }
     
     @Override
@@ -62,5 +62,10 @@ public class HealSpell implements Spell {
         }
         
         return true;
+    }
+    
+    @Override
+    public float getVisualEffectIntensity() {
+        return 0.5f;
     }
 }

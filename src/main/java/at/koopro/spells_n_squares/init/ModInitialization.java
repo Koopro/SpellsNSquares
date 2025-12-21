@@ -23,7 +23,6 @@ import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
 /**
@@ -97,9 +96,7 @@ public class ModInitialization {
         AddonRegistry.initializeAllAddons(modEventBus, modContainer);
         
         modEventBus.addListener(ModNetwork::registerPayloadHandlers);
-        // Game event bus listeners
-        // TODO: Re-enable when ServerEventHandler is implemented
-        // NeoForge.EVENT_BUS.addListener(ServerEventHandler::onRegisterCommands);
+        // Note: ServerEventHandler is automatically registered via @EventBusSubscriber annotation
         // Initialize wand attunement handler
         WandAttunementHandler.initialize();
         // Initialize particle effect registry

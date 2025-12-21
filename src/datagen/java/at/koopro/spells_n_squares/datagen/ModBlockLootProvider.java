@@ -1,9 +1,7 @@
 package at.koopro.spells_n_squares.datagen;
 
-import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.block.tree.TreeBlockSet;
 import at.koopro.spells_n_squares.core.registry.ModBlocks;
-import at.koopro.spells_n_squares.core.registry.ModItems;
 import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -36,11 +34,8 @@ public class ModBlockLootProvider extends LootTableProvider {
      */
     public static class ModBlockLootSubProvider extends BlockLootSubProvider {
         
-        private final HolderLookup.Provider lookupProvider;
-        
         protected ModBlockLootSubProvider(HolderLookup.Provider lookupProvider) {
             super(Set.of(), FeatureFlags.REGISTRY.allFlags(), lookupProvider);
-            this.lookupProvider = lookupProvider;
         }
         
         @Override
@@ -79,26 +74,6 @@ public class ModBlockLootProvider extends LootTableProvider {
             dropSelf(set.trapdoor().get());
             dropSelf(set.pressurePlate().get());
             dropSelf(set.button().get());
-        }
-        
-        /**
-         * Safely drops a block as itself, catching any errors.
-         * This is needed because during data generation, blocks may not have items bound yet.
-         * Always generates a loot table, even if the block doesn't have an item.
-         */
-        private void dropSelfSafe(Block block) {
-            try {
-                dropSelf(block);
-            } catch (Exception e) {
-                // If dropSelf fails (e.g., block doesn't have an item), 
-                // generate an empty loot table to satisfy getKnownBlocks() requirement
-                try {
-                    add(block, block1 -> net.minecraft.world.level.storage.loot.LootTable.lootTable());
-                } catch (Exception e2) {
-                    // If that also fails, skip this block
-                    // This might cause an error if the block is in getKnownBlocks()
-                }
-            }
         }
         
         private void generateModBlockLoot() {
@@ -142,24 +117,7 @@ public class ModBlockLootProvider extends LootTableProvider {
             dropSelfIfHasItem(ModBlocks.VAULT.get());
             
             // Plant blocks - drop their corresponding items
-            // TODO: Re-enable when plant blocks and items are registered in ModBlocks and ModItems
-            // Mandrake plant drops mandrake root
-            // add(ModBlocks.MANDRAKE_PLANT.get(), block -> createSingleItemTable(ModItems.MANDRAKE_ROOT.get()));
-            
-            // Wolfsbane plant drops wolfsbane item
-            // add(ModBlocks.WOLFSBANE_PLANT.get(), block -> createSingleItemTable(ModItems.WOLFSBANE.get()));
-            
-            // Gillyweed plant drops gillyweed item
-            // add(ModBlocks.GILLYWEED_PLANT.get(), block -> createSingleItemTable(ModItems.GILLYWEED.get()));
-            
-            // Devils snare - drop itself (no item form)
-            // dropSelfIfHasItem(ModBlocks.DEVILS_SNARE.get());
-            
-            // Venomous tentacula - drop itself (no item form)
-            // dropSelfIfHasItem(ModBlocks.VENOMOUS_TENTACULA.get());
-            
-            // Whomping willow - drop itself (it's a tree-like block)
-            // dropSelfIfHasItem(ModBlocks.WHOMPING_WILLOW.get());
+            // TODO: Re-enable when plant blocks and items are registered in ModBlocks and ModItems (MANDRAKE_PLANT, WOLFSBANE_PLANT, GILLYWEED_PLANT, DEVILS_SNARE, VENOMOUS_TENTACULA, WHOMPING_WILLOW)
         }
         
         /**
@@ -200,10 +158,7 @@ public class ModBlockLootProvider extends LootTableProvider {
             ModTreeBlocks.BLOCKS.getEntries().forEach(holder -> knownBlocks.add((Block) holder.get()));
             
             // Add mod blocks that we generate loot tables for
-            // TODO: Re-enable when plant blocks are registered in ModBlocks
-            // knownBlocks.add(ModBlocks.MANDRAKE_PLANT.get());
-            // knownBlocks.add(ModBlocks.WOLFSBANE_PLANT.get());
-            // knownBlocks.add(ModBlocks.GILLYWEED_PLANT.get());
+            // TODO: Re-enable when plant blocks are registered in ModBlocks (MANDRAKE_PLANT, WOLFSBANE_PLANT, GILLYWEED_PLANT)
             knownBlocks.add(ModBlocks.MAGICAL_TRUNK.get());
             knownBlocks.add(ModBlocks.AUTO_SORT_CHEST.get());
             knownBlocks.add(ModBlocks.NOTICE_BOARD.get());
@@ -225,10 +180,7 @@ public class ModBlockLootProvider extends LootTableProvider {
             knownBlocks.add(ModBlocks.TRADING_POST.get());
             knownBlocks.add(ModBlocks.AUTOMATED_SHOP.get());
             knownBlocks.add(ModBlocks.VAULT.get());
-            // TODO: Re-enable when plant blocks are registered in ModBlocks
-            // knownBlocks.add(ModBlocks.DEVILS_SNARE.get());
-            // knownBlocks.add(ModBlocks.VENOMOUS_TENTACULA.get());
-            // knownBlocks.add(ModBlocks.WHOMPING_WILLOW.get());
+            // TODO: Re-enable when plant blocks are registered in ModBlocks (DEVILS_SNARE, VENOMOUS_TENTACULA, WHOMPING_WILLOW)
             
             return knownBlocks;
         }

@@ -18,7 +18,7 @@ public class PortableCraftingSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("portable_crafting");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("portable_crafting");
     }
     
     @Override

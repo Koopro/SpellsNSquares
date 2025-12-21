@@ -21,7 +21,7 @@ public class FireballSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("fireball");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("fireball");
     }
     
     @Override
@@ -66,5 +66,10 @@ public class FireballSpell implements Spell {
         }
         
         return false;
+    }
+    
+    @Override
+    public float getVisualEffectIntensity() {
+        return 0.7f;
     }
 }

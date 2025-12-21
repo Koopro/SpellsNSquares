@@ -41,7 +41,7 @@ public class ApparitionSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("apparition");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("apparition");
     }
     
     @Override

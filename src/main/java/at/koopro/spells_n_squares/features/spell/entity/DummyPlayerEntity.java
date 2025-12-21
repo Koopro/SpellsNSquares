@@ -20,12 +20,11 @@ public class DummyPlayerEntity extends Entity {
     
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        // Define synced data if needed
+        // No synced data needed for dummy player
     }
     
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-        // Dummy players can be damaged for testing purposes
         return true;
     }
     
@@ -39,4 +38,3 @@ public class DummyPlayerEntity extends Entity {
         // No additional data to load
     }
 }
-

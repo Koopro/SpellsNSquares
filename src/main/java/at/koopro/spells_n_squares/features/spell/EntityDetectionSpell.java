@@ -23,7 +23,7 @@ public class EntityDetectionSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("entity_detection");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("entity_detection");
     }
     
     @Override

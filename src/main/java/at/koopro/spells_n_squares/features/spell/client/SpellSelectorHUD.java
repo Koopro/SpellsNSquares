@@ -1,10 +1,7 @@
 package at.koopro.spells_n_squares.features.spell.client;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-// TODO: Re-enable when ModKeybinds and SpellCastPayload are implemented
-// import at.koopro.spells_n_squares.init.client.ModKeybinds;
 import at.koopro.spells_n_squares.core.client.KeyStateTracker;
-// import at.koopro.spells_n_squares.features.spell.network.SpellCastPayload;
 import at.koopro.spells_n_squares.core.registry.ModTags;
 import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import at.koopro.spells_n_squares.features.spell.Spell;

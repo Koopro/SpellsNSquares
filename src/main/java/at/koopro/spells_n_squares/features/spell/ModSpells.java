@@ -25,120 +25,57 @@ public class ModSpells {
      */
     public static void register() {
         // Core spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new HealSpell());
-        // SpellRegistry.register(new TeleportSpell());
-        // SpellRegistry.register(new FireballSpell());
-        // SpellRegistry.register(new LightningSpell());
-        // SpellRegistry.register(new ProtegoSpell());
-        // SpellRegistry.register(new ApparitionSpell());
-        // SpellRegistry.register(new LumosSpell());
+        // TODO: Re-enable when spell classes are implemented (HealSpell, TeleportSpell, FireballSpell, LightningSpell, ProtegoSpell, ApparitionSpell, LumosSpell)
         
         // Utility spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new EntityDetectionSpell());
-        // SpellRegistry.register(new ExtensionCharmSpell());
-        // SpellRegistry.register(new PortableCraftingSpell());
-        // SpellRegistry.register(new ItemRecallSpell());
-        // SpellRegistry.register(new NoxSpell());
-        // SpellRegistry.register(new HomenumRevelioSpell());
-        // SpellRegistry.register(new RevelioSpell());
-        // SpellRegistry.register(new FiniteIncantatemSpell());
-        // SpellRegistry.register(new ApareciumSpell());
-        // SpellRegistry.register(new PriorIncantatoSpell());
+        // TODO: Re-enable when spell classes are implemented (EntityDetectionSpell, ExtensionCharmSpell, PortableCraftingSpell, ItemRecallSpell, NoxSpell, HomenumRevelioSpell, RevelioSpell, FiniteIncantatemSpell, ApareciumSpell, PriorIncantatoSpell)
         
         // Weather control spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new MetelojinxSpell());
-        // SpellRegistry.register(new AraniaExumaiSpell());
-        // SpellRegistry.register(new VentusSpell());
+        // TODO: Re-enable when spell classes are implemented (MetelojinxSpell, AraniaExumaiSpell, VentusSpell)
         
         // Advanced defensive spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new ExpelliarmusSpell());
-        // SpellRegistry.register(new StupefySpell());
+        // TODO: Re-enable when spell classes are implemented (ExpelliarmusSpell, StupefySpell)
         
         // Combat spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new BombardaSpell());
-        // SpellRegistry.register(new ConfringoSpell());
-        // SpellRegistry.register(new DiffindoSpell());
-        // SpellRegistry.register(new DepulsoSpell());
-        // SpellRegistry.register(new DescendoSpell());
-        // SpellRegistry.register(new FlipendoSpell());
-        // SpellRegistry.register(new ImpedimentaSpell());
-        // SpellRegistry.register(new RictusempraSpell());
+        // TODO: Re-enable when spell classes are implemented (BombardaSpell, ConfringoSpell, DiffindoSpell, DepulsoSpell, DescendoSpell, FlipendoSpell, ImpedimentaSpell, RictusempraSpell)
         
         // Charm spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new ReparoSpell());
-        // SpellRegistry.register(new AlohomoraSpell());
-        // SpellRegistry.register(new LevitationSpell());
-        // SpellRegistry.register(new ColloportusSpell());
-        // SpellRegistry.register(new DuroSpell());
-        // SpellRegistry.register(new EngorgioSpell());
-        // SpellRegistry.register(new ReducioSpell());
-        // SpellRegistry.register(new ScourgifySpell());
-        // SpellRegistry.register(new TergeoSpell());
+        // TODO: Re-enable when spell classes are implemented (ReparoSpell, AlohomoraSpell, LevitationSpell, ColloportusSpell, DuroSpell, EngorgioSpell, ReducioSpell, ScourgifySpell, TergeoSpell)
+        
         SpellRegistry.register(new AccioSpell());
         SpellRegistry.register(new RiddikulusSpell());
         
         // Healing spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new EpiskeySpell());
-        // SpellRegistry.register(new VulneraSanenturSpell());
-        // SpellRegistry.register(new AnapneoSpell());
-        // SpellRegistry.register(new FerulaSpell());
+        // TODO: Re-enable when spell classes are implemented (EpiskeySpell, VulneraSanenturSpell, AnapneoSpell, FerulaSpell)
         
         // Memory/mental spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new LegilimensSpell());
-        // SpellRegistry.register(new OcclumencySpell());
+        // TODO: Re-enable when spell classes are implemented (LegilimensSpell, OcclumencySpell)
         
         // Transfiguration spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new TransfigurationSpell());
-        // SpellRegistry.register(new SerpensortiaSpell());
-        // SpellRegistry.register(new AvisSpell());
+        // TODO: Re-enable when spell classes are implemented (TransfigurationSpell, SerpensortiaSpell, AvisSpell)
         
         // Curses (Dark Magic)
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new CrucioSpell());
-        // SpellRegistry.register(new AvadaKedavraSpell());
-        // SpellRegistry.register(new ImperioSpell());
-        // SpellRegistry.register(new SectumsempraSpell());
+        // TODO: Re-enable when spell classes are implemented (CrucioSpell, AvadaKedavraSpell, ImperioSpell, SectumsempraSpell)
         
         // Fire spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new IncendioSpell());
+        // TODO: Re-enable when spell classes are implemented (IncendioSpell)
         
         // Defensive/Protective spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new PatronusSpell());
+        // TODO: Re-enable when spell classes are implemented (PatronusSpell)
         
         // Utility/Combat spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new PetrificusTotalusSpell());
-        // SpellRegistry.register(new ConfundoSpell());
-        // SpellRegistry.register(new AguamentiSpell());
-        // SpellRegistry.register(new GlaciusSpell());
-        // SpellRegistry.register(new ReductoSpell());
-        // SpellRegistry.register(new ObliviateSpell());
+        // TODO: Re-enable when spell classes are implemented (PetrificusTotalusSpell, ConfundoSpell, AguamentiSpell, GlaciusSpell, ReductoSpell, ObliviateSpell)
         
         // Class joining spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new MorsmordreSpell());
-        // SpellRegistry.register(new PhoenixCallSpell());
+        // TODO: Re-enable when spell classes are implemented (MorsmordreSpell, PhoenixCallSpell)
         
         // Animagus spells
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new AnimagusTransformationSpell());
+        // TODO: Re-enable when spell classes are implemented (AnimagusTransformationSpell)
         
         // Additional utility spells
         SpellRegistry.register(new ImmobulusSpell());
         SpellRegistry.register(new SilencioSpell());
-        // TODO: Re-enable when spell classes are implemented
-        // SpellRegistry.register(new IncarcerousSpell());
+        // TODO: Re-enable when spell classes are implemented (IncarcerousSpell)
         
         // Vanishing and movement spells
         SpellRegistry.register(new EvanescoSpell());

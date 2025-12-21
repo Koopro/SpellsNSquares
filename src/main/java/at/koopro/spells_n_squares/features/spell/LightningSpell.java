@@ -24,7 +24,7 @@ public class LightningSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("lightning");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("lightning");
     }
     
     @Override
@@ -64,12 +64,8 @@ public class LightningSpell implements Spell {
                 );
                 
                 LightningBeamEntity beam = new LightningBeamEntity(
-                    level,
-                    player,
-                    wandTip,
-                    end,
-                    BEAM_COLOR,
-                    BEAM_LIFETIME
+                    at.koopro.spells_n_squares.core.registry.ModEntities.LIGHTNING_BEAM.get(),
+                    level
                 );
                 serverLevel.addFreshEntity(beam);
                 

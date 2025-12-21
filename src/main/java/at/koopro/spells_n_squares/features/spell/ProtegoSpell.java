@@ -23,7 +23,7 @@ public class ProtegoSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("protego");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("protego");
     }
     
     @Override
@@ -48,13 +48,11 @@ public class ProtegoSpell implements Spell {
         }
         
         // Remove any existing shield for this player
+        // Note: ShieldOrbEntity doesn't track owner yet, so we'll remove all shields near the player
         for (Entity entity : level.getEntitiesOfClass(
                 ShieldOrbEntity.class, 
                 player.getBoundingBox().inflate(5.0))) {
-            ShieldOrbEntity shield = (ShieldOrbEntity) entity;
-            if (shield.getOwner() == player) {
-                shield.discard();
-            }
+            entity.discard();
         }
         
         // Apply Resistance effect (reduces damage by 20% per level)
@@ -79,7 +77,10 @@ public class ProtegoSpell implements Spell {
         ));
         
         // Spawn the shield orb entity
-        ShieldOrbEntity shield = new ShieldOrbEntity(level, player);
+        ShieldOrbEntity shield = new ShieldOrbEntity(
+            at.koopro.spells_n_squares.core.registry.ModEntities.SHIELD_ORB.get(),
+            level
+        );
         Vec3 pos = player.position().add(0, player.getBbHeight() * 0, 0);
         shield.setPos(pos.x, pos.y, pos.z);
         serverLevel.addFreshEntity(shield);

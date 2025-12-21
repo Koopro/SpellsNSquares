@@ -20,7 +20,7 @@ public class TeleportSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("teleport");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("teleport");
     }
     
     @Override
@@ -66,5 +66,10 @@ public class TeleportSpell implements Spell {
         }
         
         return false; // Can't teleport into a block
+    }
+    
+    @Override
+    public float getVisualEffectIntensity() {
+        return 0.6f;
     }
 }

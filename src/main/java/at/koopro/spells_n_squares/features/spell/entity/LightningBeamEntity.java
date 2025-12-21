@@ -20,12 +20,11 @@ public class LightningBeamEntity extends Entity {
     
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        // Define synced data if needed
+        // No synced data needed for lightning beam
     }
     
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-        // Lightning beams are invulnerable
         return false;
     }
     
@@ -39,4 +38,3 @@ public class LightningBeamEntity extends Entity {
         // No additional data to load
     }
 }
-

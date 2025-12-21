@@ -154,11 +154,6 @@ public final class ContractSystem {
      */
     public static ItemStack createContractItem(ContractData.ContractComponent contract) {
         // TODO: Re-enable when CONTRACT item is implemented
-        /*
-        ItemStack stack = new ItemStack(at.koopro.spells_n_squares.core.registry.ModItems.CONTRACT.get());
-        stack.set(ContractData.CONTRACT_DATA.get(), contract);
-        return stack;
-        */
         return ItemStack.EMPTY; // Temporary placeholder
     }
     

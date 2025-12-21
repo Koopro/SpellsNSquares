@@ -3,9 +3,8 @@ package at.koopro.spells_n_squares.init;
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.PlayerDataManagerRegistry;
 import at.koopro.spells_n_squares.features.convenience.WaypointCommands;
-import at.koopro.spells_n_squares.features.spell.DebugCommands;
 import at.koopro.spells_n_squares.features.spell.SpellManager;
-import at.koopro.spells_n_squares.features.spell.SpellRegistry;
+import at.koopro.spells_n_squares.core.registry.SpellRegistry;
 import at.koopro.spells_n_squares.features.wand.WandAttunementHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,7 +29,7 @@ public class ServerEventHandler {
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
-        DebugCommands.register(event.getDispatcher());
+        // DebugCommands removed - re-implement if needed
         WaypointCommands.register(event.getDispatcher());
     }
     
@@ -64,8 +63,7 @@ public class ServerEventHandler {
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         PlayerDataManagerRegistry.clearAllPlayerData(event.getEntity());
-        // Also clear tick counter for SpellHandler
-        at.koopro.spells_n_squares.features.spell.SpellHandler.clearPlayerTickCounter(event.getEntity());
+        // SpellHandler removed - cleanup handled by PlayerDataManagerRegistry
         // Clear attunement progress
         WandAttunementHandler.clearPlayerData(event.getEntity());
     }

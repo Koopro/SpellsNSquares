@@ -1,6 +1,5 @@
 package at.koopro.spells_n_squares.features.creatures;
 
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
@@ -8,20 +7,7 @@ import net.minecraft.world.entity.player.Player;
  * Handles creature taming mechanics.
  */
 public final class CreatureTamingHandler {
-    private static boolean initialized = false;
-    
     private CreatureTamingHandler() {
-    }
-    
-    /**
-     * Initializes the taming handler.
-     * Note: This class doesn't have event handlers, so it doesn't need to be registered to the event bus.
-     */
-    public static void initialize() {
-        if (!initialized) {
-            // No event handlers to register - this is just a utility class
-            initialized = true;
-        }
     }
     
     /**
@@ -72,9 +58,3 @@ public final class CreatureTamingHandler {
         return false;
     }
 }
-
-
-
-
-
-

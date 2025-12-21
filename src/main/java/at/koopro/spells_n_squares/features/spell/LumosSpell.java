@@ -25,7 +25,7 @@ public class LumosSpell implements Spell {
     
     @Override
     public Identifier getId() {
-        return SpellRegistry.spellId("lumos");
+        return at.koopro.spells_n_squares.core.registry.SpellRegistry.spellId("lumos");
     }
     
     @Override
@@ -59,7 +59,10 @@ public class LumosSpell implements Spell {
             Vec3 look = player.getLookAngle().normalize();
             Vec3 spawnPos = eye.add(look.scale(0.6)).add(0, -0.1, 0);
             Vec3 velocity = look.scale(0.7);
-            LightOrbEntity orb = new LightOrbEntity(level, player, spawnPos, velocity, LIGHT_ORB_LIFETIME);
+            LightOrbEntity orb = new LightOrbEntity(
+                at.koopro.spells_n_squares.core.registry.ModEntities.LIGHT_ORB.get(),
+                level
+            );
             level.addFreshEntity(orb);
             
             // Turn off Lumos on the wand
@@ -70,36 +73,43 @@ public class LumosSpell implements Spell {
         }
         
         // Default toggle lumos state
-        var newStateOpt = LumosManager.toggleLumos(player);
-        if (newStateOpt.isEmpty()) {
-            return false;
-        }
-        boolean newState = newStateOpt.get();
-        
-        // Play appropriate sound
-        var soundEvent = newState ? ModSounds.LUMOS.value() : ModSounds.NOX.value();
-        level.playSound(null, player.getX(), player.getY(), player.getZ(),
-            soundEvent, SoundSource.PLAYERS, 0.7f, 1.0f);
-        
-        // Visual feedback
-        if (level instanceof ServerLevel serverLevel) {
-            if (newState) {
-                // Lumos: bright particles
-                serverLevel.sendParticles(ParticleTypes.END_ROD,
-                    player.getX(), player.getY() + 1.0, player.getZ(),
-                    15, 0.5, 0.5, 0.5, 0.1);
-                serverLevel.sendParticles(ParticleTypes.ELECTRIC_SPARK,
-                    player.getX(), player.getY() + 1.0, player.getZ(),
-                    10, 0.3, 0.3, 0.3, 0.05);
-            } else {
-                // Nox: dark particles
-                serverLevel.sendParticles(ParticleTypes.SMOKE,
-                    player.getX(), player.getY() + 1.0, player.getZ(),
-                    10, 0.3, 0.3, 0.3, 0.05);
+        if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            boolean currentlyActive = LumosManager.isLumosActive(player);
+            LumosManager.toggleLumos(serverPlayer, wand);
+            boolean newState = !currentlyActive;
+            
+            // Play appropriate sound
+            var soundEvent = newState ? ModSounds.LUMOS.value() : ModSounds.NOX.value();
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                soundEvent, SoundSource.PLAYERS, 0.7f, 1.0f);
+            
+            // Visual feedback
+            if (level instanceof ServerLevel serverLevel) {
+                if (newState) {
+                    // Lumos: bright particles
+                    serverLevel.sendParticles(ParticleTypes.END_ROD,
+                        player.getX(), player.getY() + 1.0, player.getZ(),
+                        15, 0.5, 0.5, 0.5, 0.1);
+                    serverLevel.sendParticles(ParticleTypes.ELECTRIC_SPARK,
+                        player.getX(), player.getY() + 1.0, player.getZ(),
+                        10, 0.3, 0.3, 0.3, 0.05);
+                } else {
+                    // Nox: dark particles
+                    serverLevel.sendParticles(ParticleTypes.SMOKE,
+                        player.getX(), player.getY() + 1.0, player.getZ(),
+                        10, 0.3, 0.3, 0.3, 0.05);
+                }
             }
+            
+            return true;
         }
         
-        return true;
+        return false;
+    }
+    
+    @Override
+    public float getVisualEffectIntensity() {
+        return 0.4f;
     }
     
     private ItemStack findWand(Player player) {
