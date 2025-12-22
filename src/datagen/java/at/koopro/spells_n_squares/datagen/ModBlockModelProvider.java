@@ -2,11 +2,21 @@ package at.koopro.spells_n_squares.datagen;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.ModBlocks;
+import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
+import at.koopro.spells_n_squares.features.building.BuildingRegistry;
+import at.koopro.spells_n_squares.features.combat.CombatRegistry;
+import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
+import at.koopro.spells_n_squares.features.education.EducationRegistry;
+import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
+import at.koopro.spells_n_squares.features.storage.StorageRegistry;
 import com.google.gson.JsonObject;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -30,32 +40,47 @@ public class ModBlockModelProvider implements DataProvider {
     public CompletableFuture<?> run(CachedOutput cache) {
         List<CompletableFuture<?>> futures = new ArrayList<>();
         
-        // Generate models for all mod blocks
-        ModBlocks.BLOCKS.getEntries().forEach(holder -> {
-            // Get the registry name - try holder.getId() first, then fall back to getting from registry
-            String blockName;
-            try {
-                blockName = holder.getId().getPath();
-            } catch (Exception e) {
-                // Fallback: get from the block's registry key
-                Block block = holder.get();
-                blockName = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(block).getPath();
-            }
-            
-            Block block = holder.get();
-            
-            // Determine block type and generate appropriate models
-            String blockType = determineBlockType(blockName, block);
-            
-            if (blockType != null) {
-                switch (blockType) {
-                    case "cube_all" -> futures.add(generateSimpleCube(cache, block, blockName));
-                    case "cross" -> futures.add(generateCross(cache, block, blockName));
-                    case "cube_column" -> futures.add(generateCubeColumn(cache, block, blockName));
-                    default -> futures.add(generateSimpleCube(cache, block, blockName));
+        // Collect all block registries from feature registries
+        List<DeferredRegister<Block>> blockRegistries = List.of(
+            ModBlocks.BLOCKS,  // Generic blocks (currently empty)
+            StorageRegistry.BLOCKS,
+            CommunicationRegistry.BLOCKS,
+            AutomationRegistry.BLOCKS,
+            BuildingRegistry.BLOCKS,
+            EconomyRegistry.BLOCKS,
+            EducationRegistry.BLOCKS,
+            CombatRegistry.BLOCKS,
+            EnchantmentsRegistry.BLOCKS
+        );
+        
+        // Generate models for all blocks from all registries
+        for (DeferredRegister<Block> registry : blockRegistries) {
+            registry.getEntries().forEach(holder -> {
+                // Get the registry name - try holder.getId() first, then fall back to getting from registry
+                String blockName;
+                try {
+                    blockName = holder.getId().getPath();
+                } catch (Exception e) {
+                    // Fallback: get from the block's registry key
+                    Block block = holder.get();
+                    blockName = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(block).getPath();
                 }
-            }
-        });
+                
+                Block block = holder.get();
+                
+                // Determine block type and generate appropriate models
+                String blockType = determineBlockType(blockName, block);
+                
+                if (blockType != null) {
+                    switch (blockType) {
+                        case "cube_all" -> futures.add(generateSimpleCube(cache, block, blockName));
+                        case "cross" -> futures.add(generateCross(cache, block, blockName));
+                        case "cube_column" -> futures.add(generateCubeColumn(cache, block, blockName));
+                        default -> futures.add(generateSimpleCube(cache, block, blockName));
+                    }
+                }
+            });
+        }
         
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
@@ -218,6 +243,9 @@ public class ModBlockModelProvider implements DataProvider {
         return "Block Models - " + modId;
     }
 }
+
+
+
 
 
 

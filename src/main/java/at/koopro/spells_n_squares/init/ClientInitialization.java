@@ -1,7 +1,15 @@
 package at.koopro.spells_n_squares.init;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+import at.koopro.spells_n_squares.features.creatures.client.OwlRenderer;
+import at.koopro.spells_n_squares.features.spell.SpellEntityRegistry;
+import at.koopro.spells_n_squares.features.spell.client.DummyPlayerRenderer;
+import at.koopro.spells_n_squares.features.spell.client.LightOrbRenderer;
+import at.koopro.spells_n_squares.features.spell.client.LightningBeamRenderer;
+import at.koopro.spells_n_squares.features.spell.client.ShieldOrbRenderer;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -29,8 +37,46 @@ public class ClientInitialization {
     }
     
     @SubscribeEvent
+    public static void onRegisterMenuScreens(net.neoforged.neoforge.client.event.RegisterMenuScreensEvent event) {
+        // Register menu screens
+        event.register(
+            at.koopro.spells_n_squares.core.registry.ModMenus.VAULT_MENU.get(),
+            at.koopro.spells_n_squares.features.economy.client.VaultScreen::new
+        );
+        event.register(
+            at.koopro.spells_n_squares.core.registry.ModMenus.MAILBOX_MENU.get(),
+            at.koopro.spells_n_squares.features.mail.client.MailboxScreen::new
+        );
+        event.register(
+            at.koopro.spells_n_squares.core.registry.ModMenus.ENCHANTMENT_MENU.get(),
+            at.koopro.spells_n_squares.features.enchantments.client.EnchantmentScreen::new
+        );
+    }
+    
+    @SubscribeEvent
     public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        // TODO: Re-enable when renderer classes and entities are implemented
-        // Owl entity would need a renderer - using default for now
+        // Register owl entity renderer
+        event.registerEntityRenderer(
+            CommunicationRegistry.OWL.get(),
+            (EntityRendererProvider.Context context) -> new OwlRenderer(context)
+        );
+        
+        // Register spell entity renderers
+        event.registerEntityRenderer(
+            SpellEntityRegistry.SHIELD_ORB.get(),
+            (EntityRendererProvider.Context context) -> new ShieldOrbRenderer(context)
+        );
+        event.registerEntityRenderer(
+            SpellEntityRegistry.LIGHT_ORB.get(),
+            (EntityRendererProvider.Context context) -> new LightOrbRenderer(context)
+        );
+        event.registerEntityRenderer(
+            SpellEntityRegistry.LIGHTNING_BEAM.get(),
+            (EntityRendererProvider.Context context) -> new LightningBeamRenderer(context)
+        );
+        event.registerEntityRenderer(
+            SpellEntityRegistry.DUMMY_PLAYER.get(),
+            (EntityRendererProvider.Context context) -> new DummyPlayerRenderer(context)
+        );
     }
 }

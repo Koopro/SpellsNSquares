@@ -1,15 +1,16 @@
-[21Dec2025 16:18:53.373] [main/INFO] [net.neoforged.fml.startup.Entrypoint/]: JVM Uptime at startup: 561ms
-[21Dec2025 16:18:53.397] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Starting FancyModLoader version 10.0.34 (DEDICATED_SERVER in DEV)
-[21Dec2025 16:18:53.398] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Game directory: C:\Users\chris\Desktop\Development\Java\unob\run
-[21Dec2025 16:18:53.528] [main/INFO] [net.neoforged.fml.loading.EarlyServiceDiscovery/]: Found 2 early service jars (out of 105) in 57ms
-[21Dec2025 16:18:53.529] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Loading FML Early Services:
-[21Dec2025 16:18:53.531] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - C:/Users/chris/.gradle/caches/modules-2/files-2.1/net.neoforged.fancymodloader/earlydisplay/10.0.34/6b03e4ea379214464e918a423421a654ac34ca7/earlydisplay-10.0.34.jar
-[21Dec2025 16:18:53.531] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - C:/Users/chris/.gradle/caches/modules-2/files-2.1/net.neoforged.fancymodloader/loader/10.0.34/940266c61386e450a76e94b72f06343ab9d3417e/loader-10.0.34.jar
-[21Dec2025 16:18:53.544] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: Not loading early display in headless mode.
-[21Dec2025 16:18:53.641] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.GameLocator/]: Detected a joined NeoForge and Minecraft configuration. Applying filtering...
-[21Dec2025 16:18:53.875] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.InDevFolderLocator/CORE]: Got mod coordinates spells_n_squares%%C:\Users\chris\Desktop\Development\Java\unob\build\classes\java\main;spells_n_squares%%C:\Users\chris\Desktop\Development\Java\unob\build\resources\main;spells_n_squares%%C:\Users\chris\Desktop\Development\Java\unob\build\classes\java\datagen;spells_n_squares%%C:\Users\chris\Desktop\Development\Java\unob\build\resources\datagen from env
-[21Dec2025 16:18:54.354] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
-[21Dec2025 16:18:54.358] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
+[22Dec2025 08:00:38.980] [main/INFO] [net.neoforged.fml.startup.Entrypoint/]: JVM Uptime at startup: 966ms
+[22Dec2025 08:00:38.991] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Starting FancyModLoader version 10.0.34 (CLIENT in DEV)
+[22Dec2025 08:00:38.992] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Game directory: C:\Users\chris\Desktop\Development\Java\unob\run
+[22Dec2025 08:00:39.093] [main/INFO] [net.neoforged.fml.loading.EarlyServiceDiscovery/]: Found 2 early service jars (out of 105) in 39ms
+[22Dec2025 08:00:39.093] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Loading FML Early Services:
+[22Dec2025 08:00:39.094] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - C:/Users/chris/.gradle/caches/modules-2/files-2.1/net.neoforged.fancymodloader/earlydisplay/10.0.34/6b03e4ea379214464e918a423421a654ac34ca7/earlydisplay-10.0.34.jar
+[22Dec2025 08:00:39.094] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - C:/Users/chris/.gradle/caches/modules-2/files-2.1/net.neoforged.fancymodloader/loader/10.0.34/940266c61386e450a76e94b72f06343ab9d3417e/loader-10.0.34.jar
+[22Dec2025 08:00:39.102] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: Loading ImmediateWindowProvider fmlearlywindow
+[22Dec2025 08:00:39.900] [ForkJoinPool.commonPool-worker-2/INFO] [net.neoforged.fml.loading.moddiscovery.locators.GameLocator/]: Detected a joined NeoForge and Minecraft configuration. Applying filtering...
+[22Dec2025 08:00:40.069] [ForkJoinPool.commonPool-worker-2/INFO] [net.neoforged.fml.loading.moddiscovery.locators.InDevFolderLocator/CORE]: Got mod coordinates spells_n_squares%%C:\Users\chris\Desktop\Development\Java\unob\build\classes\java\main;spells_n_squares%%C:\Users\chris\Desktop\Development\Java\unob\build\resources\main;spells_n_squares%%C:\Users\chris\Desktop\Development\Java\unob\build\classes\java\datagen;spells_n_squares%%C:\Users\chris\Desktop\Development\Java\unob\build\resources\datagen from env
+[22Dec2025 08:00:40.226] [fml-loadingscreen/INFO] [net.neoforged.fml.earlydisplay.render.LoadingScreenRenderer/]: GL info: AMD Radeon(TM) Graphics GL version 3.3.0 Core Profile Context 25.5.1.250226, ATI Technologies Inc.
+[22Dec2025 08:00:40.516] [ForkJoinPool.commonPool-worker-2/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
+[22Dec2025 08:00:40.519] [ForkJoinPool.commonPool-worker-2/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
      Mod List:
 		Name Version (Mod Id)
 
@@ -17,35 +18,173 @@
 		Minecraft 1.21.11 (minecraft)
 		NeoForge 21.11.6-beta (neoforge)
 		Spells_n_Squares 1.0-SNAPSHOT (spells_n_squares)
-[21Dec2025 16:18:56.631] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/C:/Users/chris/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.16.5+mixin.0.8.7/80fc3a9f592673cea87f4cd702f87991c6c9fe4d/sponge-mixin-0.16.5+mixin.0.8.7.jar Service=FML Env=SERVER
-[21Dec2025 16:18:56.727] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Loading FML Plugins:
-[21Dec2025 16:18:56.728] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - C:/Users/chris/Desktop/Development/Java/unob/build/moddev/artifacts/neoforge-21.11.6-beta.jar > net.neoforged.neoforge-coremods-21.11.6-beta.jar
-[21Dec2025 16:18:56.989] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Building game content classloader:
+[22Dec2025 08:00:41.087] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/C:/Users/chris/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.16.5+mixin.0.8.7/80fc3a9f592673cea87f4cd702f87991c6c9fe4d/sponge-mixin-0.16.5+mixin.0.8.7.jar Service=FML Env=CLIENT
+[22Dec2025 08:00:41.137] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Loading FML Plugins:
+[22Dec2025 08:00:41.138] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]:  - C:/Users/chris/Desktop/Development/Java/unob/build/moddev/artifacts/neoforge-21.11.6-beta.jar > net.neoforged.neoforge-coremods-21.11.6-beta.jar
+[22Dec2025 08:00:41.352] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Building game content classloader:
  - geckolib (jar(C:/Users/chris/.gradle/caches/modules-2/files-2.1/software.bernie.geckolib/geckolib-neoforge-1.21.11/5.4-alpha-1/2873c41a57e90a11c409c1ba4f92bd1c974f72a3/geckolib-neoforge-1.21.11-5.4-alpha-1.jar))
- - minecraft (composite(filtered(jar(C:/Users/chris/Desktop/Development/Java/unob/build/moddev/artifacts/neoforge-21.11.6-beta-client-extra-aka-minecraft-resources.jar)), filtered(jar(C:/Users/chris/Desktop/Development/Java/unob/build/moddev/artifacts/neoforge-21.11.6-beta.jar))))
+ - minecraft (composite(jar(C:/Users/chris/Desktop/Development/Java/unob/build/moddev/artifacts/neoforge-21.11.6-beta-client-extra-aka-minecraft-resources.jar), filtered(jar(C:/Users/chris/Desktop/Development/Java/unob/build/moddev/artifacts/neoforge-21.11.6-beta.jar))))
  - mixinextras.neoforge (jar(C:/Users/chris/Desktop/Development/Java/unob/build/moddev/artifacts/neoforge-21.11.6-beta.jar > mixinextras-neoforge-0.5.0.jar))
  - neoforge (composite(filtered(jar(C:/Users/chris/Desktop/Development/Java/unob/build/moddev/artifacts/neoforge-21.11.6-beta.jar))))
  - net.neoforged.fml.generated (empty(VirtualJar/net.neoforged.fml.generated))
  - spells_n_squares (composite(folder(C:/Users/chris/Desktop/Development/Java/unob/build/classes/java/main), folder(C:/Users/chris/Desktop/Development/Java/unob/build/resources/main), folder(C:/Users/chris/Desktop/Development/Java/unob/build/classes/java/datagen)))
-[21Dec2025 16:18:57.020] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Built game content classloader in 57ms
-[21Dec2025 16:18:57.265] [main/WARN] [mixin/]: Reference map 'geckolib.refmap.json' for geckolib.mixins.json could not be read. If this is a development environment you can ignore this message
-[21Dec2025 16:18:58.163] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.0).
-[21Dec2025 16:19:12.820] [main/INFO] [net.neoforged.neoforge.data.loading.DatagenModLoader/]: Initializing Data Gatherer for mods [spells_n_squares]
-[21Dec2025 16:19:12.884] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.11.6-beta, for MC 1.21.11
-[21Dec2025 16:19:12.969] [modloading-worker-0/INFO] [at.koopro.spells_n_squares.core.registry.AddonRegistry/]: Discovering addons for Spells_n_Squares...
-[21Dec2025 16:19:12.972] [modloading-worker-0/INFO] [at.koopro.spells_n_squares.core.registry.AddonRegistry/]: No addons discovered
-[21Dec2025 16:19:13.552] [modloading-sync-worker/ERROR] [net.minecraft.util.Util/]: Entity spells_n_squares:owl has no attributes
-[21Dec2025 16:19:13.803] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Tags for minecraft:block mod id spells_n_squares
-[21Dec2025 16:19:14.254] [main/INFO] [net.minecraft.data.DataGenerator/]: Tags for minecraft:block mod id spells_n_squares finished after 450 ms
-[21Dec2025 16:19:14.254] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Loot Tables
-[21Dec2025 16:19:14.306] [main/INFO] [net.minecraft.data.DataGenerator/]: Loot Tables finished after 52 ms
-[21Dec2025 16:19:14.306] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Spells n Squares Tree Block Recipes
-[21Dec2025 16:19:14.311] [main/INFO] [net.minecraft.data.DataGenerator/]: Spells n Squares Tree Block Recipes finished after 5 ms
-[21Dec2025 16:19:14.311] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Spells N Squares Biomes
-[21Dec2025 16:19:14.563] [main/INFO] [net.minecraft.data.DataGenerator/]: Spells N Squares Biomes finished after 250 ms
-[21Dec2025 16:19:14.563] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Data Maps
-[21Dec2025 16:19:14.565] [main/INFO] [net.minecraft.data.DataGenerator/]: Data Maps finished after 2 ms
-[21Dec2025 16:19:14.565] [main/INFO] [net.minecraft.data.DataGenerator/]: All providers took: 763 ms
-[21Dec2025 16:19:14.658] [main/INFO] [net.minecraft.data.HashCache/]: Caching: total files: 132, old count: 0, new count: 27, removed stale: 106, written: 26
-[21Dec2025 16:19:14.658] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Closing FML Loader 43fec081
-[21Dec2025 16:19:14.658] [main/INFO] [net.neoforged.fml.ModLoader/]: Clearing ModLoader
+[22Dec2025 08:00:41.379] [main/INFO] [net.neoforged.fml.loading.FMLLoader/]: Built game content classloader in 50ms
+[22Dec2025 08:00:41.530] [main/WARN] [mixin/]: Reference map 'geckolib.refmap.json' for geckolib.mixins.json could not be read. If this is a development environment you can ignore this message
+[22Dec2025 08:00:41.997] [main/WARN] [mixin/]: Error loading class: org/jetbrains/annotations/ApiStatus$Internal (java.lang.ClassNotFoundException: org.jetbrains.annotations.ApiStatus$Internal)
+[22Dec2025 08:00:42.000] [main/WARN] [mixin/]: Error loading class: org/jetbrains/annotations/ApiStatus$Internal (java.lang.ClassNotFoundException: org.jetbrains.annotations.ApiStatus$Internal)
+[22Dec2025 08:00:43.974] [Datafixer Bootstrap/INFO] [com.mojang.datafixers.DataFixerBuilder/]: 290 Datafixer optimizations took 721 milliseconds
+[22Dec2025 08:00:44.164] [pool-9-thread-1/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.0).
+[22Dec2025 08:00:51.685] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[22Dec2025 08:00:51.686] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[22Dec2025 08:00:51.690] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[22Dec2025 08:00:51.692] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[22Dec2025 08:00:51.694] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[22Dec2025 08:00:51.697] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [waypoint, modify, waypoint, color, reset] and [waypoint, modify, waypoint, color, color] with inputs: [reset]
+[22Dec2025 08:00:54.192] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.11.6-beta, for MC 1.21.11
+[22Dec2025 08:00:54.284] [modloading-worker-0/INFO] [at.koopro.spells_n_squares.core.registry.AddonRegistry/]: Discovering addons for Spells_n_Squares...
+[22Dec2025 08:00:54.286] [modloading-worker-0/INFO] [at.koopro.spells_n_squares.core.registry.AddonRegistry/]: No addons discovered
+[22Dec2025 08:00:54.929] [Render thread/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[22Dec2025 08:00:54.971] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Setting user: Dev
+[22Dec2025 08:00:55.145] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Backend library: LWJGL version 3.3.3+5
+[22Dec2025 08:00:55.405] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Using optional rendering extensions: GL_ARB_buffer_storage, GL_KHR_debug, GL_ARB_vertex_attrib_binding, GL_ARB_direct_state_access, GL_EXT_texture_filter_anisotropic
+[22Dec2025 08:00:56.937] [Render thread/INFO] [net.minecraft.server.packs.resources.ReloadableResourceManager/]: Reloading ResourceManager: vanilla, mod_resources, mod/spells_n_squares, mod/geckolib, mod/neoforge
+[22Dec2025 08:00:57.033] [resourceLoad/INFO] [at.koopro.spells_n_squares.core.api.SpellFeature/]: Initializing Spells_n_Squares spell feature
+[22Dec2025 08:00:57.408] [resourceLoad/WARN] [net.minecraft.client.sounds.SoundManager/]: File spells_n_squares:sounds/flashlight_on.ogg does not exist, cannot add it to event spells_n_squares:flashlight_on
+[22Dec2025 08:00:57.409] [resourceLoad/WARN] [net.minecraft.client.sounds.SoundManager/]: File spells_n_squares:sounds/flashlight_off.ogg does not exist, cannot add it to event spells_n_squares:flashlight_off
+[22Dec2025 08:00:57.409] [resourceLoad/WARN] [net.minecraft.client.sounds.SoundManager/]: File spells_n_squares:sounds/lumos.ogg does not exist, cannot add it to event spells_n_squares:lumos
+[22Dec2025 08:00:57.409] [resourceLoad/WARN] [net.minecraft.client.sounds.SoundManager/]: File spells_n_squares:sounds/nox.ogg does not exist, cannot add it to event spells_n_squares:nox
+[22Dec2025 08:00:57.443] [resourceLoad/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_pua-17.0.01.hex, loading
+[22Dec2025 08:00:57.449] [resourceLoad/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_all_no_pua-17.0.01.hex, loading
+[22Dec2025 08:00:57.507] [Render thread/INFO] [at.koopro.spells_n_squares.core.api.SpellFeature/]: Registered 10 spells
+[22Dec2025 08:00:57.599] [resourceLoad/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_jp_patch-17.0.01.hex, loading
+[22Dec2025 08:00:57.799] [resourceLoad/INFO] [at.koopro.spells_n_squares.init.ClientInitialization/]: Client setup complete - Spells_n_Squares mod ready
+[22Dec2025 08:00:58.742] [resourceLoad/WARN] [net.minecraft.client.resources.model.ModelDiscovery/]: Missing block model: minecraft:builtin/entity
+[22Dec2025 08:00:59.155] [resourceLoad/WARN] [net.minecraft.client.resources.model.ModelManager/]: Missing model for variant: 'Block{spells_n_squares:newts_case}'
+[22Dec2025 08:00:59.560] [Render thread/ERROR] [net.minecraft.client.sounds.SoundManager/]: Missing subtitle translation{key='subtitles.spells_n_squares.nox', args=[]} for sound event: spells_n_squares:nox
+[22Dec2025 08:00:59.561] [Render thread/ERROR] [net.minecraft.client.sounds.SoundManager/]: Missing subtitle translation{key='subtitles.spells_n_squares.lumos', args=[]} for sound event: spells_n_squares:lumos
+[22Dec2025 08:00:59.610] [Render thread/INFO] [com.mojang.blaze3d.audio.Library/]: OpenAL initialized on device OpenAL Soft on Lautsprecher (Steam Streaming Speakers)
+[22Dec2025 08:00:59.610] [Render thread/INFO] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Sound engine started
+[22Dec2025 08:00:59.611] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[22Dec2025 08:00:59.629] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[22Dec2025 08:00:59.630] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 2048x1024x0 minecraft:textures/atlas/armor_trims.png-atlas
+[22Dec2025 08:00:59.642] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[22Dec2025 08:00:59.643] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[22Dec2025 08:00:59.644] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[22Dec2025 08:00:59.736] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[22Dec2025 08:00:59.737] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[22Dec2025 08:00:59.738] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[22Dec2025 08:00:59.747] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x0 minecraft:textures/atlas/beds.png-atlas
+[22Dec2025 08:00:59.751] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x0 minecraft:textures/atlas/items.png-atlas
+[22Dec2025 08:00:59.856] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[22Dec2025 08:00:59.871] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[22Dec2025 08:00:59.872] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/signs.png-atlas
+[22Dec2025 08:00:59.873] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[22Dec2025 08:00:59.996] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:revealer_dust of spells_n_squares:revealer_dust
+[22Dec2025 08:00:59.996] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:time_turner of spells_n_squares:time_turner
+[22Dec2025 08:00:59.996] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:sneakoscope of spells_n_squares:sneakoscope
+[22Dec2025 08:00:59.996] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:enchanted_bag_small of spells_n_squares:enchanted_bag_small
+[22Dec2025 08:00:59.996] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:enchanted_bag_medium of spells_n_squares:enchanted_bag_medium
+[22Dec2025 08:00:59.996] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:enchanted_bag_large of spells_n_squares:enchanted_bag_large
+[22Dec2025 08:00:59.996] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:enchanted_bag_bottomless of spells_n_squares:enchanted_bag_bottomless
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:pocket_dimension of spells_n_squares:pocket_dimension
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_trunk of spells_n_squares:magical_trunk
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:auto_sort_chest of spells_n_squares:auto_sort_chest
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:newts_case of spells_n_squares:newts_case
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:portkey of spells_n_squares:portkey
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:floo_powder of spells_n_squares:floo_powder
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:broomstick_basic of spells_n_squares:broomstick_basic
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:broomstick_racing of spells_n_squares:broomstick_racing
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:broomstick_firebolt of spells_n_squares:broomstick_firebolt
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:two_way_mirror of spells_n_squares:two_way_mirror
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:notice_board of spells_n_squares:notice_board
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:enchanted_workbench of spells_n_squares:enchanted_workbench
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:auto_harvest_hoe of spells_n_squares:auto_harvest_hoe
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:self_stirring_cauldron of spells_n_squares:self_stirring_cauldron
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_furnace of spells_n_squares:magical_furnace
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_farm of spells_n_squares:magical_farm
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:item_collector of spells_n_squares:item_collector
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_composter of spells_n_squares:magical_composter
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:resource_generator of spells_n_squares:resource_generator
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:wizard_tower of spells_n_squares:wizard_tower
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_light_white of spells_n_squares:magical_light_white
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_light_blue of spells_n_squares:magical_light_blue
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_light_green of spells_n_squares:magical_light_green
+[22Dec2025 08:00:59.997] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_light_red of spells_n_squares:magical_light_red
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_light_purple of spells_n_squares:magical_light_purple
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_light_gold of spells_n_squares:magical_light_gold
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_map of spells_n_squares:magical_map
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:location_compass of spells_n_squares:location_compass
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:magical_journal of spells_n_squares:magical_journal
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:gryffindor_robe_chest of spells_n_squares:gryffindor_robe_chest
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:gryffindor_robe_legs of spells_n_squares:gryffindor_robe_legs
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:gryffindor_robe_boots of spells_n_squares:gryffindor_robe_boots
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:slytherin_robe_chest of spells_n_squares:slytherin_robe_chest
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:slytherin_robe_legs of spells_n_squares:slytherin_robe_legs
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:slytherin_robe_boots of spells_n_squares:slytherin_robe_boots
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:hufflepuff_robe_chest of spells_n_squares:hufflepuff_robe_chest
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:hufflepuff_robe_legs of spells_n_squares:hufflepuff_robe_legs
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:hufflepuff_robe_boots of spells_n_squares:hufflepuff_robe_boots
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:ravenclaw_robe_chest of spells_n_squares:ravenclaw_robe_chest
+[22Dec2025 08:00:59.999] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:ravenclaw_robe_legs of spells_n_squares:ravenclaw_robe_legs
+[22Dec2025 08:01:00.000] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:ravenclaw_robe_boots of spells_n_squares:ravenclaw_robe_boots
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:draught_of_living_death_potion of spells_n_squares:draught_of_living_death_potion
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:draught_of_peace_potion of spells_n_squares:draught_of_peace_potion
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:felix_felicis of spells_n_squares:felix_felicis
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:murtlap_essence_potion of spells_n_squares:murtlap_essence_potion
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:shrinking_solution_potion of spells_n_squares:shrinking_solution_potion
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:swelling_solution_potion of spells_n_squares:swelling_solution_potion
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:veritaserum of spells_n_squares:veritaserum
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:trading_post of spells_n_squares:trading_post
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:automated_shop of spells_n_squares:automated_shop
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:vault of spells_n_squares:vault
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:house_points_hourglass of spells_n_squares:house_points_hourglass
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:duel_arena of spells_n_squares:duel_arena
+[22Dec2025 08:01:00.001] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID spells_n_squares:enchantment_table of spells_n_squares:enchantment_table
+[22Dec2025 08:01:00.004] [Render thread/INFO] [net.neoforged.neoforge.client.entity.animation.json.AnimationLoader/]: Loaded 0 entity animations
+[22Dec2025 08:01:03.682] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Dynamic Transforms UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[22Dec2025 08:01:04.271] [Render thread/ERROR] [net.minecraft.tags.TagLoader/]: Couldn't load tag spells_n_squares:wands as it is missing following references: 
+	spells_n_squares:elder_wand (from mod/spells_n_squares)
+[22Dec2025 08:01:06.375] [Render thread/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 1470 recipes
+[22Dec2025 08:01:06.389] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 1584 advancements
+[22Dec2025 08:01:06.392] [Render thread/INFO] [net.neoforged.neoforge.common.crafting.RecipePriorityManager/]: Loaded 0 recipe priority overrides
+[22Dec2025 08:01:06.586] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Starting integrated minecraft server version 1.21.11
+[22Dec2025 08:01:06.586] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
+[22Dec2025 08:01:07.000] [Server thread/INFO] [net.minecraft.server.level.progress.LoggingLevelLoadListener/]: Loading 0 persistent chunks...
+[22Dec2025 08:01:07.000] [Server thread/INFO] [net.minecraft.server.level.progress.LoggingLevelLoadListener/]: Preparing spawn area: 16%
+[22Dec2025 08:01:07.015] [Server thread/INFO] [net.neoforged.neoforge.server.permission.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
+[22Dec2025 08:01:07.017] [Server thread/INFO] [at.koopro.spells_n_squares.init.ServerEventHandler/]: Server starting - Spells_n_Squares mod ready
+[22Dec2025 08:01:07.558] [Server thread/INFO] [net.minecraft.server.level.progress.LoggingLevelLoadListener/]: Loading 49 chunks for player spawn...
+[22Dec2025 08:01:07.558] [Server thread/INFO] [net.minecraft.server.level.progress.LoggingLevelLoadListener/]: Preparing spawn area: 16%
+[22Dec2025 08:01:07.769] [Server thread/INFO] [net.minecraft.server.level.progress.LoggingLevelLoadListener/]: Time elapsed: 770 ms
+[22Dec2025 08:01:08.158] [Server thread/INFO] [net.minecraft.server.players.PlayerList/]: Dev[local:E:38f747d3] logged in with entity id 1 at (11.454379995562448, 56.0, -2.4811081437291382)
+[22Dec2025 08:01:08.235] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev joined the game
+[22Dec2025 08:01:08.428] [Render thread/WARN] [net.minecraft.client.multiplayer.ClientPacketListener/]: Ignoring chat session from Dev due to missing Services public key
+[22Dec2025 08:01:08.428] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing view distance to 16, from 10
+[22Dec2025 08:01:08.432] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing simulation distance to 12, from 0
+[22Dec2025 08:01:08.434] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 2 advancements
+[22Dec2025 08:01:08.575] [Render thread/INFO] [at.koopro.spells_n_squares.features.fx.PostProcessingManager/]: Lumos orb shader pipeline loaded and available
+[22Dec2025 08:01:08.576] [Render thread/INFO] [at.koopro.spells_n_squares.features.fx.PostProcessingManager/]: Cut effect shader pipeline loaded and available
+[22Dec2025 08:01:08.589] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Dynamic Transforms UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[22Dec2025 08:01:08.739] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Dynamic Transforms UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[22Dec2025 08:01:08.867] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Chunk Sections UBO, capacity limit of 2 reached during a single frame. New capacity will be 8.
+[22Dec2025 08:01:08.920] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Chunk Sections UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[22Dec2025 08:01:09.045] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Chunk Sections UBO, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[22Dec2025 08:01:09.217] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Chunk Sections UBO, capacity limit of 32 reached during a single frame. New capacity will be 64.
+[22Dec2025 08:01:11.085] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Chunk Sections UBO, capacity limit of 64 reached during a single frame. New capacity will be 128.
+[22Dec2025 08:01:11.202] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Chunk Sections UBO, capacity limit of 128 reached during a single frame. New capacity will be 256.
+[22Dec2025 08:01:11.401] [Render thread/INFO] [net.minecraft.client.renderer.DynamicUniformStorage/]: Resizing Chunk Sections UBO, capacity limit of 256 reached during a single frame. New capacity will be 512.
+[22Dec2025 08:01:20.109] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/heal.png referenced from spells_n_squares:textures/spell/heal.png
+[22Dec2025 08:01:20.110] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/heal.png referenced from spells_n_squares:textures/spell/heal.png
+[22Dec2025 08:01:20.111] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/teleport.png referenced from spells_n_squares:textures/spell/teleport.png
+[22Dec2025 08:01:20.111] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/teleport.png referenced from spells_n_squares:textures/spell/teleport.png
+[22Dec2025 08:01:20.111] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/fireball.png referenced from spells_n_squares:textures/spell/fireball.png
+[22Dec2025 08:01:20.113] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/fireball.png referenced from spells_n_squares:textures/spell/fireball.png
+[22Dec2025 08:01:20.113] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/periculum.png referenced from spells_n_squares:textures/spell/periculum.png
+[22Dec2025 08:01:20.114] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/periculum.png referenced from spells_n_squares:textures/spell/periculum.png
+[22Dec2025 08:01:22.046] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/aguamenti.png referenced from spells_n_squares:textures/spell/aguamenti.png
+[22Dec2025 08:01:22.046] [Render thread/WARN] [net.minecraft.client.renderer.texture.TextureManager/]: Missing resource spells_n_squares:textures/spell/aguamenti.png referenced from spells_n_squares:textures/spell/aguamenti.png
+[22Dec2025 08:01:36.819] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[22Dec2025 08:01:36.846] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[22Dec2025 08:01:36.860] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/spells_n_squares:pocket_dimension
+[22Dec2025 08:01:36.860] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[22Dec2025 08:01:36.861] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end

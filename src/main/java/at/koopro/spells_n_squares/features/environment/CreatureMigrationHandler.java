@@ -110,6 +110,11 @@ public class CreatureMigrationHandler {
      * Selects a random creature based on spawn weights.
      */
     private static MigrationCreature selectRandomCreature(net.minecraft.util.RandomSource random) {
+        // Return null if no creatures are available
+        if (RARE_CREATURES.isEmpty()) {
+            return null;
+        }
+        
         float roll = random.nextFloat();
         float cumulative = 0.0f;
         
@@ -223,6 +228,9 @@ public class CreatureMigrationHandler {
         }
     }
 }
+
+
+
 
 
 

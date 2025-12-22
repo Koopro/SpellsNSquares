@@ -23,10 +23,27 @@ public record SpellSlotsSyncPayload(List<Identifier> slots) implements CustomPac
     private static final StreamCodec<ByteBuf, Identifier> IDENTIFIER_CODEC =
         ByteBufCodecs.STRING_UTF8.map(Identifier::parse, Identifier::toString);
     
+    private static final StreamCodec<ByteBuf, Optional<Identifier>> OPTIONAL_IDENTIFIER_CODEC =
+        ByteBufCodecs.optional(IDENTIFIER_CODEC);
+    
     public static final StreamCodec<ByteBuf, SpellSlotsSyncPayload> STREAM_CODEC = StreamCodec.composite(
-        IDENTIFIER_CODEC.apply(ByteBufCodecs.collection(ArrayList::new)),
-        SpellSlotsSyncPayload::slots,
-        SpellSlotsSyncPayload::new
+        OPTIONAL_IDENTIFIER_CODEC.apply(ByteBufCodecs.collection(ArrayList::new)),
+        payload -> {
+            // Convert List<Optional<Identifier>> to List<Identifier> (nulls become empty optionals)
+            List<Optional<Identifier>> optionalList = new ArrayList<>();
+            for (Identifier id : payload.slots) {
+                optionalList.add(Optional.ofNullable(id));
+            }
+            return optionalList;
+        },
+        optionalList -> {
+            // Convert List<Optional<Identifier>> back to List<Identifier>
+            List<Identifier> idList = new ArrayList<>();
+            for (Optional<Identifier> opt : optionalList) {
+                idList.add(opt.orElse(null));
+            }
+            return new SpellSlotsSyncPayload(idList);
+        }
     );
     
     /**
@@ -47,4 +64,7 @@ public record SpellSlotsSyncPayload(List<Identifier> slots) implements CustomPac
         return TYPE;
     }
 }
+
+
+
 

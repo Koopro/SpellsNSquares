@@ -6,8 +6,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
@@ -152,7 +154,7 @@ public final class PotionBrewingManager {
             
             // Check if cauldron still exists
             if (!level.getBlockState(pos).getBlock().equals(
-                at.koopro.spells_n_squares.core.registry.ModBlocks.SELF_STIRRING_CAULDRON.get())) {
+                at.koopro.spells_n_squares.features.automation.AutomationRegistry.SELF_STIRRING_CAULDRON.get())) {
                 iterator.remove();
                 continue;
             }
@@ -161,7 +163,20 @@ public final class PotionBrewingManager {
             if (session.tick(level)) {
                 // Brewing complete - create result
                 ItemStack result = session.createResult();
-                // TODO: Spawn result item or store in cauldron data
+                
+                // Spawn result item above the cauldron
+                Vec3 spawnPos = Vec3.atCenterOf(pos).add(0, 0.5, 0);
+                ItemEntity itemEntity = new ItemEntity(level, spawnPos.x, spawnPos.y, spawnPos.z, result);
+                itemEntity.setDefaultPickUpDelay();
+                level.addFreshEntity(itemEntity);
+                
+                // Spawn completion particles
+                level.sendParticles(
+                    net.minecraft.core.particles.ParticleTypes.ENCHANT,
+                    spawnPos.x, spawnPos.y, spawnPos.z,
+                    20, 0.3, 0.3, 0.3, 0.1
+                );
+                
                 iterator.remove();
             }
         }

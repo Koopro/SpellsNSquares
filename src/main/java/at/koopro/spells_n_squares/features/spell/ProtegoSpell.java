@@ -78,7 +78,7 @@ public class ProtegoSpell implements Spell {
         
         // Spawn the shield orb entity
         ShieldOrbEntity shield = new ShieldOrbEntity(
-            at.koopro.spells_n_squares.core.registry.ModEntities.SHIELD_ORB.get(),
+            at.koopro.spells_n_squares.features.spell.SpellEntityRegistry.SHIELD_ORB.get(),
             level
         );
         Vec3 pos = player.position().add(0, player.getBbHeight() * 0, 0);

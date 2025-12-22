@@ -43,11 +43,13 @@ public class ExtendableEarItem extends Item {
                 p -> p != player && p.isAlive());
             
             if (!players.isEmpty()) {
-                // Show message about nearby players (eavesdropping)
+                // Show message about nearby players (eavesdropping is now automatic via chat handler)
                 int count = players.size();
                 serverPlayer.sendSystemMessage(Component.translatable(
                     "message.spells_n_squares.extendable_ear.listening",
                     count));
+                serverPlayer.sendSystemMessage(Component.translatable(
+                    "message.spells_n_squares.extendable_ear.active"));
                 
                 // Visual effect
                 if (level instanceof ServerLevel serverLevel) {
@@ -69,6 +71,9 @@ public class ExtendableEarItem extends Item {
         return InteractionResult.PASS;
     }
 }
+
+
+
 
 
 

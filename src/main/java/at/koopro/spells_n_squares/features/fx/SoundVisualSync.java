@@ -34,6 +34,13 @@ public class SoundVisualSync {
         
         Player player = event.getPlayer();
         Level level = event.getLevel();
+        at.koopro.spells_n_squares.features.spell.Spell spell = event.getSpell();
+        
+        // Suppress ALL effects for hold-to-cast spells to avoid annoying animations
+        // Hold spells should only have subtle effects during onHoldTick, not on cast
+        if (spell != null && spell.isHoldToCast()) {
+            return;
+        }
         
         // Trigger screen flash synchronized with cast
         if (level.isClientSide()) {

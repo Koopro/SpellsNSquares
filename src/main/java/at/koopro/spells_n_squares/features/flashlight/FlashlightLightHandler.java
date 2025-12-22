@@ -41,7 +41,7 @@ public class FlashlightLightHandler {
         Player player = mc.player;
         
         // Find held flashlight using utility
-        var flashlightStackOpt = at.koopro.spells_n_squares.core.util.PlayerItemUtils.findHeldItem(player, ModItems.FLASHLIGHT.get());
+        var flashlightStackOpt = at.koopro.spells_n_squares.core.util.PlayerItemUtils.findHeldItem(player, FlashlightRegistry.FLASHLIGHT.get());
         boolean hasFlashlight = flashlightStackOpt.isPresent();
         boolean isOn = flashlightStackOpt.map(FlashlightItem::isOn).orElse(false);
         

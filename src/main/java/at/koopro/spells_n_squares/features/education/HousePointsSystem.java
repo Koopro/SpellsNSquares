@@ -69,36 +69,37 @@ public final class HousePointsSystem {
         }
     }
     
+    // Static storage for player house points data (UUID -> HousePointsData)
+    private static final java.util.Map<java.util.UUID, HousePointsData> playerHousePointsData = new java.util.HashMap<>();
+    
     /**
      * Gets house points data for a player.
+     * TODO: Migrate to actual data component when player data components are fully implemented
      */
     public static HousePointsData getHousePoints(Player player) {
-        // TODO: Retrieve from player data component
-        // - Use player.getData(HOUSE_POINTS_DATA) to get the component
-        // - Return default HousePointsData if not present
-        return new HousePointsData();
+        return playerHousePointsData.computeIfAbsent(player.getUUID(), uuid -> new HousePointsData());
     }
     
     /**
      * Adds points to a house.
      */
     public static void addPoints(Player player, String house, int amount) {
-        // TODO: Update player's house points data component
-        // - Get current data: HousePointsData current = getHousePoints(player)
-        // - Create updated data: HousePointsData updated = current.addPoints(house, amount)
-        // - Save: player.setData(HOUSE_POINTS_DATA, updated)
-        // - Sync to client if needed
+        if (!player.level().isClientSide()) {
+            HousePointsData current = getHousePoints(player);
+            HousePointsData updated = current.addPoints(house, amount);
+            playerHousePointsData.put(player.getUUID(), updated);
+        }
     }
     
     /**
      * Removes points from a house.
      */
     public static void removePoints(Player player, String house, int amount) {
-        // TODO: Update player's house points data component
-        // - Get current data: HousePointsData current = getHousePoints(player)
-        // - Create updated data: HousePointsData updated = current.removePoints(house, amount)
-        // - Save: player.setData(HOUSE_POINTS_DATA, updated)
-        // - Sync to client if needed
+        if (!player.level().isClientSide()) {
+            HousePointsData current = getHousePoints(player);
+            HousePointsData updated = current.removePoints(house, amount);
+            playerHousePointsData.put(player.getUUID(), updated);
+        }
     }
     
     /**
@@ -109,6 +110,9 @@ public final class HousePointsSystem {
         return data.getPoints(house);
     }
 }
+
+
+
 
 
 

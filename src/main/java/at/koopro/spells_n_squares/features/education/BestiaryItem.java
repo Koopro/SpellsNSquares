@@ -1,6 +1,5 @@
 package at.koopro.spells_n_squares.features.education;
 
-import at.koopro.spells_n_squares.core.registry.ModEntities;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -103,7 +102,7 @@ public class BestiaryItem extends Item {
         EntityType<?> entityType = entity.getType();
         
         // Map known entity types to creature IDs
-        if (entityType == ModEntities.OWL.get()) {
+        if (entityType == at.koopro.spells_n_squares.features.communication.CommunicationRegistry.OWL.get()) {
             return at.koopro.spells_n_squares.core.util.ModIdentifierHelper.modId("owl");
         }
         // TODO: Re-enable when these entities are implemented
@@ -260,6 +259,9 @@ public class BestiaryItem extends Item {
         return null;
     }
 }
+
+
+
 
 
 

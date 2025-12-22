@@ -44,3 +44,6 @@ public record SpellCooldownSyncPayload(Map<Identifier, Integer> cooldowns) imple
     }
 }
 
+
+
+

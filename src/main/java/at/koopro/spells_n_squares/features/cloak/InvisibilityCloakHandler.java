@@ -33,8 +33,8 @@ public class InvisibilityCloakHandler {
         // Check if player is wearing an invisibility cloak in the chest slot
         ItemStack chestArmor = player.getItemBySlot(EquipmentSlot.CHEST);
         
-        boolean hasDemiguiseCloak = chestArmor.getItem() == ModItems.DEMIGUISE_CLOAK.get();
-        boolean hasDeathlyHallowCloak = chestArmor.getItem() == ModItems.DEATHLY_HALLOW_CLOAK.get();
+        boolean hasDemiguiseCloak = chestArmor.getItem() == CloakRegistry.DEMIGUISE_CLOAK.get();
+        boolean hasDeathlyHallowCloak = chestArmor.getItem() == CloakRegistry.DEATHLY_HALLOW_CLOAK.get();
         
         if (hasDemiguiseCloak || hasDeathlyHallowCloak) {
             // Check if cloak is not broken (for Demiguise cloak)

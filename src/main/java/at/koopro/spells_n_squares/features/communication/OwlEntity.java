@@ -121,7 +121,7 @@ public class OwlEntity extends Mob {
         
         if (mailboxPos != null) {
             // Try to deliver to mailbox
-            if (at.koopro.spells_n_squares.block.mail.MailboxBlock.deliverMailToMailbox(
+            if (at.koopro.spells_n_squares.features.mail.block.MailboxBlock.deliverMailToMailbox(
                     level, mailboxPos, recipientId, deliveryItem)) {
                 if (targetPlayer instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
                     serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.spells_n_squares.mail.delivered_mailbox"));
@@ -160,7 +160,7 @@ public class OwlEntity extends Mob {
             for (int y = -searchRadius; y <= searchRadius; y++) {
                 for (int z = -searchRadius; z <= searchRadius; z++) {
                     BlockPos checkPos = searchPos.offset(x, y, z);
-                    if (level.getBlockState(checkPos).getBlock() instanceof at.koopro.spells_n_squares.block.mail.MailboxBlock) {
+                    if (level.getBlockState(checkPos).getBlock() instanceof at.koopro.spells_n_squares.features.mail.block.MailboxBlock) {
                         return checkPos;
                     }
                 }

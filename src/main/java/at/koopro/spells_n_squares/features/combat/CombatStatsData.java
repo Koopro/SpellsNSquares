@@ -65,25 +65,30 @@ public final class CombatStatsData {
         }
     }
     
+    // Static storage for player combat stats (UUID -> CombatStatsComponent)
+    private static final java.util.Map<java.util.UUID, CombatStatsComponent> playerCombatStats = new java.util.HashMap<>();
+    
     /**
      * Gets combat stats for a player.
+     * TODO: Migrate to actual data component when player data components are fully implemented
      */
     public static CombatStatsComponent getCombatStats(Player player) {
-        // TODO: Retrieve from player data component
-        // - Use player.getData(COMBAT_STATS) to get the component
-        // - Return default CombatStatsComponent if not present
-        return new CombatStatsComponent();
+        return playerCombatStats.computeIfAbsent(player.getUUID(), uuid -> new CombatStatsComponent());
     }
     
     /**
      * Sets combat stats for a player.
+     * TODO: Migrate to actual data component when player data components are fully implemented
      */
     public static void setCombatStats(Player player, CombatStatsComponent stats) {
-        // TODO: Store in player data component
-        // - Use player.setData(COMBAT_STATS, stats) to persist the component
-        // - Ensure this is only called on server side
+        if (!player.level().isClientSide()) {
+            playerCombatStats.put(player.getUUID(), stats);
+        }
     }
 }
+
+
+
 
 
 

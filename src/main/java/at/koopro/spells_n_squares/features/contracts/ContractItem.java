@@ -27,6 +27,15 @@ public class ContractItem extends Item {
         ItemStack stack = player.getItemInHand(hand);
         
         if (level.isClientSide()) {
+            ContractData.ContractComponent contractData = ContractSystem.getContractData(stack);
+            if (contractData == null) {
+                // Empty contract - open creation interface
+                net.minecraft.client.Minecraft.getInstance().setScreen(
+                    new at.koopro.spells_n_squares.features.contracts.client.ContractCreationScreen(stack));
+            } else {
+                // Contract with data - view it (could open a view screen too)
+                return InteractionResult.SUCCESS;
+            }
             return InteractionResult.SUCCESS;
         }
         
@@ -37,26 +46,14 @@ public class ContractItem extends Item {
         ContractData.ContractComponent contractData = ContractSystem.getContractData(stack);
         
         if (contractData == null) {
-            // Empty contract - open creation interface
-            openCreationInterface(serverPlayer, stack);
+            // Empty contract - creation interface is handled client-side
+            return InteractionResult.SUCCESS;
         } else {
             // Contract with data - view it
             viewContract(serverPlayer, contractData);
         }
         
         return InteractionResult.SUCCESS;
-    }
-    
-    /**
-     * Opens the contract creation interface.
-     * For now, uses a simple command-based approach.
-     */
-    private void openCreationInterface(ServerPlayer player, ItemStack stack) {
-        // TODO: Implement proper GUI screen for contract creation
-        // For now, provide instructions via chat
-        player.sendSystemMessage(Component.translatable("message.spells_n_squares.contract.creation_instructions"));
-        player.sendSystemMessage(Component.translatable("message.spells_n_squares.contract.use_command", 
-            "/contract create <type> <party1> <party2> <terms>"));
     }
     
     /**
@@ -116,6 +113,9 @@ public class ContractItem extends Item {
         }
     }
 }
+
+
+
 
 
 

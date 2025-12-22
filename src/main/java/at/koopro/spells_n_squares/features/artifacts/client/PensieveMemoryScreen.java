@@ -2,6 +2,7 @@ package at.koopro.spells_n_squares.features.artifacts.client;
 
 import at.koopro.spells_n_squares.features.artifacts.PensieveData;
 import at.koopro.spells_n_squares.features.artifacts.PensieveItem;
+import at.koopro.spells_n_squares.features.fx.ScreenEffectManager;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public class PensieveMemoryScreen extends Screen {
     private final ItemStack pensieveStack;
-    private List<PensieveData.MemorySnapshot> memories;
+    private final List<PensieveData.MemorySnapshot> memories;
     private int scrollOffset = 0;
     
     private static final int BUTTON_WIDTH = 200;
@@ -24,6 +25,18 @@ public class PensieveMemoryScreen extends Screen {
     private static final int START_Y = 60;
     private static final int MAX_VISIBLE = 10;
     
+    /**
+     * Constructor that accepts memory list directly (used for network payload).
+     */
+    public PensieveMemoryScreen(List<PensieveData.MemorySnapshot> memories) {
+        super(Component.translatable("gui.spells_n_squares.pensieve.memories"));
+        this.pensieveStack = ItemStack.EMPTY;
+        this.memories = memories;
+    }
+    
+    /**
+     * Constructor that extracts memories from ItemStack (backward compatibility).
+     */
     public PensieveMemoryScreen(ItemStack pensieveStack) {
         super(Component.translatable("gui.spells_n_squares.pensieve.memories"));
         this.pensieveStack = pensieveStack;
@@ -40,7 +53,6 @@ public class PensieveMemoryScreen extends Screen {
         // Display memories
         int endIndex = Math.min(scrollOffset + MAX_VISIBLE, memories.size());
         for (int i = scrollOffset; i < endIndex; i++) {
-            final int memoryIndex = i;
             final PensieveData.MemorySnapshot memory = memories.get(i);
             final int buttonY = currentY;
             
@@ -52,8 +64,12 @@ public class PensieveMemoryScreen extends Screen {
             Button memoryButton = Button.builder(
                 Component.literal(buttonText),
                 button -> {
-                    // TODO: Play memory viewing animation/effect
-                    // For now, just show a message
+                    // Play memory viewing animation/effect
+                    ScreenEffectManager.triggerSpellFlash();
+                    ScreenEffectManager.triggerOverlay(0x7F7FFF, 0.3f, 30, at.koopro.spells_n_squares.features.fx.ScreenEffectManager.ScreenOverlay.OverlayType.FLASH);
+                    
+                    // Show memory details (visual effect only - message would need server-side)
+                    // The visual effects provide feedback that memory is being viewed
                 }
             ).bounds(centerX - BUTTON_WIDTH / 2, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             
@@ -112,6 +128,9 @@ public class PensieveMemoryScreen extends Screen {
         return false;
     }
 }
+
+
+
 
 
 

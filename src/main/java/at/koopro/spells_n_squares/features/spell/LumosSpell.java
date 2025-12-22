@@ -60,7 +60,7 @@ public class LumosSpell implements Spell {
             Vec3 spawnPos = eye.add(look.scale(0.6)).add(0, -0.1, 0);
             Vec3 velocity = look.scale(0.7);
             LightOrbEntity orb = new LightOrbEntity(
-                at.koopro.spells_n_squares.core.registry.ModEntities.LIGHT_ORB.get(),
+                at.koopro.spells_n_squares.features.spell.SpellEntityRegistry.LIGHT_ORB.get(),
                 level
             );
             level.addFreshEntity(orb);

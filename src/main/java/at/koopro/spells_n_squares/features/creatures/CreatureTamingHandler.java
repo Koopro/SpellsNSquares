@@ -24,13 +24,26 @@ public final class CreatureTamingHandler {
      * @return True if taming was successful
      */
     public static boolean attemptTame(LivingEntity creature, Player player) {
-        // TODO: Implement taming logic based on creature type
-        // - Check if creature is tamable (e.g., instanceof BaseTamableCreatureEntity)
-        // - Verify player has required items (if any) for taming
-        // - Calculate taming success chance based on creature type and player actions
-        // - If successful, set owner via creature's setOwner() method or data component
-        // - Return true on success, false otherwise
-        // See docs/TODO_TRACKING.md for details
+        if (creature.level().isClientSide()) {
+            return false; // Only handle on server
+        }
+        
+        // Check if creature is tamable
+        if (creature instanceof at.koopro.spells_n_squares.features.creatures.base.BaseTamableCreatureEntity tamable) {
+            // Already has owner, cannot tame
+            if (tamable.hasOwner()) {
+                return false;
+            }
+            
+            // Simple taming: set owner (creature-specific logic should be in mobInteract)
+            tamable.setOwner(player);
+            return true;
+        }
+        
+        // For other entities, check if they use CreatureData component
+        // This could be extended in the future for non-BaseTamableCreatureEntity creatures
+        // For now, return false as they should handle taming themselves
+        
         return false;
     }
     
@@ -47,14 +60,17 @@ public final class CreatureTamingHandler {
      * @return True if the creature is tamed by the player
      */
     public static boolean isTamedBy(LivingEntity creature, Player player) {
-        // TODO: Check creature data component or entity-specific owner field
-        // - For entities extending BaseTamableCreatureEntity: use creature.isOwner(player)
-        // - For entities using data components: retrieve owner from CreatureData component
-        // - Return true if creature is owned by the player, false otherwise
-        // See docs/TODO_TRACKING.md for details
+        // Check for BaseTamableCreatureEntity first
         if (creature instanceof at.koopro.spells_n_squares.features.creatures.base.BaseTamableCreatureEntity tamable) {
             return tamable.isOwner(player);
         }
+        
+        // For other entities, check CreatureData component if available
+        // This could be extended in the future for non-BaseTamableCreatureEntity creatures
+        // For now, return false as they should handle ownership themselves
+        
         return false;
     }
 }
+
+

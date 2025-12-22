@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.registry;
 
-import at.koopro.spells_n_squares.block.tree.TreeBlockSet;
+import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -33,4 +33,7 @@ public class ModTreeBlocks {
         ALL_TREE_SETS.add(treeSet);
     }
 }
+
+
+
 

@@ -21,7 +21,7 @@ public class DraughtOfLivingDeathItem extends PotionItem {
      */
     public static ItemStack createDefault() {
         ItemStack stack = new ItemStack(
-            at.koopro.spells_n_squares.core.registry.ModItems.DRAUGHT_OF_LIVING_DEATH_POTION.get(), 1);
+            at.koopro.spells_n_squares.features.potions.PotionsRegistry.DRAUGHT_OF_LIVING_DEATH_POTION.get(), 1);
         
         List<PotionData.PotionEffect> effects = List.of(
             new PotionData.PotionEffect(
@@ -49,6 +49,9 @@ public class DraughtOfLivingDeathItem extends PotionItem {
         return stack;
     }
 }
+
+
+
 
 
 

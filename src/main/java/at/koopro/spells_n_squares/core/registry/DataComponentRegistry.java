@@ -4,6 +4,7 @@ import at.koopro.spells_n_squares.features.artifacts.DeluminatorData;
 import at.koopro.spells_n_squares.features.artifacts.ElderWandData;
 import at.koopro.spells_n_squares.features.artifacts.GobletOfFireData;
 import at.koopro.spells_n_squares.features.artifacts.MaraudersMapData;
+import at.koopro.spells_n_squares.features.artifacts.MirrorOfErisedData;
 import at.koopro.spells_n_squares.features.artifacts.PensieveData;
 import at.koopro.spells_n_squares.features.artifacts.PhilosophersStoneData;
 import at.koopro.spells_n_squares.features.artifacts.RemembrallData;
@@ -61,6 +62,7 @@ public final class DataComponentRegistry {
         ElderWandData.DATA_COMPONENTS.register(modEventBus);
         GobletOfFireData.DATA_COMPONENTS.register(modEventBus);
         MaraudersMapData.DATA_COMPONENTS.register(modEventBus);
+        MirrorOfErisedData.DATA_COMPONENTS.register(modEventBus);
         PensieveData.DATA_COMPONENTS.register(modEventBus);
         PhilosophersStoneData.DATA_COMPONENTS.register(modEventBus);
         RemembrallData.DATA_COMPONENTS.register(modEventBus);
@@ -122,6 +124,9 @@ public final class DataComponentRegistry {
         PlayerClassData.DATA_COMPONENTS.register(modEventBus);
     }
 }
+
+
+
 
 
 

@@ -22,7 +22,7 @@ public class ShrinkingSolutionItem extends PotionItem {
      */
     public static ItemStack createDefault() {
         ItemStack stack = new ItemStack(
-            at.koopro.spells_n_squares.core.registry.ModItems.SHRINKING_SOLUTION_POTION.get(), 1);
+            at.koopro.spells_n_squares.features.potions.PotionsRegistry.SHRINKING_SOLUTION_POTION.get(), 1);
         
         List<PotionData.PotionEffect> effects = List.of(
             new PotionData.PotionEffect(
@@ -38,4 +38,7 @@ public class ShrinkingSolutionItem extends PotionItem {
         return stack;
     }
 }
+
+
+
 

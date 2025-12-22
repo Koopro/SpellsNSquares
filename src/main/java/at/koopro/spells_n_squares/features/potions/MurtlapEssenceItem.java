@@ -22,7 +22,7 @@ public class MurtlapEssenceItem extends PotionItem {
      */
     public static ItemStack createDefault() {
         ItemStack stack = new ItemStack(
-            at.koopro.spells_n_squares.core.registry.ModItems.MURTLAP_ESSENCE_POTION.get(), 1);
+            at.koopro.spells_n_squares.features.potions.PotionsRegistry.MURTLAP_ESSENCE_POTION.get(), 1);
         
         List<PotionData.PotionEffect> effects = List.of(
             new PotionData.PotionEffect(
@@ -38,4 +38,7 @@ public class MurtlapEssenceItem extends PotionItem {
         return stack;
     }
 }
+
+
+
 

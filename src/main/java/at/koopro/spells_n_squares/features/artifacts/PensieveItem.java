@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.features.artifacts;
 
+import at.koopro.spells_n_squares.features.artifacts.network.PensieveOpenScreenPayload;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -13,6 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -53,9 +55,16 @@ public class PensieveItem extends Item {
             serverPlayer.sendSystemMessage(Component.translatable("message.spells_n_squares.pensieve.no_memories"));
         } else {
             // Send network packet to open memory viewing screen on client
-            // TODO: Create network payload for opening Pensieve screen
-            // For now, show message
-            serverPlayer.sendSystemMessage(Component.translatable("message.spells_n_squares.pensieve.memories", memories.size()));
+            var memoryDataList = memories.stream()
+                .map(mem -> new PensieveOpenScreenPayload.MemoryData(
+                    mem.description(),
+                    mem.timestamp(),
+                    mem.location()
+                ))
+                .toList();
+            
+            var payload = new PensieveOpenScreenPayload(memoryDataList);
+            PacketDistributor.sendToPlayer(serverPlayer, payload);
         }
         
         // Visual and audio feedback

@@ -9,8 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -22,18 +21,11 @@ public class GeckoLibItemModelProvider implements DataProvider {
     private final PackOutput output;
     private final String modId;
     
-    // GeckoLib items that have JSON files in src/main/resources/assets/spells_n_squares/items/
-    private static final List<String> GECKOLIB_ITEMS = List.of(
-        "rubber_duck",
-        "flashlight",
-        "demo_wand",
-        "demiguise_cloak",
-        "deathly_hallow_cloak"
-    );
-    
     public GeckoLibItemModelProvider(PackOutput output) {
         this.output = output;
         this.modId = SpellsNSquares.MODID;
+        // Initialize the datagen config to scan for custom models
+        ItemDatagenConfig.initialize();
     }
     
     @Override
@@ -49,14 +41,17 @@ public class GeckoLibItemModelProvider implements DataProvider {
         Path targetDir = output.getOutputFolder(PackOutput.Target.RESOURCE_PACK)
             .resolve(modId).resolve("items");
         
-        // Copy each GeckoLib item JSON file synchronously
+        // Copy each item with custom JSON models synchronously
         // Note: These files are also copied by the copyGeckoLibItems Gradle task after restoreAssets,
         // but we generate them here during data generation as well for completeness
         try {
             // Ensure target directory exists
             Files.createDirectories(targetDir);
             
-            for (String itemName : GECKOLIB_ITEMS) {
+            // Get all items with custom models from the centralized config
+            Set<String> itemsWithCustomModels = ItemDatagenConfig.getItemsWithCustomModels();
+            
+            for (String itemName : itemsWithCustomModels) {
                 Path sourceFile = sourceDir.resolve(itemName + ".json");
                 Path targetFile = targetDir.resolve(itemName + ".json");
                 
@@ -64,7 +59,8 @@ public class GeckoLibItemModelProvider implements DataProvider {
                     // Copy the file directly (synchronously)
                     Files.copy(sourceFile, targetFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 } else {
-                    System.err.println("Warning: GeckoLib item model not found: " + sourceFile);
+                    // Only warn if it's in the explicit list (might be a GeckoLib item without JSON)
+                    System.err.println("Warning: Custom item model not found: " + sourceFile);
                 }
             }
         } catch (IOException e) {
@@ -81,6 +77,9 @@ public class GeckoLibItemModelProvider implements DataProvider {
         return "GeckoLib Item Models - " + modId;
     }
 }
+
+
+
 
 
 

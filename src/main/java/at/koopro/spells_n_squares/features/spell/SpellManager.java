@@ -4,10 +4,14 @@ import at.koopro.spells_n_squares.core.api.addon.events.AddonEventBus;
 import at.koopro.spells_n_squares.core.api.addon.events.SpellCastEvent;
 import at.koopro.spells_n_squares.core.api.addon.events.SpellSlotChangeEvent;
 import at.koopro.spells_n_squares.core.registry.SpellRegistry;
+import at.koopro.spells_n_squares.features.artifacts.ElderWandItem;
+import at.koopro.spells_n_squares.features.spell.network.SpellCooldownSyncPayload;
+import at.koopro.spells_n_squares.features.spell.network.SpellSlotsSyncPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.*;
 import java.util.Set;
@@ -33,6 +37,16 @@ public class SpellManager {
     
     // Per-player learned spells (set of spell IDs)
     private static final Map<UUID, Set<Identifier>> playerLearnedSpells = new HashMap<>();
+    
+    // Per-player active hold-to-cast spells (player UUID -> spell ID)
+    private static final Map<UUID, Identifier> activeHoldSpells = new HashMap<>();
+    
+    // Cache for spell lookups (spell ID -> Spell)
+    private static final Map<Identifier, Spell> spellCache = new HashMap<>();
+    
+    // Per-player sync timers for batched cooldown synchronization (UUID -> tick count)
+    private static final Map<UUID, Integer> syncTimers = new HashMap<>();
+    private static final int SYNC_INTERVAL = 20; // Sync every 20 ticks (1 second)
     
     /**
      * Validates if a slot index is valid.
@@ -114,26 +128,50 @@ public class SpellManager {
             return false;
         }
         
-        // Get spell from registry
-        Spell spell = SpellRegistry.get(spellId);
+        // Get spell from registry (with caching)
+        Spell spell = spellCache.get(spellId);
         if (spell == null) {
-            return false;
+            spell = SpellRegistry.get(spellId);
+            if (spell != null) {
+                spellCache.put(spellId, spell);
+            } else {
+                return false;
+            }
         }
         
         // Cast the spell
         boolean success = spell.cast(player, level);
         
+        // Suppress ALL visual effects for hold-to-cast spells to avoid annoying animations
+        // Hold spells should only have subtle effects during onHoldTick, not on cast
+        boolean isHoldSpell = spell.isHoldToCast();
+        
         if (success) {
-            // Set cooldown
-            setCooldown(player, spellId, spell.getCooldown());
+            // Only spawn visual effects for non-hold spells
+            if (!isHoldSpell) {
+                // Spawn visual effects (screen flash, particles, etc.)
+                spell.spawnCastEffects(player, level, true);
+                
+                // Fire event (this also triggers SoundVisualSync for additional particles)
+                SpellCastEvent event = new SpellCastEvent(player, spell, level, slot);
+                AddonEventBus.getInstance().post(event);
+            }
             
-            // Fire event
-            SpellCastEvent event = new SpellCastEvent(player, spell, level, slot);
-            AddonEventBus.getInstance().post(event);
+            // Set cooldown (apply Elder Wand reduction if applicable)
+            int baseCooldown = spell.getCooldown();
+            float cooldownReduction = ElderWandItem.getCooldownReduction(player);
+            int adjustedCooldown = (int) (baseCooldown * cooldownReduction);
+            setCooldown(player, spellId, adjustedCooldown);
             
-            // Sync cooldowns to client
+            // Sync cooldowns to client (immediate sync for spell cast)
             if (player instanceof ServerPlayer serverPlayer) {
                 syncCooldownsToClient(serverPlayer);
+                syncTimers.put(serverPlayer.getUUID(), 0); // Reset sync timer
+            }
+        } else {
+            // Spawn failure effects (subtle feedback) - but not for hold spells
+            if (!isHoldSpell) {
+                spell.spawnCastEffects(player, level, false);
             }
         }
         
@@ -224,9 +262,16 @@ public class SpellManager {
             }
         }
         
-        // Sync to client if cooldowns changed
+        // Batch sync to client (only sync every SYNC_INTERVAL ticks)
         if (changed && player instanceof ServerPlayer serverPlayer) {
-            syncCooldownsToClient(serverPlayer);
+            int timer = syncTimers.getOrDefault(uuid, SYNC_INTERVAL);
+            timer++;
+            if (timer >= SYNC_INTERVAL) {
+                syncCooldownsToClient(serverPlayer);
+                syncTimers.put(uuid, 0);
+            } else {
+                syncTimers.put(uuid, timer);
+            }
         }
     }
     
@@ -283,25 +328,124 @@ public class SpellManager {
         playerSpellSlots.remove(uuid);
         playerCooldowns.remove(uuid);
         playerLearnedSpells.remove(uuid);
+        activeHoldSpells.remove(uuid);
+    }
+    
+    /**
+     * Starts a hold-to-cast spell for a player.
+     * @param player The player
+     * @param spellId The spell ID
+     */
+    public static void startHoldSpell(Player player, Identifier spellId) {
+        UUID uuid = player.getUUID();
+        activeHoldSpells.put(uuid, spellId);
+    }
+    
+    /**
+     * Stops a hold-to-cast spell for a player.
+     * @param player The player
+     */
+    public static void stopHoldSpell(Player player) {
+        UUID uuid = player.getUUID();
+        Identifier spellId = activeHoldSpells.remove(uuid);
+        
+        // Clean up spell-specific tracking (e.g., Wingardium Leviosa tracked entities)
+        if (spellId != null) {
+            Spell spell = SpellRegistry.get(spellId);
+            if (spell instanceof at.koopro.spells_n_squares.features.spell.WingardiumLeviosaSpell) {
+                at.koopro.spells_n_squares.features.spell.WingardiumLeviosaSpell.cleanupForPlayer(uuid);
+            }
+        }
+    }
+    
+    /**
+     * Gets the active hold-to-cast spell for a player.
+     * @param player The player
+     * @return The spell ID, or null if no hold spell is active
+     */
+    public static Identifier getActiveHoldSpell(Player player) {
+        return activeHoldSpells.get(player.getUUID());
+    }
+    
+    /**
+     * Ticks all active hold-to-cast spells.
+     * Called every server tick.
+     */
+    public static void tickHoldSpells(Level level) {
+        if (level.isClientSide()) {
+            return;
+        }
+        
+        Iterator<Map.Entry<UUID, Identifier>> iterator = activeHoldSpells.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, Identifier> entry = iterator.next();
+            UUID playerUUID = entry.getKey();
+            Identifier spellId = entry.getValue();
+            
+            Player player = level.getPlayerByUUID(playerUUID);
+            if (player == null || !player.isAlive()) {
+                iterator.remove();
+                continue;
+            }
+            
+            Spell spell = SpellRegistry.get(spellId);
+            if (spell == null || !spell.isHoldToCast()) {
+                iterator.remove();
+                continue;
+            }
+            
+            // Call the spell's hold tick method
+            boolean shouldContinue = spell.onHoldTick(player, level);
+            if (!shouldContinue) {
+                iterator.remove();
+            }
+        }
+    }
+    
+    /**
+     * Cleans up tracked entities when a hold spell stops.
+     * Called when stopping a hold spell.
+     */
+    public static void cleanupHoldSpell(Player player) {
+        // This is handled by individual spells that track entities
+        // Spells like WingardiumLeviosaSpell manage their own tracked entities
     }
     
     /**
      * Syncs spell slots to the client for a server player.
-     * TODO: Implement network sync when network payloads are enabled
      * @param serverPlayer The server player
      */
     public static void syncSpellSlotsToClient(ServerPlayer serverPlayer) {
-        // TODO: Send SpellSlotsSyncPayload to client
-        // Currently commented out in ModNetwork.java until network payloads are implemented
+        UUID uuid = serverPlayer.getUUID();
+        Identifier[] slots = playerSpellSlots.get(uuid);
+        if (slots == null) {
+            slots = new Identifier[MAX_SLOTS];
+        }
+        
+        // Convert array to list for payload
+        List<Identifier> slotList = new ArrayList<>(MAX_SLOTS);
+        for (int i = 0; i < MAX_SLOTS; i++) {
+            slotList.add(slots[i]);
+        }
+        
+        SpellSlotsSyncPayload payload = new SpellSlotsSyncPayload(slotList);
+        PacketDistributor.sendToPlayer(serverPlayer, payload);
     }
     
     /**
      * Syncs cooldowns to the client for a server player.
-     * TODO: Implement network sync when network payloads are enabled
      * @param serverPlayer The server player
      */
     public static void syncCooldownsToClient(ServerPlayer serverPlayer) {
-        // TODO: Send SpellCooldownSyncPayload to client
-        // Currently commented out in ModNetwork.java until network payloads are implemented
+        UUID uuid = serverPlayer.getUUID();
+        Map<Identifier, Integer> cooldowns = playerCooldowns.get(uuid);
+        if (cooldowns == null) {
+            cooldowns = new HashMap<>();
+        }
+        
+        // Create a copy to avoid concurrent modification issues
+        Map<Identifier, Integer> cooldownsCopy = new HashMap<>(cooldowns);
+        SpellCooldownSyncPayload payload = new SpellCooldownSyncPayload(cooldownsCopy);
+        PacketDistributor.sendToPlayer(serverPlayer, payload);
     }
 }

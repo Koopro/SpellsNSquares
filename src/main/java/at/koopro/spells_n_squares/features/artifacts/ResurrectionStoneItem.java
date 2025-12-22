@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -55,10 +56,40 @@ public class ResurrectionStoneItem extends Item {
         
         // Find nearby dead entities (players or mobs that died recently)
         Vec3 playerPos = player.position();
-        AABB searchBox = new AABB(playerPos, playerPos).inflate(SUMMON_RANGE);
+        List<ResurrectionStoneDeathTracker.DeathRecord> recentDeaths = 
+            ResurrectionStoneDeathTracker.getRecentDeaths(
+                serverLevel, 
+                playerPos.x, playerPos.y, playerPos.z, 
+                SUMMON_RANGE
+            );
         
-        // For now, we'll create a simple ghost entity representation
-        // In a full implementation, this would track dead players/mobs and summon their shades
+        if (recentDeaths.isEmpty()) {
+            serverPlayer.sendSystemMessage(Component.translatable("message.spells_n_squares.resurrection_stone.no_deaths"));
+            // Update last use even if no deaths found
+            component = component.withLastUse(currentTick);
+            stack.set(ResurrectionStoneData.RESURRECTION_STONE_DATA.get(), component);
+            return InteractionResult.SUCCESS;
+        }
+        
+        // Summon shades for recent deaths
+        int shadesSummoned = 0;
+        for (ResurrectionStoneDeathTracker.DeathRecord death : recentDeaths) {
+            // Add shade to component
+            component = component.addShade(death.entityId(), death.entityName(), currentTick);
+            shadesSummoned++;
+            
+            // Spawn visual effect at death location
+            serverLevel.sendParticles(ParticleTypes.SOUL,
+                death.x(), death.y() + 1.0, death.z(),
+                30, 0.5, 0.5, 0.5, 0.1);
+            
+            serverLevel.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                death.x(), death.y() + 1.0, death.z(),
+                20, 0.3, 0.3, 0.3, 0.05);
+        }
+        
+        serverPlayer.sendSystemMessage(Component.translatable(
+            "message.spells_n_squares.resurrection_stone.shades_summoned", shadesSummoned));
         
         // Visual and audio feedback
         Vec3 pos = player.position().add(0, player.getEyeHeight(), 0);
@@ -73,9 +104,7 @@ public class ResurrectionStoneItem extends Item {
         level.playSound(null, pos.x, pos.y, pos.z,
             SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.7f, 0.8f);
         
-        serverPlayer.sendSystemMessage(Component.translatable("message.spells_n_squares.resurrection_stone.activated"));
-        
-        // Update last use
+        // Update component with shades and last use
         component = component.withLastUse(currentTick);
         stack.set(ResurrectionStoneData.RESURRECTION_STONE_DATA.get(), component);
         

@@ -32,6 +32,15 @@ public class MailItem extends Item {
         ItemStack stack = player.getItemInHand(hand);
         
         if (level.isClientSide()) {
+            MailData.MailComponent mailData = OwlPostSystem.getMailData(stack);
+            if (mailData == null) {
+                // Empty mail - open writing interface
+                net.minecraft.client.Minecraft.getInstance().setScreen(
+                    new at.koopro.spells_n_squares.features.mail.client.MailWritingScreen(stack));
+            } else {
+                // Mail with content - read it (could open a read screen too)
+                return InteractionResult.SUCCESS;
+            }
             return InteractionResult.SUCCESS;
         }
         
@@ -42,8 +51,8 @@ public class MailItem extends Item {
         MailData.MailComponent mailData = OwlPostSystem.getMailData(stack);
         
         if (mailData == null) {
-            // Empty mail - open writing interface
-            openWritingInterface(serverPlayer, stack);
+            // Empty mail - writing interface is handled client-side
+            return InteractionResult.SUCCESS;
         } else {
             // Mail with content - read it
             readMail(serverPlayer, mailData);
@@ -54,13 +63,11 @@ public class MailItem extends Item {
     
     /**
      * Opens the mail writing interface.
-     * For now, uses a simple command-based approach.
      */
     private void openWritingInterface(ServerPlayer player, ItemStack stack) {
-        // TODO: Implement proper GUI screen for writing mail
-        // For now, provide instructions via chat
+        // This method is no longer used - GUI is opened client-side in use() method
+        // Server-side: send packet to open GUI (or use command fallback)
         player.sendSystemMessage(Component.translatable("message.spells_n_squares.mail.writing_instructions"));
-        player.sendSystemMessage(Component.translatable("message.spells_n_squares.mail.use_command", "/mail write <recipient> <subject> <message>"));
     }
     
     /**
@@ -152,6 +159,9 @@ public class MailItem extends Item {
         }
     }
 }
+
+
+
 
 
 

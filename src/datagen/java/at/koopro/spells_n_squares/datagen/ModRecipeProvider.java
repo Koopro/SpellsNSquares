@@ -1,8 +1,11 @@
 package at.koopro.spells_n_squares.datagen;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.block.tree.TreeBlockSet;
+import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
 import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
+import at.koopro.spells_n_squares.datagen.features.FeatureRecipeGenerator;
+import at.koopro.spells_n_squares.datagen.features.PotionsRecipeGenerator;
+import at.koopro.spells_n_squares.datagen.features.QuidditchRecipeGenerator;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -15,23 +18,40 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Block;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Generates recipe files for all tree blocks.
+ * Generates recipe files for tree blocks and delegates to feature-specific recipe generators.
  * NeoForge 21.11 requires a Runner class for RecipeProvider.
  */
 public class ModRecipeProvider extends RecipeProvider {
     
+    private final HolderLookup.Provider provider;
+    private final RecipeOutput output;
+    
     protected ModRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
         super(provider, output);
+        this.provider = provider;
+        this.output = output;
     }
     
     @Override
     protected void buildRecipes() {
-        // Generate recipes for all tree blocks
+        // Generate recipes for all tree blocks (generic, not feature-specific)
         for (TreeBlockSet set : ModTreeBlocks.getAllTreeSets()) {
             generateTreeRecipes(set);
+        }
+        
+        // Delegate to feature-specific recipe generators
+        List<FeatureRecipeGenerator> generators = List.of(
+            new PotionsRecipeGenerator(),
+            new QuidditchRecipeGenerator()
+            // Add more feature recipe generators as features add recipes
+        );
+        
+        for (FeatureRecipeGenerator generator : generators) {
+            generator.generate(output, provider);
         }
     }
     
@@ -170,6 +190,9 @@ public class ModRecipeProvider extends RecipeProvider {
         }
     }
 }
+
+
+
 
 
 

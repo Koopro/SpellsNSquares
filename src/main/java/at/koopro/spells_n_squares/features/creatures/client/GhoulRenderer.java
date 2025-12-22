@@ -55,3 +55,6 @@ public class GhoulRenderer extends EntityRenderer<GhoulEntity, EntityRenderState
 
 
 
+
+
+

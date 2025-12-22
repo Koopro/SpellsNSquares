@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.features.artifacts;
 
+import at.koopro.spells_n_squares.features.artifacts.network.MaraudersMapPayload;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -13,6 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -55,12 +57,20 @@ public class MaraudersMapItem extends Item {
             }
             stack.set(MaraudersMapData.MARAUDERS_MAP_DATA.get(), component);
             
-            // Show message with player locations
-            serverPlayer.sendSystemMessage(Component.translatable("message.spells_n_squares.marauders_map.activated"));
-            for (MaraudersMapData.PlayerLocation loc : component.trackedPlayers()) {
-                serverPlayer.sendSystemMessage(Component.translatable("message.spells_n_squares.marauders_map.player",
-                    loc.playerName(), (int)loc.x(), (int)loc.y(), (int)loc.z()));
-            }
+            // Send network packet to open map screen on client
+            var locationDataList = component.trackedPlayers().stream()
+                .map(loc -> new MaraudersMapPayload.PlayerLocationData(
+                    loc.playerId(),
+                    loc.playerName(),
+                    loc.x(),
+                    loc.y(),
+                    loc.z(),
+                    loc.lastUpdateTick()
+                ))
+                .toList();
+            
+            var payload = new MaraudersMapPayload(locationDataList);
+            PacketDistributor.sendToPlayer(serverPlayer, payload);
         } else {
             serverPlayer.sendSystemMessage(Component.translatable("message.spells_n_squares.marauders_map.deactivated"));
         }

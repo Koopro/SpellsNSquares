@@ -69,26 +69,30 @@ public final class CurrencyData {
         return new CurrencyDataComponent(amount.galleons(), amount.sickles(), amount.knuts());
     }
     
+    // Static storage for player currency data (UUID -> CurrencyDataComponent)
+    private static final java.util.Map<java.util.UUID, CurrencyDataComponent> playerCurrencyData = new java.util.HashMap<>();
+    
     /**
      * Gets currency data for a player.
+     * TODO: Migrate to actual data component when player data components are fully implemented
      */
     public static CurrencyDataComponent getCurrencyData(Player player) {
-        // TODO: Retrieve from player data component
-        // - Use player.getData(CURRENCY_DATA) to get the component
-        // - Return default CurrencyDataComponent if not present
-        return new CurrencyDataComponent();
+        return playerCurrencyData.computeIfAbsent(player.getUUID(), uuid -> new CurrencyDataComponent());
     }
     
     /**
      * Sets currency data for a player.
+     * TODO: Migrate to actual data component when player data components are fully implemented
      */
     public static void setCurrencyData(Player player, CurrencyDataComponent data) {
-        // TODO: Store in player data component
-        // - Use player.setData(CURRENCY_DATA, data) to persist the component
-        // - Ensure this is only called on server side
-        // - Consider syncing to client for UI updates
+        if (!player.level().isClientSide()) {
+            playerCurrencyData.put(player.getUUID(), data);
+        }
     }
 }
+
+
+
 
 
 

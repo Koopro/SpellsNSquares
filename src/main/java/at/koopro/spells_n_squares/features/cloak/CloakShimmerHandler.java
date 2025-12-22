@@ -30,8 +30,8 @@ public class CloakShimmerHandler {
         Player player = event.getEntity();
         ItemStack chestArmor = player.getItemBySlot(EquipmentSlot.CHEST);
         
-        boolean hasCloak = chestArmor.getItem() == ModItems.DEMIGUISE_CLOAK.get() ||
-                          chestArmor.getItem() == ModItems.DEATHLY_HALLOW_CLOAK.get();
+        boolean hasCloak = chestArmor.getItem() == CloakRegistry.DEMIGUISE_CLOAK.get() ||
+                          chestArmor.getItem() == CloakRegistry.DEATHLY_HALLOW_CLOAK.get();
         
         if (!hasCloak || !player.isInvisible()) {
             return;

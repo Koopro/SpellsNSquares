@@ -19,7 +19,7 @@ public class FelixFelicisItem extends PotionItem {
     
     public static ItemStack createDefault() {
         ItemStack stack = new ItemStack(
-            at.koopro.spells_n_squares.core.registry.ModItems.FELIX_FELICIS.get(), 1);
+            at.koopro.spells_n_squares.features.potions.PotionsRegistry.FELIX_FELICIS.get(), 1);
         
         // Luck effect (if available) or use regeneration as substitute
         List<PotionData.PotionEffect> effects = List.of(

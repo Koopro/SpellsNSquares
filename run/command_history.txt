@@ -1,20 +1,3 @@
-/spells_n_squaresdebug fx shader invisibility
-/spells_n_squaresdebug fx shader magical_aura
-/spells_n_squaresdebug fx shader spell_cast
-/spells_n_squaresdebug fx shader time_distortion
-/spells_n_squaresdebug fx shake 1 100
-/spells_n_squaresdebug fx shader hue_max 1
-/spells_n_squaresdebug fx shader hue_max 0.5
-/spells_n_squaresdebug fx shader acid
-/spells_n_squaresdebug fx shader chromatic
-/spells_n_squaresdebug fx shader chromatic 1
-/spells_n_squaresdebug fx shader grayscale
-/spells_n_squaresdebug fx shader inverted
-/spells_n_squaresdebug fx shader night_vision
-/spells_n_squaresdebug fx shader sepia
-/spells_n_squaresdebug fx pipeline cut_effect
-/spells_n_squaresdebug fx pipeline lumos_orb
-/spells_n_squaresdebug fx shake 1 100
 /spells_n_squaresdebug fx shader grayscale 1
 /spells_n_squaresdebug fx shader grayscale
 /spells_n_squaresdebug fx pipeline status
@@ -48,3 +31,20 @@
 /fillbiome 0 0 0 1000 1000 1000 spells_n_squares:magical_meadow
 /fillbiome 0 0 0 100 100 100 spells_n_squares:magical_meadow
 /fillbiome 0 0 0 50 50 50 spells_n_squares:magical_meadow
+/fillbiome ~ ~ ~ ~ 360 ~
+/give @a spells_n_squares:wizard_tower
+/debug start
+/kill @e[type=spells_n_squares:shield_orb]
+/summon minecraft:cow
+/give @a minecraft:vault
+/give @a spells_n_squares:veritaserum
+/setblock -76 55 5 spells_n_squares:vault
+/setblock -76 55 5 spells_n_squares:
+/setblock -76 55 5 spells_n_squares:trading_post
+/give Dev spells_n_squares:newts_case
+/debug give spells_n_squares:newts_case
+/debug give spells_n_squares
+/setblock -3 55 2 spells_n_squares:newts_case
+/list uuids
+/execute in spells_n_squares:pocket_dimension run tp Dev
+/execute in spells_n_squares:pocket_dimension run tp 0.11 56.39 -15.00

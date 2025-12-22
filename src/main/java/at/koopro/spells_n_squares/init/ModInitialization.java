@@ -8,17 +8,32 @@ import at.koopro.spells_n_squares.core.registry.ModCreativeTabs;
 import at.koopro.spells_n_squares.core.registry.ModDataComponents;
 import at.koopro.spells_n_squares.core.registry.ModEntities;
 import at.koopro.spells_n_squares.core.registry.ModItems;
+import at.koopro.spells_n_squares.core.registry.ModMenus;
 import at.koopro.spells_n_squares.core.registry.ModSounds;
 import at.koopro.spells_n_squares.core.registry.PlayerDataManagerAdapters;
 import at.koopro.spells_n_squares.core.registry.PlayerDataManagerRegistry;
 import at.koopro.spells_n_squares.core.config.Config;
 import at.koopro.spells_n_squares.core.network.ModNetwork;
-import at.koopro.spells_n_squares.features.cloak.CloakChargeData;
 import at.koopro.spells_n_squares.features.gear.SocketData;
 import at.koopro.spells_n_squares.features.wand.WandAttunementHandler;
-import at.koopro.spells_n_squares.features.wand.WandData;
-import at.koopro.spells_n_squares.features.artifacts.TimeTurnerItem;
-import at.koopro.spells_n_squares.features.flashlight.FlashlightItem;
+import at.koopro.spells_n_squares.features.artifacts.ArtifactsRegistry;
+import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
+import at.koopro.spells_n_squares.features.building.BuildingRegistry;
+import at.koopro.spells_n_squares.features.cloak.CloakRegistry;
+import at.koopro.spells_n_squares.features.combat.CombatRegistry;
+import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
+import at.koopro.spells_n_squares.features.education.EducationRegistry;
+import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
+import at.koopro.spells_n_squares.features.flashlight.FlashlightRegistry;
+import at.koopro.spells_n_squares.features.navigation.NavigationRegistry;
+import at.koopro.spells_n_squares.features.potions.PotionsRegistry;
+import at.koopro.spells_n_squares.features.quidditch.QuidditchRegistry;
+import at.koopro.spells_n_squares.features.robes.RobesRegistry;
+import at.koopro.spells_n_squares.features.spell.SpellEntityRegistry;
+import at.koopro.spells_n_squares.features.storage.StorageRegistry;
+import at.koopro.spells_n_squares.features.transportation.TransportationRegistry;
+import at.koopro.spells_n_squares.features.wand.WandRegistry;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -36,23 +51,37 @@ public class ModInitialization {
      * Registers all deferred registries with the mod event bus.
      */
     public static void registerRegistries(IEventBus modEventBus, ModContainer modContainer) {
+        // Register core registries first
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModCreativeTabs.CREATIVE_TABS.register(modEventBus);
         ModSounds.SOUNDS.register(modEventBus);
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
-        FlashlightItem.DATA_COMPONENTS.register(modEventBus);
-        WandData.DATA_COMPONENTS.register(modEventBus);
-        CloakChargeData.DATA_COMPONENTS.register(modEventBus);
-        TimeTurnerItem.DATA_COMPONENTS.register(modEventBus);
-        SocketData.DATA_COMPONENTS.register(modEventBus);
-        at.koopro.spells_n_squares.features.storage.BagInventoryData.DATA_COMPONENTS.register(modEventBus);
-        at.koopro.spells_n_squares.features.storage.TrunkInventoryData.DATA_COMPONENTS.register(modEventBus);
-        at.koopro.spells_n_squares.features.storage.PocketDimensionData.DATA_COMPONENTS.register(modEventBus);
-        at.koopro.spells_n_squares.features.transportation.PortkeyData.DATA_COMPONENTS.register(modEventBus);
-        at.koopro.spells_n_squares.features.transportation.BroomstickData.DATA_COMPONENTS.register(modEventBus);
-        at.koopro.spells_n_squares.features.communication.MirrorData.DATA_COMPONENTS.register(modEventBus);
         ModEntities.ENTITIES.register(modEventBus);
+        ModMenus.MENUS.register(modEventBus);
+        
+        // Register generic data components
+        SocketData.DATA_COMPONENTS.register(modEventBus);
+        
+        // Register all feature registries
+        FlashlightRegistry.register(modEventBus);
+        WandRegistry.register(modEventBus);
+        CloakRegistry.register(modEventBus);
+        ArtifactsRegistry.register(modEventBus);
+        StorageRegistry.register(modEventBus);
+        TransportationRegistry.register(modEventBus);
+        CommunicationRegistry.register(modEventBus);
+        AutomationRegistry.register(modEventBus);
+        BuildingRegistry.register(modEventBus);
+        NavigationRegistry.register(modEventBus);
+        RobesRegistry.register(modEventBus);
+        PotionsRegistry.register(modEventBus);
+        QuidditchRegistry.register(modEventBus);
+        EconomyRegistry.register(modEventBus);
+        EducationRegistry.register(modEventBus);
+        CombatRegistry.register(modEventBus);
+        EnchantmentsRegistry.register(modEventBus);
+        SpellEntityRegistry.register(modEventBus);
         
         // Register all player data managers
         registerPlayerDataManagers();

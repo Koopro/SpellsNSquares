@@ -64,7 +64,7 @@ public class LightningSpell implements Spell {
                 );
                 
                 LightningBeamEntity beam = new LightningBeamEntity(
-                    at.koopro.spells_n_squares.core.registry.ModEntities.LIGHTNING_BEAM.get(),
+                    at.koopro.spells_n_squares.features.spell.SpellEntityRegistry.LIGHTNING_BEAM.get(),
                     level
                 );
                 serverLevel.addFreshEntity(beam);

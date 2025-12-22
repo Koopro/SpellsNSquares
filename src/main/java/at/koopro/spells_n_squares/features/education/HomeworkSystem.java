@@ -89,25 +89,27 @@ public final class HomeworkSystem {
         }
     }
     
+    // Static storage for player homework data (UUID -> HomeworkData)
+    private static final java.util.Map<java.util.UUID, HomeworkData> playerHomeworkData = new java.util.HashMap<>();
+    
     /**
      * Gets homework data for a player.
+     * TODO: Migrate to actual data component when player data components are fully implemented
      */
     public static HomeworkData getHomeworkData(Player player) {
-        // TODO: Retrieve from player data component
-        // - Use player.getData(HOMEWORK_DATA) to get the component
-        // - Return default HomeworkData if not present
-        return new HomeworkData();
+        return playerHomeworkData.computeIfAbsent(player.getUUID(), uuid -> new HomeworkData());
     }
     
     /**
      * Assigns homework to a player.
      */
     public static void assignHomework(Player player, Identifier classId, String description, int requiredProgress) {
-        // TODO: Add homework assignment to player data component
-        // - Get current data: HomeworkData current = getHomeworkData(player)
-        // - Create assignment: HomeworkAssignment assignment = new HomeworkAssignment(classId, description, 0, requiredProgress, false)
-        // - Update data: HomeworkData updated = current.withAssignment(classId, assignment)
-        // - Save: player.setData(HOMEWORK_DATA, updated)
+        if (!player.level().isClientSide()) {
+            HomeworkData current = getHomeworkData(player);
+            HomeworkAssignment assignment = new HomeworkAssignment(classId, description, 0, requiredProgress, false);
+            HomeworkData updated = current.withAssignment(classId, assignment);
+            playerHomeworkData.put(player.getUUID(), updated);
+        }
     }
 }
 

@@ -1,8 +1,15 @@
 package at.koopro.spells_n_squares.datagen;
 
-import at.koopro.spells_n_squares.block.tree.TreeBlockSet;
-import at.koopro.spells_n_squares.core.registry.ModBlocks;
+import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
 import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
+import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
+import at.koopro.spells_n_squares.features.building.BuildingRegistry;
+import at.koopro.spells_n_squares.features.combat.CombatRegistry;
+import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
+import at.koopro.spells_n_squares.features.education.EducationRegistry;
+import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
+import at.koopro.spells_n_squares.features.storage.StorageRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.BlockLootSubProvider;
@@ -78,46 +85,44 @@ public class ModBlockLootProvider extends LootTableProvider {
         
         private void generateModBlockLoot() {
             // Storage blocks - drop themselves
-            dropSelfIfHasItem(ModBlocks.MAGICAL_TRUNK.get());
-            dropSelfIfHasItem(ModBlocks.AUTO_SORT_CHEST.get());
+            dropSelfIfHasItem(StorageRegistry.MAGICAL_TRUNK.get());
+            dropSelfIfHasItem(StorageRegistry.AUTO_SORT_CHEST.get());
             
             // Communication blocks
-            dropSelfIfHasItem(ModBlocks.NOTICE_BOARD.get());
+            dropSelfIfHasItem(CommunicationRegistry.NOTICE_BOARD.get());
             
             // Automation blocks - drop themselves
-            dropSelfIfHasItem(ModBlocks.SELF_STIRRING_CAULDRON.get());
-            dropSelfIfHasItem(ModBlocks.MAGICAL_FURNACE.get());
+            dropSelfIfHasItem(AutomationRegistry.SELF_STIRRING_CAULDRON.get());
+            dropSelfIfHasItem(AutomationRegistry.MAGICAL_FURNACE.get());
+            dropSelfIfHasItem(AutomationRegistry.MAGICAL_FARM.get());
+            dropSelfIfHasItem(AutomationRegistry.ITEM_COLLECTOR.get());
+            dropSelfIfHasItem(AutomationRegistry.MAGICAL_COMPOSTER.get());
+            dropSelfIfHasItem(AutomationRegistry.RESOURCE_GENERATOR.get());
             
             // Building blocks - magical lights drop themselves
-            dropSelfIfHasItem(ModBlocks.MAGICAL_LIGHT_WHITE.get());
-            dropSelfIfHasItem(ModBlocks.MAGICAL_LIGHT_BLUE.get());
-            dropSelfIfHasItem(ModBlocks.MAGICAL_LIGHT_GREEN.get());
-            dropSelfIfHasItem(ModBlocks.MAGICAL_LIGHT_RED.get());
-            dropSelfIfHasItem(ModBlocks.MAGICAL_LIGHT_PURPLE.get());
-            dropSelfIfHasItem(ModBlocks.MAGICAL_LIGHT_GOLD.get());
-            
-            // Resource blocks - drop themselves
-            dropSelfIfHasItem(ModBlocks.MAGICAL_FARM.get());
-            dropSelfIfHasItem(ModBlocks.ITEM_COLLECTOR.get());
-            dropSelfIfHasItem(ModBlocks.MAGICAL_COMPOSTER.get());
-            dropSelfIfHasItem(ModBlocks.RESOURCE_GENERATOR.get());
+            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_WHITE.get());
+            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_BLUE.get());
+            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_GREEN.get());
+            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_RED.get());
+            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_PURPLE.get());
+            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_GOLD.get());
             
             // Enchantment blocks - drop themselves
-            dropSelfIfHasItem(ModBlocks.ENCHANTMENT_TABLE.get());
+            dropSelfIfHasItem(EnchantmentsRegistry.ENCHANTMENT_TABLE.get());
             
             // Education blocks - drop themselves
-            dropSelfIfHasItem(ModBlocks.HOUSE_POINTS_HOURGLASS.get());
+            dropSelfIfHasItem(EducationRegistry.HOUSE_POINTS_HOURGLASS.get());
             
             // Combat blocks - drop themselves
-            dropSelfIfHasItem(ModBlocks.DUEL_ARENA.get());
+            dropSelfIfHasItem(CombatRegistry.DUEL_ARENA.get());
             
             // Economy blocks - drop themselves
-            dropSelfIfHasItem(ModBlocks.TRADING_POST.get());
-            dropSelfIfHasItem(ModBlocks.AUTOMATED_SHOP.get());
-            dropSelfIfHasItem(ModBlocks.VAULT.get());
+            dropSelfIfHasItem(EconomyRegistry.TRADING_POST.get());
+            dropSelfIfHasItem(EconomyRegistry.AUTOMATED_SHOP.get());
+            dropSelfIfHasItem(EconomyRegistry.VAULT.get());
             
             // Plant blocks - drop their corresponding items
-            // TODO: Re-enable when plant blocks and items are registered in ModBlocks and ModItems (MANDRAKE_PLANT, WOLFSBANE_PLANT, GILLYWEED_PLANT, DEVILS_SNARE, VENOMOUS_TENTACULA, WHOMPING_WILLOW)
+            // TODO: Re-enable when plant blocks and items are registered in feature registries (MANDRAKE_PLANT, WOLFSBANE_PLANT, GILLYWEED_PLANT, DEVILS_SNARE, VENOMOUS_TENTACULA, WHOMPING_WILLOW)
         }
         
         /**
@@ -158,29 +163,29 @@ public class ModBlockLootProvider extends LootTableProvider {
             ModTreeBlocks.BLOCKS.getEntries().forEach(holder -> knownBlocks.add((Block) holder.get()));
             
             // Add mod blocks that we generate loot tables for
-            // TODO: Re-enable when plant blocks are registered in ModBlocks (MANDRAKE_PLANT, WOLFSBANE_PLANT, GILLYWEED_PLANT)
-            knownBlocks.add(ModBlocks.MAGICAL_TRUNK.get());
-            knownBlocks.add(ModBlocks.AUTO_SORT_CHEST.get());
-            knownBlocks.add(ModBlocks.NOTICE_BOARD.get());
-            knownBlocks.add(ModBlocks.SELF_STIRRING_CAULDRON.get());
-            knownBlocks.add(ModBlocks.MAGICAL_FURNACE.get());
-            knownBlocks.add(ModBlocks.MAGICAL_LIGHT_WHITE.get());
-            knownBlocks.add(ModBlocks.MAGICAL_LIGHT_BLUE.get());
-            knownBlocks.add(ModBlocks.MAGICAL_LIGHT_GREEN.get());
-            knownBlocks.add(ModBlocks.MAGICAL_LIGHT_RED.get());
-            knownBlocks.add(ModBlocks.MAGICAL_LIGHT_PURPLE.get());
-            knownBlocks.add(ModBlocks.MAGICAL_LIGHT_GOLD.get());
-            knownBlocks.add(ModBlocks.MAGICAL_FARM.get());
-            knownBlocks.add(ModBlocks.ITEM_COLLECTOR.get());
-            knownBlocks.add(ModBlocks.MAGICAL_COMPOSTER.get());
-            knownBlocks.add(ModBlocks.RESOURCE_GENERATOR.get());
-            knownBlocks.add(ModBlocks.ENCHANTMENT_TABLE.get());
-            knownBlocks.add(ModBlocks.HOUSE_POINTS_HOURGLASS.get());
-            knownBlocks.add(ModBlocks.DUEL_ARENA.get());
-            knownBlocks.add(ModBlocks.TRADING_POST.get());
-            knownBlocks.add(ModBlocks.AUTOMATED_SHOP.get());
-            knownBlocks.add(ModBlocks.VAULT.get());
-            // TODO: Re-enable when plant blocks are registered in ModBlocks (DEVILS_SNARE, VENOMOUS_TENTACULA, WHOMPING_WILLOW)
+            // TODO: Re-enable when plant blocks are registered in feature registries (MANDRAKE_PLANT, WOLFSBANE_PLANT, GILLYWEED_PLANT)
+            knownBlocks.add(StorageRegistry.MAGICAL_TRUNK.get());
+            knownBlocks.add(StorageRegistry.AUTO_SORT_CHEST.get());
+            knownBlocks.add(CommunicationRegistry.NOTICE_BOARD.get());
+            knownBlocks.add(AutomationRegistry.SELF_STIRRING_CAULDRON.get());
+            knownBlocks.add(AutomationRegistry.MAGICAL_FURNACE.get());
+            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_WHITE.get());
+            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_BLUE.get());
+            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_GREEN.get());
+            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_RED.get());
+            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_PURPLE.get());
+            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_GOLD.get());
+            knownBlocks.add(AutomationRegistry.MAGICAL_FARM.get());
+            knownBlocks.add(AutomationRegistry.ITEM_COLLECTOR.get());
+            knownBlocks.add(AutomationRegistry.MAGICAL_COMPOSTER.get());
+            knownBlocks.add(AutomationRegistry.RESOURCE_GENERATOR.get());
+            knownBlocks.add(EnchantmentsRegistry.ENCHANTMENT_TABLE.get());
+            knownBlocks.add(EducationRegistry.HOUSE_POINTS_HOURGLASS.get());
+            knownBlocks.add(CombatRegistry.DUEL_ARENA.get());
+            knownBlocks.add(EconomyRegistry.TRADING_POST.get());
+            knownBlocks.add(EconomyRegistry.AUTOMATED_SHOP.get());
+            knownBlocks.add(EconomyRegistry.VAULT.get());
+            // TODO: Re-enable when plant blocks are registered in feature registries (DEVILS_SNARE, VENOMOUS_TENTACULA, WHOMPING_WILLOW)
             
             return knownBlocks;
         }

@@ -66,11 +66,36 @@ public class OmniocularsItem extends Item {
                     }
                 }
                 
-                if (nearest != null) {
+                if (nearest != null && nearest instanceof LivingEntity livingEntity) {
+                    // Show detailed entity statistics
+                    double distance = Math.sqrt(nearestDist);
+                    float health = livingEntity.getHealth();
+                    float maxHealth = livingEntity.getMaxHealth();
+                    String entityType = livingEntity.getType().getDescription().getString();
+                    
                     serverPlayer.sendSystemMessage(Component.translatable(
                         "message.spells_n_squares.omnioculars.viewing",
                         nearest.getDisplayName(),
-                        String.format("%.1f", Math.sqrt(nearestDist))
+                        String.format("%.1f", distance)
+                    ));
+                    
+                    serverPlayer.sendSystemMessage(Component.translatable(
+                        "message.spells_n_squares.omnioculars.entity_type",
+                        entityType
+                    ));
+                    
+                    serverPlayer.sendSystemMessage(Component.translatable(
+                        "message.spells_n_squares.omnioculars.health",
+                        String.format("%.1f", health),
+                        String.format("%.1f", maxHealth)
+                    ));
+                    
+                    // Show position
+                    serverPlayer.sendSystemMessage(Component.translatable(
+                        "message.spells_n_squares.omnioculars.position",
+                        String.format("%.0f", livingEntity.getX()),
+                        String.format("%.0f", livingEntity.getY()),
+                        String.format("%.0f", livingEntity.getZ())
                     ));
                 }
             } else {
@@ -95,6 +120,9 @@ public class OmniocularsItem extends Item {
         return true;
     }
 }
+
+
+
 
 
 

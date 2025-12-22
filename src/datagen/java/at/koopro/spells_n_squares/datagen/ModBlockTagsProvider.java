@@ -1,7 +1,7 @@
 package at.koopro.spells_n_squares.datagen;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.block.tree.TreeBlockSet;
+import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
 import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -91,6 +91,9 @@ public class ModBlockTagsProvider extends IntrinsicHolderTagsProvider<Block> {
         tag(BlockTags.MINEABLE_WITH_HOE).add(leaves);
     }
 }
+
+
+
 
 
 

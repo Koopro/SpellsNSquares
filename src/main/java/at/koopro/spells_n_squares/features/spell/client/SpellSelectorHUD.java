@@ -7,18 +7,19 @@ import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import at.koopro.spells_n_squares.features.spell.Spell;
 import at.koopro.spells_n_squares.features.spell.SpellManager;
 import at.koopro.spells_n_squares.core.registry.SpellRegistry;
+import at.koopro.spells_n_squares.features.spell.client.SpellSelectionScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /**
@@ -32,6 +33,9 @@ public class SpellSelectorHUD {
 
     // Key state tracker for detecting key presses
     private static final KeyStateTracker keyTracker = new KeyStateTracker();
+    
+    // Track left mouse button state for shoot detection
+    private static boolean lastLeftMouseState = false;
 
     // Texture identifiers
     private static final Identifier HUD_TEXTURE = ModIdentifierHelper.modId("textures/gui/container/hud_element.png");
@@ -75,7 +79,28 @@ public class SpellSelectorHUD {
         if (mc.player == null) {
             return false;
         }
-        return at.koopro.spells_n_squares.core.util.PlayerItemUtils.isHoldingItemByTag(mc.player, ModTags.WANDS);
+        
+        // Check main hand and offhand for wand items
+        net.minecraft.world.item.ItemStack mainHand = mc.player.getMainHandItem();
+        net.minecraft.world.item.ItemStack offHand = mc.player.getOffhandItem();
+        
+        // Check by tag first
+        if (!mainHand.isEmpty() && mainHand.is(ModTags.WANDS)) {
+            return true;
+        }
+        if (!offHand.isEmpty() && offHand.is(ModTags.WANDS)) {
+            return true;
+        }
+        
+        // Also check by direct item reference as fallback
+        if (!mainHand.isEmpty() && mainHand.is(at.koopro.spells_n_squares.features.wand.WandRegistry.DEMO_WAND.get())) {
+            return true;
+        }
+        if (!offHand.isEmpty() && offHand.is(at.koopro.spells_n_squares.features.wand.WandRegistry.DEMO_WAND.get())) {
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -90,47 +115,101 @@ public class SpellSelectorHUD {
 
         // Only process spell-related inputs when holding a wand
         if (!isHoldingWand(mc)) {
+            // Reset mouse state tracker when not holding wand
+            lastLeftMouseState = false;
             return;
         }
 
         // Tick client-side cooldowns
         ClientSpellData.tickCooldowns();
 
-        // TODO: Re-enable when ModKeybinds and SpellCastPayload are implemented
         // Detect key press (transition from not pressed to pressed) and switch selection
-        /*
-        if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_TOP)) {
+        if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_TOP)) {
             selectedField = SpellManager.SLOT_TOP;
-        } else if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_BOTTOM)) {
+            ClientSpellData.setSelectedSlot(SpellManager.SLOT_TOP);
+        } else if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_BOTTOM)) {
             selectedField = SpellManager.SLOT_BOTTOM;
-        } else if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_LEFT)) {
+            ClientSpellData.setSelectedSlot(SpellManager.SLOT_BOTTOM);
+        } else if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_LEFT)) {
             selectedField = SpellManager.SLOT_LEFT;
-        } else if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTOR_RIGHT)) {
+            ClientSpellData.setSelectedSlot(SpellManager.SLOT_LEFT);
+        } else if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_RIGHT)) {
             selectedField = SpellManager.SLOT_RIGHT;
+            ClientSpellData.setSelectedSlot(SpellManager.SLOT_RIGHT);
         }
 
         // Handle spell casting
-        if (keyTracker.wasJustPressed(ModKeybinds.SPELL_CAST) && mc.player != null && mc.level != null) {
-            // Send spell cast request to server via network packet
-            // This works for both single-player (integrated server) and multiplayer
-            SpellCastPayload payload = new SpellCastPayload(selectedField);
-            ClientPacketDistributor.sendToServer(payload);
+        KeyMapping castKey = at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_CAST;
+        boolean isCastKeyPressed = castKey.isDown();
+        boolean wasCastKeyJustPressed = keyTracker.wasJustPressed(castKey);
+        
+        // Track left mouse button state for shoot detection
+        KeyMapping attackKey = mc.options.keyAttack;
+        boolean currentLeftMouseState = attackKey.isDown();
+        
+        if (mc.player != null && mc.level != null) {
+            int slotToCast = ClientSpellData.getSelectedSlot();
+            Identifier spellId = ClientSpellData.getSpellInSlot(slotToCast);
+            
+            if (spellId != null) {
+                Spell spell = SpellRegistry.get(spellId);
+                
+                // Check if this is a hold-to-cast spell
+                if (spell != null && spell.isHoldToCast()) {
+                    // Handle hold-to-cast spells
+                    if (wasCastKeyJustPressed && !ClientSpellData.isHoldingSpell()) {
+                        // Start holding the spell (only if not already holding)
+                        at.koopro.spells_n_squares.features.spell.network.SpellCastPayload payload = 
+                            new at.koopro.spells_n_squares.features.spell.network.SpellCastPayload(slotToCast);
+                        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
+                        ClientSpellData.setHoldingSpell(true);
+                    } else if (!isCastKeyPressed && ClientSpellData.isHoldingSpell()) {
+                        // Stop holding the spell
+                        at.koopro.spells_n_squares.features.spell.network.SpellCastPayload payload = 
+                            new at.koopro.spells_n_squares.features.spell.network.SpellCastPayload(-1); // -1 means stop
+                        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
+                        ClientSpellData.setHoldingSpell(false);
+                    }
+                    
+                    // Detect left-click while holding a spell to shoot entities/blocks away
+                    if (currentLeftMouseState && !lastLeftMouseState && ClientSpellData.isHoldingSpell()) {
+                        // Left-click detected while holding spell - shoot entities away
+                        at.koopro.spells_n_squares.features.spell.network.SpellShootPayload shootPayload = 
+                            new at.koopro.spells_n_squares.features.spell.network.SpellShootPayload();
+                        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(shootPayload);
+                    }
+                } else {
+                    // Normal one-time cast spell
+                    if (wasCastKeyJustPressed) {
+                        at.koopro.spells_n_squares.features.spell.network.SpellCastPayload payload = 
+                            new at.koopro.spells_n_squares.features.spell.network.SpellCastPayload(slotToCast);
+                        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
+                    }
+                }
+            }
         }
         
+        // Update mouse state tracker
+        lastLeftMouseState = currentLeftMouseState;
+        
         // Handle spell selection screen
-        if (keyTracker.wasJustPressed(ModKeybinds.SPELL_SELECTION_SCREEN) && mc.player != null) {
+        if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTION_SCREEN) && mc.player != null) {
             mc.setScreen(new SpellSelectionScreen());
         }
-        */
     }
 
     /**
-     * Renders the HUD element on the appropriate GUI layer.
+     * Renders the HUD element on the GUI.
      */
     @SubscribeEvent
-    public static void onRenderGuiLayer(RenderGuiLayerEvent.Post event) {
+    public static void onRenderGui(RenderGuiEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
+            return;
+        }
+        
+        // Don't render HUD when a screen is open (except inventory)
+        if (mc.screen != null && !(mc.screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen)) {
             return;
         }
         
@@ -139,19 +218,15 @@ public class SpellSelectorHUD {
             return;
         }
         
-        Identifier layerName = event.getName();
         GuiGraphics guiGraphics = event.getGuiGraphics();
 
-        // Render base HUD texture on CROSSHAIR and HOTBAR layers
-        if (layerName == VanillaGuiLayers.CROSSHAIR || layerName == VanillaGuiLayers.HOTBAR) {
-            renderHudTexture(guiGraphics, mc);
-        }
+        // Render all HUD elements
+        int hudX = getHudX(mc);
+        int hudY = getHudY(mc);
         
-        // Render text and selection indicator on HOTBAR layer only
-        if (layerName == VanillaGuiLayers.HOTBAR) {
-            renderSpellText(guiGraphics, mc);
-            renderSelectionIndicator(guiGraphics);
-        }
+        renderHudTexture(guiGraphics, mc);
+        renderSpellText(guiGraphics, mc);
+        renderSelectionIndicator(guiGraphics);
     }
     
     /**
@@ -211,6 +286,8 @@ public class SpellSelectorHUD {
         
         Identifier spellId = ClientSpellData.getSpellInSlot(slot);
         boolean isOnCooldown = spellId != null && ClientSpellData.isOnCooldown(spellId);
+        boolean isSelected = slot == selectedField;
+        int cooldownTicks = spellId != null ? ClientSpellData.getCooldown(spellId) : 0;
         
         // If a spell is assigned, render its icon
         if (spellId != null) {
@@ -236,6 +313,68 @@ public class SpellSelectorHUD {
                         iconSize, iconSize,
                         tint
                     );
+                    
+                    // Render cooldown overlay (dark semi-transparent bar from bottom)
+                    if (isOnCooldown && spell.getCooldown() > 0) {
+                        float cooldownProgress = 1.0f - ((float) cooldownTicks / (float) spell.getCooldown());
+                        int overlayHeight = (int) (iconSize * cooldownProgress);
+                        if (overlayHeight > 0 && overlayHeight < iconSize) {
+                            int overlayY = iconY + iconSize - overlayHeight;
+                            int overlayColor = (int) (SpellUIConstants.COOLDOWN_OVERLAY_ALPHA * 255) << 24 | 0x000000; // Black with alpha
+                            guiGraphics.fill(iconX, overlayY, iconX + iconSize, iconY + iconSize, overlayColor);
+                        }
+                        
+                        // Render cooldown progress ring around icon
+                        if (cooldownProgress > 0.0f && cooldownProgress < 1.0f) {
+                            int ringThickness = 2;
+                            int ringColor = cooldownTicks > spell.getCooldown() / 2 
+                                ? 0x80FF4444  // Red when more than half cooldown remaining
+                                : 0x80FFAA00; // Orange when less than half remaining
+                            
+                            // Draw progress ring segments (simplified - draws top, right, bottom, left segments)
+                            float segments = 8.0f; // 8 segments for smoother ring
+                            float angleStep = (float) (Math.PI * 2 / segments);
+                            float progressAngle = cooldownProgress * (float) (Math.PI * 2);
+                            
+                            for (float angle = 0; angle < progressAngle; angle += angleStep) {
+                                float startAngle = angle;
+                                float endAngle = Math.min(angle + angleStep, progressAngle);
+                                
+                                // Calculate positions for ring segment
+                                int centerX = x;
+                                int centerY = y;
+                                int radius = iconSize / 2 + ringThickness;
+                                
+                                // Draw ring segment (simplified line drawing)
+                                int x1 = centerX + (int) (Math.cos(startAngle) * radius);
+                                int y1 = centerY + (int) (Math.sin(startAngle) * radius);
+                                int x2 = centerX + (int) (Math.cos(endAngle) * radius);
+                                int y2 = centerY + (int) (Math.sin(endAngle) * radius);
+                                
+                                // Draw thick line segment
+                                guiGraphics.fill(x1 - ringThickness/2, y1 - ringThickness/2, 
+                                    x2 + ringThickness/2, y2 + ringThickness/2, ringColor);
+                            }
+                        }
+                    }
+                    
+                    // Render cooldown time text overlay (centered on icon, no rotation needed)
+                    if (isOnCooldown && cooldownTicks > 0) {
+                        float cooldownSeconds = cooldownTicks / 20.0f;
+                        String cooldownText = cooldownSeconds < 1.0f 
+                            ? String.format("%.1f", cooldownSeconds) 
+                            : String.format("%.0f", cooldownSeconds);
+                        
+                        // Color-code based on cooldown status
+                        int textColor = cooldownTicks > spell.getCooldown() / 2 
+                            ? SpellUIConstants.TEXT_COLOR_COOLDOWN_TIME  // Red when more than half remaining
+                            : 0xFFFFAA00; // Orange when less than half remaining
+                        
+                        // Draw with shadow for better visibility
+                        int textX = x - mc.font.width(cooldownText) / 2;
+                        int textY = iconY + iconSize / 2 - mc.font.lineHeight / 2;
+                        guiGraphics.drawString(mc.font, cooldownText, textX, textY, textColor, true);
+                    }
                 } catch (Exception e) {
                     // Texture not found or error loading - fall back to text display
                     // This allows the mod to work even if icons aren't created yet
@@ -292,8 +431,8 @@ public class SpellSelectorHUD {
         int textWidth = mc.font.width(text);
         int textHeight = mc.font.lineHeight;
 
-        int paddingX = 4;
-        int paddingY = 2;
+        int paddingX = SpellUIConstants.KEYBIND_CHIP_PADDING_X;
+        int paddingY = SpellUIConstants.KEYBIND_CHIP_PADDING_Y;
 
         int left = centerX - textWidth / 2 - paddingX;
         int right = centerX + textWidth / 2 + paddingX;
@@ -322,17 +461,13 @@ public class SpellSelectorHUD {
      * Gets the keybind for a specific slot.
      */
     private static KeyMapping getKeybindForSlot(int slot) {
-        // TODO: Re-enable when ModKeybinds is implemented
-        return null;
-        /*
         return switch (slot) {
-            case SpellManager.SLOT_TOP -> ModKeybinds.SPELL_SELECTOR_TOP;
-            case SpellManager.SLOT_BOTTOM -> ModKeybinds.SPELL_SELECTOR_BOTTOM;
-            case SpellManager.SLOT_LEFT -> ModKeybinds.SPELL_SELECTOR_LEFT;
-            case SpellManager.SLOT_RIGHT -> ModKeybinds.SPELL_SELECTOR_RIGHT;
+            case SpellManager.SLOT_TOP -> at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_TOP;
+            case SpellManager.SLOT_BOTTOM -> at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_BOTTOM;
+            case SpellManager.SLOT_LEFT -> at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_LEFT;
+            case SpellManager.SLOT_RIGHT -> at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_RIGHT;
             default -> null;
         };
-        */
     }
     
     /**

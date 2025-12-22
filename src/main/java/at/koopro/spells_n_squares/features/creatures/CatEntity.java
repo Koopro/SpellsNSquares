@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.features.creatures;
 
+import at.koopro.spells_n_squares.features.creatures.util.CreatureOwnerHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -99,21 +100,20 @@ public class CatEntity extends TamableAnimal {
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
-        // TODO: Persist owner and loyalty data to NBT
-        // - Save ownerId: output.writeUUID("Owner", ownerId.orElse(null))
-        // - Save loyalty: output.writeInt("Loyalty", loyalty)
-        // - Handle Optional<UUID> serialization properly
+        CreatureOwnerHelper.saveOwner(output, ownerId);
+        output.putInt("Loyalty", loyalty);
     }
     
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
-        // TODO: Load owner and loyalty data from NBT
-        // - Load ownerId: ownerId = Optional.ofNullable(input.readUUID("Owner"))
-        // - Load loyalty: loyalty = input.readInt("Loyalty")
-        // - Handle missing keys with defaults
+        ownerId = CreatureOwnerHelper.loadOwner(input);
+        loyalty = input.getIntOr("Loyalty", 0);
     }
 }
+
+
+
 
 
 

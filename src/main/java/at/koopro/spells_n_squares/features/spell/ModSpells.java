@@ -24,79 +24,48 @@ public class ModSpells {
      * Call this during mod initialization.
      */
     public static void register() {
-        // Core spells
-        // TODO: Re-enable when spell classes are implemented (HealSpell, TeleportSpell, FireballSpell, LightningSpell, ProtegoSpell, ApparitionSpell, LumosSpell)
+        // Demo spells for testing - only 5 spells to test all functionality
+        // All spells use simple particle effects, no complex entities
         
-        // Utility spells
-        // TODO: Re-enable when spell classes are implemented (EntityDetectionSpell, ExtensionCharmSpell, PortableCraftingSpell, ItemRecallSpell, NoxSpell, HomenumRevelioSpell, RevelioSpell, FiniteIncantatemSpell, ApareciumSpell, PriorIncantatoSpell)
+        // 1. Fireball - Projectile combat spell (uses vanilla fireball entity)
+        SpellRegistry.register(new FireballSpell());
         
-        // Weather control spells
-        // TODO: Re-enable when spell classes are implemented (MetelojinxSpell, AraniaExumaiSpell, VentusSpell)
+        // 2. Heal - Healing spell with visual effects
+        SpellRegistry.register(new HealSpell());
         
-        // Advanced defensive spells
-        // TODO: Re-enable when spell classes are implemented (ExpelliarmusSpell, StupefySpell)
+        // 3. Teleport - Movement spell with portal particles
+        SpellRegistry.register(new TeleportSpell());
         
-        // Combat spells
-        // TODO: Re-enable when spell classes are implemented (BombardaSpell, ConfringoSpell, DiffindoSpell, DepulsoSpell, DescendoSpell, FlipendoSpell, ImpedimentaSpell, RictusempraSpell)
-        
-        // Charm spells
-        // TODO: Re-enable when spell classes are implemented (ReparoSpell, AlohomoraSpell, LevitationSpell, ColloportusSpell, DuroSpell, EngorgioSpell, ReducioSpell, ScourgifySpell, TergeoSpell)
-        
-        SpellRegistry.register(new AccioSpell());
-        SpellRegistry.register(new RiddikulusSpell());
-        
-        // Healing spells
-        // TODO: Re-enable when spell classes are implemented (EpiskeySpell, VulneraSanenturSpell, AnapneoSpell, FerulaSpell)
-        
-        // Memory/mental spells
-        // TODO: Re-enable when spell classes are implemented (LegilimensSpell, OcclumencySpell)
-        
-        // Transfiguration spells
-        // TODO: Re-enable when spell classes are implemented (TransfigurationSpell, SerpensortiaSpell, AvisSpell)
-        
-        // Curses (Dark Magic)
-        // TODO: Re-enable when spell classes are implemented (CrucioSpell, AvadaKedavraSpell, ImperioSpell, SectumsempraSpell)
-        
-        // Fire spells
-        // TODO: Re-enable when spell classes are implemented (IncendioSpell)
-        
-        // Defensive/Protective spells
-        // TODO: Re-enable when spell classes are implemented (PatronusSpell)
-        
-        // Utility/Combat spells
-        // TODO: Re-enable when spell classes are implemented (PetrificusTotalusSpell, ConfundoSpell, AguamentiSpell, GlaciusSpell, ReductoSpell, ObliviateSpell)
-        
-        // Class joining spells
-        // TODO: Re-enable when spell classes are implemented (MorsmordreSpell, PhoenixCallSpell)
-        
-        // Animagus spells
-        // TODO: Re-enable when spell classes are implemented (AnimagusTransformationSpell)
-        
-        // Additional utility spells
-        SpellRegistry.register(new ImmobulusSpell());
-        SpellRegistry.register(new SilencioSpell());
-        // TODO: Re-enable when spell classes are implemented (IncarcerousSpell)
-        
-        // Vanishing and movement spells
-        SpellRegistry.register(new EvanescoSpell());
-        SpellRegistry.register(new LocomotorSpell());
-        
-        // Jinxes and hexes
-        SpellRegistry.register(new TarantallegraSpell());
-        SpellRegistry.register(new LanglockSpell());
-        SpellRegistry.register(new LevicorpusSpell());
-        SpellRegistry.register(new LiberacorpusSpell());
-        
-        // Communication and utility spells
-        SpellRegistry.register(new SonorusSpell());
-        SpellRegistry.register(new MuffliatoSpell());
-        SpellRegistry.register(new OrchideousSpell());
+        // 4. Periculum - Signal spell with flame particles
         SpellRegistry.register(new PericulumSpell());
+        
+        // 5. Sonorus - Utility spell with note particles
+        SpellRegistry.register(new SonorusSpell());
+        
+        // Wizarding World Spells
+        
+        // 6. Expelliarmus - The Disarming Charm
+        SpellRegistry.register(new ExpelliarmusSpell());
+        
+        // 7. Stupefy - The Stunning Spell
+        SpellRegistry.register(new StupefySpell());
+        
+        // 8. Wingardium Leviosa - The Levitation Charm
+        SpellRegistry.register(new WingardiumLeviosaSpell());
+        
+        // 9. Incendio - The Fire-Making Spell
+        SpellRegistry.register(new IncendioSpell());
+        
+        // 10. Aguamenti - The Water-Making Spell
+        SpellRegistry.register(new AguamentiSpell());
     }
     
     /**
      * Helper class for creating simple spells without implementing all methods.
      * Provides sensible defaults for optional Spell interface methods.
+     * 
+     * For hold-to-cast spells, override isHoldToCast() to return true
+     * and implement onHoldTick() for continuous effects.
      */
     public static abstract class SimpleSpell implements Spell {
         private final Identifier id;

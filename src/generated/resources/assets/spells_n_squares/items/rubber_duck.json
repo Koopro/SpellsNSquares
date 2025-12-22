@@ -1,9 +1,0 @@
-{
-  "model": {
-    "type": "minecraft:special",
-    "base": "spells_n_squares:item/rubber_duck",
-    "model": {
-      "type": "geckolib:geckolib"
-    }
-  }
-}

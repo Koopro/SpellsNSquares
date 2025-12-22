@@ -21,6 +21,12 @@ public class ClientSpellData {
     // Client-side player class
     private static PlayerClass clientPlayerClass = PlayerClass.NONE;
     
+    // Currently selected spell slot (for casting)
+    private static int selectedSlot = SpellManager.SLOT_TOP;
+    
+    // Whether player is currently holding a spell
+    private static boolean holdingSpell = false;
+    
     /**
      * Gets the spell ID in the specified slot.
      * @param slot The slot index (0-3)
@@ -141,6 +147,40 @@ public class ClientSpellData {
     }
     
     /**
+     * Gets the currently selected spell slot.
+     * @return The selected slot index
+     */
+    public static int getSelectedSlot() {
+        return selectedSlot;
+    }
+    
+    /**
+     * Sets the currently selected spell slot.
+     * @param slot The slot index to select
+     */
+    public static void setSelectedSlot(int slot) {
+        if (SpellManager.isValidSlot(slot)) {
+            selectedSlot = slot;
+        }
+    }
+    
+    /**
+     * Checks if the player is currently holding a spell.
+     * @return true if holding a spell
+     */
+    public static boolean isHoldingSpell() {
+        return holdingSpell;
+    }
+    
+    /**
+     * Sets whether the player is holding a spell.
+     * @param holding true if holding, false otherwise
+     */
+    public static void setHoldingSpell(boolean holding) {
+        holdingSpell = holding;
+    }
+    
+    /**
      * Clears all client spell data.
      */
     public static void clear() {
@@ -149,5 +189,6 @@ public class ClientSpellData {
         }
         clientCooldowns.clear();
         clientPlayerClass = PlayerClass.NONE;
+        selectedSlot = SpellManager.SLOT_TOP;
     }
 }

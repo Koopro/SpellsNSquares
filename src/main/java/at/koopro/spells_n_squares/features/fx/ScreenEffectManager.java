@@ -272,13 +272,17 @@ public class ScreenEffectManager {
     
     // Static variables for smooth shake interpolation
     private static float shakeTime = 0.0f;
+    private static float previousShakeX = 0.0f;
+    private static float previousShakeY = 0.0f;
     
     /**
      * Gets the current screen shake offset using smooth time-based motion.
-     * Uses sine/cosine waves for smooth, non-jittery shake.
+     * Uses sine/cosine waves with interpolation for smooth, non-jittery shake.
      */
     public static Vec3 getShakeOffset() {
         if (activeShakes.isEmpty()) {
+            previousShakeX = 0.0f;
+            previousShakeY = 0.0f;
             return Vec3.ZERO;
         }
         
@@ -294,11 +298,24 @@ public class ScreenEffectManager {
         
         // Use time-based sine/cosine waves for smooth motion
         // Different frequencies for X and Y to avoid circular motion
-        // Scale intensity to make shake more visible (multiply by 10 for pixels)
-        double offsetX = Math.sin(time * 0.3) * totalIntensity * 10.0;
-        double offsetY = Math.cos(time * 0.5) * totalIntensity * 10.0;
+        // Use multiple frequencies combined for more natural motion
+        float timeX = time * 0.3f;
+        float timeY = time * 0.5f;
         
-        return new Vec3(offsetX, offsetY, 0.0);
+        // Combine multiple frequencies for more natural shake
+        double offsetX = (Math.sin(timeX * 1.0) * 0.6 + Math.sin(timeX * 2.3) * 0.4) * totalIntensity * 10.0;
+        double offsetY = (Math.cos(timeY * 1.0) * 0.6 + Math.cos(timeY * 1.7) * 0.4) * totalIntensity * 10.0;
+        
+        // Interpolate with previous frame for smoother motion
+        float currentX = (float) offsetX;
+        float currentY = (float) offsetY;
+        float interpolatedX = previousShakeX + (currentX - previousShakeX) * 0.3f;
+        float interpolatedY = previousShakeY + (currentY - previousShakeY) * 0.3f;
+        
+        previousShakeX = currentX;
+        previousShakeY = currentY;
+        
+        return new Vec3(interpolatedX, interpolatedY, 0.0);
     }
     
     /**

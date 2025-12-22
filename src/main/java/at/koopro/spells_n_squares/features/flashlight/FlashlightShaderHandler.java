@@ -1,9 +1,9 @@
 package at.koopro.spells_n_squares.features.flashlight;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.core.registry.ModItems;
 import at.koopro.spells_n_squares.core.util.PlayerItemUtils;
 import at.koopro.spells_n_squares.features.flashlight.FlashlightItem;
+import at.koopro.spells_n_squares.features.flashlight.FlashlightRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +30,7 @@ public class FlashlightShaderHandler {
         Player player = mc.player;
         
         // Find held flashlight using utility
-        var flashlightStackOpt = PlayerItemUtils.findHeldItem(player, ModItems.FLASHLIGHT.get());
+        var flashlightStackOpt = PlayerItemUtils.findHeldItem(player, FlashlightRegistry.FLASHLIGHT.get());
         boolean hasFlashlight = flashlightStackOpt.isPresent();
         boolean isOn = flashlightStackOpt.map(FlashlightItem::isOn).orElse(false);
         

@@ -1,8 +1,8 @@
 package at.koopro.spells_n_squares.features.robes;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.core.registry.ModItems;
 import at.koopro.spells_n_squares.core.util.EventUtils;
+import at.koopro.spells_n_squares.features.robes.RobesRegistry;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -48,24 +48,24 @@ public class HouseRobeBonusHandler {
             return null;
         }
         
-        if (stack.is(ModItems.GRYFFINDOR_ROBE_CHEST.get()) ||
-            stack.is(ModItems.GRYFFINDOR_ROBE_LEGS.get()) ||
-            stack.is(ModItems.GRYFFINDOR_ROBE_BOOTS.get())) {
+        if (stack.is(RobesRegistry.GRYFFINDOR_ROBE_CHEST.get()) ||
+            stack.is(RobesRegistry.GRYFFINDOR_ROBE_LEGS.get()) ||
+            stack.is(RobesRegistry.GRYFFINDOR_ROBE_BOOTS.get())) {
             return House.GRYFFINDOR;
         }
-        if (stack.is(ModItems.SLYTHERIN_ROBE_CHEST.get()) ||
-            stack.is(ModItems.SLYTHERIN_ROBE_LEGS.get()) ||
-            stack.is(ModItems.SLYTHERIN_ROBE_BOOTS.get())) {
+        if (stack.is(RobesRegistry.SLYTHERIN_ROBE_CHEST.get()) ||
+            stack.is(RobesRegistry.SLYTHERIN_ROBE_LEGS.get()) ||
+            stack.is(RobesRegistry.SLYTHERIN_ROBE_BOOTS.get())) {
             return House.SLYTHERIN;
         }
-        if (stack.is(ModItems.HUFFLEPUFF_ROBE_CHEST.get()) ||
-            stack.is(ModItems.HUFFLEPUFF_ROBE_LEGS.get()) ||
-            stack.is(ModItems.HUFFLEPUFF_ROBE_BOOTS.get())) {
+        if (stack.is(RobesRegistry.HUFFLEPUFF_ROBE_CHEST.get()) ||
+            stack.is(RobesRegistry.HUFFLEPUFF_ROBE_LEGS.get()) ||
+            stack.is(RobesRegistry.HUFFLEPUFF_ROBE_BOOTS.get())) {
             return House.HUFFLEPUFF;
         }
-        if (stack.is(ModItems.RAVENCLAW_ROBE_CHEST.get()) ||
-            stack.is(ModItems.RAVENCLAW_ROBE_LEGS.get()) ||
-            stack.is(ModItems.RAVENCLAW_ROBE_BOOTS.get())) {
+        if (stack.is(RobesRegistry.RAVENCLAW_ROBE_CHEST.get()) ||
+            stack.is(RobesRegistry.RAVENCLAW_ROBE_LEGS.get()) ||
+            stack.is(RobesRegistry.RAVENCLAW_ROBE_BOOTS.get())) {
             return House.RAVENCLAW;
         }
         

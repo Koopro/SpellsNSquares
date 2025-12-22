@@ -36,6 +36,9 @@ public class ModDataGenerators {
         
         // Copy GeckoLib item JSON files from main resources to generated resources
         generator.addProvider(true, new GeckoLibItemModelProvider(output));
+        
+        // Generate placeholder textures for missing items and blocks
+        generator.addProvider(true, new ModTextureProvider(output));
     }
     
     @SubscribeEvent
@@ -52,6 +55,9 @@ public class ModDataGenerators {
         generator.addProvider(true, new ModBiomeModifierProvider(output, lookupProvider));
     }
 }
+
+
+
 
 
 

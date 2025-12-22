@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.features.artifacts;
 
+import at.koopro.spells_n_squares.features.artifacts.network.GobletOfFirePayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -15,12 +16,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Goblet of Fire - tournament selection artifact.
@@ -52,18 +56,31 @@ public class GobletOfFireItem extends Item {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         
-        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
-            GobletOfFireData.GobletOfFireComponent component = getGobletOfFireData(stack);
-            
-            // Check if already entered
-            if (component.hasParticipant(serverPlayer.getUUID())) {
-                serverPlayer.sendSystemMessage(Component.translatable("message.spells_n_squares.goblet_of_fire.already_entered"));
-                return InteractionResult.SUCCESS;
-            }
-            
-            // Enter tournament
-            return enterTournament((ServerLevel) level, serverPlayer, stack);
+        if (level.isClientSide()) {
+            return InteractionResult.PASS;
         }
+        
+        if (!(level instanceof ServerLevel serverLevel) || !(player instanceof ServerPlayer serverPlayer)) {
+            return InteractionResult.FAIL;
+        }
+        
+        GobletOfFireData.GobletOfFireComponent component = getGobletOfFireData(stack);
+        
+        // Open tournament screen
+        var participantDataList = component.participants().stream()
+            .map(p -> new GobletOfFirePayload.ParticipantData(
+                p.playerId(),
+                p.playerName(),
+                p.entryTick()
+            ))
+            .toList();
+        
+        var payload = new GobletOfFirePayload(
+            participantDataList,
+            component.selectedChampions(),
+            component.tournamentActive()
+        );
+        PacketDistributor.sendToPlayer(serverPlayer, payload);
         
         return InteractionResult.SUCCESS;
     }

@@ -2,17 +2,35 @@ package at.koopro.spells_n_squares.datagen;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.ModItems;
+import at.koopro.spells_n_squares.features.artifacts.ArtifactsRegistry;
+import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
+import at.koopro.spells_n_squares.features.building.BuildingRegistry;
+import at.koopro.spells_n_squares.features.cloak.CloakRegistry;
+import at.koopro.spells_n_squares.features.combat.CombatRegistry;
+import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
+import at.koopro.spells_n_squares.features.education.EducationRegistry;
+import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
+import at.koopro.spells_n_squares.features.flashlight.FlashlightRegistry;
+import at.koopro.spells_n_squares.features.navigation.NavigationRegistry;
+import at.koopro.spells_n_squares.features.potions.PotionsRegistry;
+import at.koopro.spells_n_squares.features.quidditch.QuidditchRegistry;
+import at.koopro.spells_n_squares.features.robes.RobesRegistry;
+import at.koopro.spells_n_squares.features.storage.StorageRegistry;
+import at.koopro.spells_n_squares.features.transportation.TransportationRegistry;
+import at.koopro.spells_n_squares.features.wand.WandRegistry;
 import com.google.gson.JsonObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -24,65 +42,95 @@ public class ModItemModelProvider implements DataProvider {
     private final PackOutput output;
     private final String modId;
     
-    // Items that already have models and should be skipped
-    private static final Set<String> EXISTING_MODELS = Set.of(
-        "rubber_duck",
-        "flashlight",
-        "demo_wand",
-        "demiguise_cloak",
-        "deathly_hallow_cloak"
-    );
-    
     public ModItemModelProvider(PackOutput output) {
         this.output = output;
         this.modId = SpellsNSquares.MODID;
+        // Initialize the datagen config to scan for custom models
+        ItemDatagenConfig.initialize();
     }
     
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
         List<CompletableFuture<?>> futures = new ArrayList<>();
         
-        // Generate models for all items
-        ModItems.ITEMS.getEntries().forEach(holder -> {
-            try {
-                // Get the registry name - try holder.getId() first, then fall back to getting from registry
-                String itemName;
+        // Collect all item registries from feature registries
+        List<DeferredRegister.Items> itemRegistries = List.of(
+            ModItems.ITEMS,  // Generic items
+            FlashlightRegistry.ITEMS,
+            WandRegistry.ITEMS,
+            CloakRegistry.ITEMS,
+            ArtifactsRegistry.ITEMS,
+            StorageRegistry.ITEMS,
+            TransportationRegistry.ITEMS,
+            CommunicationRegistry.ITEMS,
+            AutomationRegistry.ITEMS,
+            BuildingRegistry.ITEMS,
+            NavigationRegistry.ITEMS,
+            RobesRegistry.ITEMS,
+            PotionsRegistry.ITEMS,
+            QuidditchRegistry.ITEMS,
+            EconomyRegistry.ITEMS,
+            EducationRegistry.ITEMS,
+            CombatRegistry.ITEMS,
+            EnchantmentsRegistry.ITEMS
+        );
+        
+        // Generate models for all items from all registries
+        // Note: ModBlockModelProvider already generates item models for blocks,
+        // but we still process BlockItems here to ensure they have models
+        for (DeferredRegister.Items registry : itemRegistries) {
+            registry.getEntries().forEach(holder -> {
                 try {
-                    itemName = holder.getId().getPath();
-                } catch (Exception e) {
-                    // Fallback: get from the item's registry key
+                    // Get the registry name - try holder.getId() first, then fall back to getting from registry
+                    String itemName;
+                    try {
+                        itemName = holder.getId().getPath();
+                    } catch (Exception e) {
+                        // Fallback: get from the item's registry key
+                        Item item = holder.get();
+                        itemName = BuiltInRegistries.ITEM.getKey(item).getPath();
+                    }
+                    
                     Item item = holder.get();
-                    itemName = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item).getPath();
+                    
+                    // Skip BlockItems - ModBlockModelProvider already generates item models for blocks
+                    // This prevents duplicate generation and ensures consistency
+                    if (item instanceof BlockItem) {
+                        return;
+                    }
+                    
+                    // Skip items that already have custom models (GeckoLib or manual JSON)
+                    if (!ItemDatagenConfig.shouldGenerateModel(itemName)) {
+                        return;
+                    }
+                    
+                    // Determine model type based on item class/name
+                    String modelType = determineModelType(itemName, item);
+                    
+                    // Generate model for non-block items
+                    if (modelType != null) {
+                        futures.add(generateItemModel(cache, itemName, modelType));
+                    } else {
+                        // Fallback: generate default model if somehow modelType is null
+                        futures.add(generateItemModel(cache, itemName, "generated"));
+                    }
+                } catch (Exception e) {
+                    // Log error but continue with other items
+                    System.err.println("Failed to generate model for item: " + holder.getId() + " - " + e.getMessage());
+                    e.printStackTrace();
                 }
-                
-                // Skip items that already have models
-                if (EXISTING_MODELS.contains(itemName)) {
-                    return;
-                }
-                
-                Item item = holder.get();
-                
-                // Determine model type based on item class/name
-                String modelType = determineModelType(itemName, item);
-                
-                // Always generate a model (modelType should never be null, but ensure we generate anyway)
-                if (modelType != null) {
-                    futures.add(generateItemModel(cache, itemName, modelType));
-                } else {
-                    // Fallback: generate default model if somehow modelType is null
-                    futures.add(generateItemModel(cache, itemName, "generated"));
-                }
-            } catch (Exception e) {
-                // Log error but continue with other items
-                System.err.println("Failed to generate model for item: " + holder.getId() + " - " + e.getMessage());
-                e.printStackTrace();
-            }
-        });
+            });
+        }
         
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
     
     private String determineModelType(String itemName, Item item) {
+        // Block items - check if item is a BlockItem instance first
+        if (item instanceof BlockItem) {
+            return "block";
+        }
+        
         // Handheld items (tools, wands, broomsticks)
         if (itemName.contains("wand") || 
             itemName.contains("broomstick") ||
@@ -98,28 +146,6 @@ public class ModItemModelProvider implements DataProvider {
         // Armor items (robes) - use generated model
         if (itemName.contains("robe")) {
             return "generated";
-        }
-        
-        // Block items - reference block model
-        if (itemName.contains("plant") || 
-            itemName.contains("trunk") ||
-            itemName.contains("chest") ||
-            itemName.contains("cauldron") ||
-            itemName.contains("furnace") ||
-            itemName.contains("light") ||
-            itemName.contains("farm") ||
-            itemName.contains("collector") ||
-            itemName.contains("composter") ||
-            itemName.contains("generator") ||
-            itemName.contains("enchantment_table") ||
-            itemName.contains("hourglass") ||
-            itemName.contains("arena") ||
-            itemName.contains("post") ||
-            itemName.contains("shop") ||
-            itemName.contains("vault") ||
-            itemName.contains("board") ||
-            itemName.contains("willow")) {
-            return "block";
         }
         
         // Default: generated model for most items
@@ -162,6 +188,9 @@ public class ModItemModelProvider implements DataProvider {
         return "Item Models - " + modId;
     }
 }
+
+
+
 
 
 
