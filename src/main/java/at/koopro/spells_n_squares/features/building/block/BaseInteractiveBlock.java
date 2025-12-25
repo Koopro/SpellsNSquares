@@ -26,18 +26,24 @@ public class BaseInteractiveBlock extends Block {
                                        InteractionHand hand, BlockHitResult hit) {
         // Debug: Log that use method was called (even on client to see if it's being called)
         if (level.isClientSide()) {
+            net.minecraft.world.item.ItemStack heldItem = player != null ? player.getItemInHand(hand) : net.minecraft.world.item.ItemStack.EMPTY;
+            boolean isEmptyHand = heldItem.isEmpty();
             System.out.println("[CLIENT] Block use() called for " + this.getClass().getSimpleName() + " at " + pos);
             System.out.println("[CLIENT] Player: " + (player != null ? player.getName().getString() : "null"));
             System.out.println("[CLIENT] Hand: " + hand);
+            System.out.println("[CLIENT] Empty hand: " + isEmptyHand);
             System.out.println("[CLIENT] Hit face: " + (hit != null ? hit.getDirection() : "null"));
-            System.out.println("[CLIENT] Item in hand: " + (player != null && player.getItemInHand(hand) != null ? player.getItemInHand(hand).getItem() : "null"));
+            System.out.println("[CLIENT] Item in hand: " + (isEmptyHand ? "EMPTY" : heldItem.getItem()));
             // Return SUCCESS to allow server-side processing
             return InteractionResult.SUCCESS;
         }
         
+        net.minecraft.world.item.ItemStack heldItem = player != null ? player.getItemInHand(hand) : net.minecraft.world.item.ItemStack.EMPTY;
+        boolean isEmptyHand = heldItem.isEmpty();
         System.out.println("[SERVER] Block use() called for " + this.getClass().getSimpleName() + " at " + pos);
         System.out.println("[SERVER] Player: " + (player != null ? player.getName().getString() : "null"));
         System.out.println("[SERVER] Hand: " + hand);
+        System.out.println("[SERVER] Empty hand: " + isEmptyHand);
         System.out.println("[SERVER] Hit face: " + (hit != null ? hit.getDirection() : "null"));
         System.out.println("[SERVER] Is shift down: " + (player != null ? player.isShiftKeyDown() : "N/A"));
         
@@ -86,6 +92,9 @@ public class BaseInteractiveBlock extends Block {
         return null;
     }
 }
+
+
+
 
 
 

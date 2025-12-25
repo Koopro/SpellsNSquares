@@ -1,14 +1,9 @@
 package at.koopro.spells_n_squares.features.potions;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -34,14 +29,11 @@ public final class PotionBrewingManager {
         private final List<ItemStack> ingredients;
         private int progress; // Current progress in ticks
         private final int totalTime;
-        private final BlockPos cauldronPos;
-        
         public BrewingSession(PotionRecipe recipe, List<ItemStack> ingredients, BlockPos cauldronPos) {
             this.recipe = recipe;
             this.ingredients = new ArrayList<>(ingredients);
             this.totalTime = recipe.brewingTime();
             this.progress = 0;
-            this.cauldronPos = cauldronPos;
         }
         
         public boolean tick(ServerLevel level) {
@@ -80,16 +72,22 @@ public final class PotionBrewingManager {
         }
         
         private net.minecraft.world.item.Item getPotionItemForType(String type) {
-            // Resolve potion item by type - will be set up when items are registered
+            // Resolve potion item by type, preferring the dedicated potions registry.
             return switch (type) {
-                // TODO: Re-enable when potion items are registered in ModItems
-                // case "healing" -> at.koopro.spells_n_squares.core.registry.ModItems.HEALING_POTION.get();
-                // case "strength" -> at.koopro.spells_n_squares.core.registry.ModItems.STRENGTH_POTION.get();
-                // case "invisibility" -> at.koopro.spells_n_squares.core.registry.ModItems.INVISIBILITY_POTION.get();
-                // case "felix_felicis" -> at.koopro.spells_n_squares.core.registry.ModItems.FELIX_FELICIS.get();
-                // case "wolfsbane" -> at.koopro.spells_n_squares.core.registry.ModItems.WOLFSBANE_POTION.get();
-                // case "veritaserum" -> at.koopro.spells_n_squares.core.registry.ModItems.VERITASERUM.get();
-                // case "love_potion" -> at.koopro.spells_n_squares.core.registry.ModItems.LOVE_POTION.get();
+                case "felix_felicis" ->
+                    at.koopro.spells_n_squares.features.potions.PotionsRegistry.FELIX_FELICIS.get();
+                case "veritaserum" ->
+                    at.koopro.spells_n_squares.features.potions.PotionsRegistry.VERITASERUM.get();
+                case "shrinking_solution" ->
+                    at.koopro.spells_n_squares.features.potions.PotionsRegistry.SHRINKING_SOLUTION_POTION.get();
+                case "swelling_solution" ->
+                    at.koopro.spells_n_squares.features.potions.PotionsRegistry.SWELLING_SOLUTION_POTION.get();
+                case "murtlap_essence" ->
+                    at.koopro.spells_n_squares.features.potions.PotionsRegistry.MURTLAP_ESSENCE_POTION.get();
+                case "draught_of_living_death" ->
+                    at.koopro.spells_n_squares.features.potions.PotionsRegistry.DRAUGHT_OF_LIVING_DEATH_POTION.get();
+                case "draught_of_peace" ->
+                    at.koopro.spells_n_squares.features.potions.PotionsRegistry.DRAUGHT_OF_PEACE_POTION.get();
                 default -> net.minecraft.world.item.Items.POTION; // Fallback
             };
         }
@@ -176,6 +174,17 @@ public final class PotionBrewingManager {
                     spawnPos.x, spawnPos.y, spawnPos.z,
                     20, 0.3, 0.3, 0.3, 0.1
                 );
+
+                // Notify nearby players that brewing has finished
+                level.players().stream()
+                    .filter(player -> player.distanceToSqr(spawnPos.x, spawnPos.y, spawnPos.z) <= 64)
+                    .forEach(player -> player.displayClientMessage(
+                        net.minecraft.network.chat.Component.translatable(
+                            "message.spells_n_squares.potion.brew_complete",
+                            session.getRecipe().id().toString()
+                        ),
+                        true
+                    ));
                 
                 iterator.remove();
             }

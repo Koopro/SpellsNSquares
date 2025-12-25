@@ -58,6 +58,12 @@ public class ModSpells {
         
         // 10. Aguamenti - The Water-Making Spell
         SpellRegistry.register(new AguamentiSpell());
+
+        // 11. Confringo - Blasting curse with FX-heavy impact
+        SpellRegistry.register(new ConfringoSpell());
+
+        // 12. Homenum Revelio - Reveal nearby living entities with glowing outline
+        SpellRegistry.register(new HomenumRevelioSpell());
     }
     
     /**

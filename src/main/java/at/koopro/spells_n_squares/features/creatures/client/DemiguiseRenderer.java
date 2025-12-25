@@ -76,3 +76,8 @@ public class DemiguiseRenderer extends EntityRenderer<DemiguiseEntity, EntityRen
 
 
 
+
+
+
+
+

@@ -40,3 +40,8 @@ public class MagicalFurnaceBlock extends BaseInteractiveBlock {
 
 
 
+
+
+
+
+

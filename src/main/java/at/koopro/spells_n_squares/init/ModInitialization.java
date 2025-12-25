@@ -64,6 +64,7 @@ public class ModInitialization {
         SocketData.DATA_COMPONENTS.register(modEventBus);
         
         // Register all feature registries
+        at.koopro.spells_n_squares.features.fx.FxRegistry.register(modEventBus);
         FlashlightRegistry.register(modEventBus);
         WandRegistry.register(modEventBus);
         CloakRegistry.register(modEventBus);

@@ -61,3 +61,8 @@ public class AugureyEntity extends BaseTamableCreatureEntity {
 
 
 
+
+
+
+
+

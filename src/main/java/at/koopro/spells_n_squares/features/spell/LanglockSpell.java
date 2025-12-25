@@ -118,3 +118,8 @@ public class LanglockSpell implements Spell {
 
 
 
+
+
+
+
+

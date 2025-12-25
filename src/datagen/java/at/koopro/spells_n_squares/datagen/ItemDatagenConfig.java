@@ -31,7 +31,8 @@ public class ItemDatagenConfig {
         "flashlight",
         "demo_wand",
         "demiguise_cloak",
-        "deathly_hallow_cloak"
+        "deathly_hallow_cloak",
+        "newts_case"
     );
     
     /**
@@ -113,5 +114,11 @@ public class ItemDatagenConfig {
         return item instanceof GeoItem;
     }
 }
+
+
+
+
+
+
 
 

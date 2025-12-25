@@ -77,6 +77,8 @@ This document provides a comprehensive list of everything that exists in the Spe
 12. **Muffliato** - Privacy charm
 13. **Orchideous** - Flower-conjuring spell
 14. **Periculum** - Signal spell
+15. **Confringo** - Explosive blasting curse (AoE knockback + burn)
+16. **Homenum Revelio** - Reveals nearby living beings with a glowing outline
 
 ### Spell Entities
 - **ShieldOrbEntity** - Protego shield visual
@@ -508,6 +510,7 @@ Wood types: Ash, Beech, Blackthorn, Cedar, Chestnut, Cypress, Dogwood, Elder, El
 
 **Document Version**: 1.0  
 **Last Updated**: Current codebase analysis
+
 
 
 

@@ -17,6 +17,11 @@ public class Config {
     public static final ModConfigSpec.BooleanValue ENVIRONMENTAL_EFFECTS_ENABLED;
     public static final ModConfigSpec.IntValue MAX_PARTICLE_DISTANCE;
     public static final ModConfigSpec.EnumValue<EffectQuality> EFFECT_QUALITY;
+
+    // Gameplay balance settings
+    public static final ModConfigSpec.DoubleValue SPELL_COOLDOWN_MULTIPLIER;
+    public static final ModConfigSpec.DoubleValue SPELL_DAMAGE_MULTIPLIER;
+    public static final ModConfigSpec.DoubleValue POTION_DURATION_MULTIPLIER;
     
     public static final ModConfigSpec SPEC;
     
@@ -75,8 +80,13 @@ public class Config {
         BUILDER.push("gameplay");
         
         BUILDER.comment("Spell balance settings");
-        BUILDER.define("spellCooldownMultiplier", 1.0);
-        BUILDER.define("spellDamageMultiplier", 1.0);
+        SPELL_COOLDOWN_MULTIPLIER = BUILDER
+            .defineInRange("spellCooldownMultiplier", 1.0, 0.1, 10.0);
+        SPELL_DAMAGE_MULTIPLIER = BUILDER
+            .defineInRange("spellDamageMultiplier", 1.0, 0.1, 10.0);
+        POTION_DURATION_MULTIPLIER = BUILDER
+            .comment("Global potion duration multiplier (1.0 = default)")
+            .defineInRange("potionDurationMultiplier", 1.0, 0.1, 5.0);
         BUILDER.define("enableDarkMagic", true);
         
         BUILDER.comment("Creature settings");
@@ -165,5 +175,28 @@ public class Config {
     public static EffectQuality getEffectQuality() {
         return EFFECT_QUALITY.get();
     }
-}
 
+    /**
+     * Gets the global spell cooldown multiplier.
+     * Allows tuning spell cooldowns without code changes.
+     */
+    public static double getSpellCooldownMultiplier() {
+        return SPELL_COOLDOWN_MULTIPLIER.get();
+    }
+
+    /**
+     * Gets the global spell damage multiplier.
+     * Allows tuning spell damage without code changes.
+     */
+    public static double getSpellDamageMultiplier() {
+        return SPELL_DAMAGE_MULTIPLIER.get();
+    }
+
+    /**
+     * Gets the global potion duration multiplier.
+     * Allows tuning potion effect durations without code changes.
+     */
+    public static double getPotionDurationMultiplier() {
+        return POTION_DURATION_MULTIPLIER.get();
+    }
+}

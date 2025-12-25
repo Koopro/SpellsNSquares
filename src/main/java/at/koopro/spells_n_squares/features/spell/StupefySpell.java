@@ -129,7 +129,24 @@ public class StupefySpell implements Spell {
     public float getVisualEffectIntensity() {
         return 0.7f;
     }
+    
+    @Override
+    public void spawnCastEffects(Player player, Level level, boolean success) {
+        // Call default implementation
+        Spell.super.spawnCastEffects(player, level, success);
+        
+        if (success && level.isClientSide()) {
+            // Apply chromatic aberration for stunning spell (disorientation effect)
+            if (at.koopro.spells_n_squares.core.config.Config.areShaderEffectsEnabled()) {
+                at.koopro.spells_n_squares.features.fx.ShaderEffectHandler.triggerChromaticAberration(0.4f);
+            }
+        }
+    }
 }
+
+
+
+
 
 
 

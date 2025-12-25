@@ -3,7 +3,10 @@ package at.koopro.spells_n_squares.features.storage.block;
 import at.koopro.spells_n_squares.features.building.block.BaseInteractiveBlock;
 import at.koopro.spells_n_squares.features.storage.PocketDimensionData;
 import at.koopro.spells_n_squares.features.storage.PocketDimensionManager;
+import at.koopro.spells_n_squares.features.storage.block.NewtsCaseBlockItem;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -14,43 +17,64 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
-import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 /**
  * Newt's Case block - a placeable block that provides access to a custom pocket dimension
- * with a fixed magical creature habitat layout.
+ * with a structure schematic. Each case has its own unique dimension that persists.
  */
 public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock {
-    
-    private static final int DEFAULT_SIZE = 32;
+    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
+    public static final Property<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    private static final VoxelShape CASE_SHAPE = Shapes.box(
+        3.0D / 16.0D, 0.0D, 3.0D / 16.0D,
+        13.0D / 16.0D, 9.0D / 16.0D, 13.0D / 16.0D
+    );
     
     public NewtsCaseBlock(Properties properties) {
         super(properties);
+        registerDefaultState(this.stateDefinition.any()
+            .setValue(OPEN, false)
+            .setValue(FACING, Direction.NORTH));
     }
     
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, 
-                                InteractionHand hand, BlockHitResult hit) {
-        // Debug: Log that use method was called
-        System.out.println("[NewtsCaseBlock] use() called directly at " + pos);
-        System.out.println("[NewtsCaseBlock] Is client side: " + level.isClientSide());
-        System.out.println("[NewtsCaseBlock] Player: " + (player != null ? player.getName().getString() : "null"));
-        System.out.println("[NewtsCaseBlock] Hand: " + hand);
-        System.out.println("[NewtsCaseBlock] Is shift down: " + (player != null ? player.isShiftKeyDown() : "N/A"));
-        
-        // Call parent implementation which handles client/server logic
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        // Face the block towards the player when placing
+        Direction playerFacing = context.getHorizontalDirection().getOpposite();
+        return this.defaultBlockState()
+            .setValue(FACING, playerFacing)
+            .setValue(OPEN, false);
+    }
+    
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
+        builder.add(OPEN, FACING);
+    }
+    
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hit) {
+        // Call parent - this will handle client/server split and call onServerInteract
         return super.use(state, level, pos, player, hand, hit);
     }
     
@@ -58,33 +82,63 @@ public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock 
     protected InteractionResult onServerInteract(BlockState state, Level level, BlockPos pos, 
                                                   ServerPlayer serverPlayer, InteractionHand hand, 
                                                   BlockHitResult hit) {
-        // Debug: Log that interaction was called
-        System.out.println("[NewtsCaseBlock] onServerInteract() called at " + pos);
-        System.out.println("[NewtsCaseBlock] Block type: " + state.getBlock().getClass().getSimpleName());
-        System.out.println("[NewtsCaseBlock] BlockEntity: " + (level.getBlockEntity(pos) != null ? level.getBlockEntity(pos).getClass().getSimpleName() : "null"));
-        System.out.println("[NewtsCaseBlock] Shift check: " + serverPlayer.isShiftKeyDown());
-        
-        // Check if player is shift-clicking to pick up the block
-        if (serverPlayer.isShiftKeyDown()) {
-            System.out.println("[NewtsCaseBlock] Handling pickup");
-            return handlePickup(level, pos, serverPlayer);
-        } else {
-            System.out.println("[NewtsCaseBlock] Handling dimension access");
-            serverPlayer.sendSystemMessage(Component.literal("Newt's Case clicked!"));
-            return handleDimensionAccess(level, pos, serverPlayer);
+        ItemStack heldItem = serverPlayer.getItemInHand(hand);
+        boolean isEmptyHand = heldItem.isEmpty();
+        boolean isOpen = state.getValue(OPEN);
+
+        // Only allow interaction with empty hand or when holding the case item
+        if (!isEmptyHand && !(heldItem.getItem() instanceof NewtsCaseBlockItem)) {
+            return InteractionResult.PASS;
         }
+
+        if (serverPlayer.isShiftKeyDown()) {
+            // Shift-right-click: close if open, or pickup if closed
+            if (isOpen) {
+                setOpen(level, pos, state, false);
+                return InteractionResult.SUCCESS;
+            } else {
+                return handlePickup(level, pos, serverPlayer);
+            }
+        }
+
+        // Regular right-click
+        if (!isOpen) {
+            setOpen(level, pos, state, true);
+            return InteractionResult.SUCCESS;
+        }
+
+        // Case is open - enter dimension (handleDimensionAccess checks if player is standing on it)
+        LOGGER.info("[NewtsCaseBlock] Attempting dimension access at {}", pos);
+        InteractionResult result = handleDimensionAccess(level, pos, serverPlayer);
+        if (result != InteractionResult.SUCCESS && result != InteractionResult.CONSUME) {
+            LOGGER.warn("[NewtsCaseBlock] Dimension access failed: {}", result);
+        }
+        return result;
     }
     
     /**
      * Handles shift-right-click to pick up the block.
+     * Enforces that the case must be closed before pickup.
+     * This should ONLY be called when the case is already closed.
      */
     private InteractionResult handlePickup(Level level, BlockPos pos, ServerPlayer player) {
         if (!(level.getBlockEntity(pos) instanceof NewtsCaseBlockEntity blockEntity)) {
             return InteractionResult.FAIL;
         }
+
+        BlockState state = level.getBlockState(pos);
         
-        // Get dimension data from BlockEntity
-        PocketDimensionData.PocketDimensionComponent dimensionData = blockEntity.getDimensionData();
+        // Double-check: case must be closed to pick up (safety check)
+        if (state.hasProperty(OPEN) && state.getValue(OPEN)) {
+            // This should never happen if called correctly, but close it as a safeguard
+            LOGGER.warn("[NewtsCaseBlock] handlePickup called on open case at {} - closing instead", pos);
+            setOpen(level, pos, state, false);
+            player.sendSystemMessage(Component.translatable("message.spells_n_squares.pocket_dimension.case_must_be_closed"));
+            return InteractionResult.SUCCESS;
+        }
+        
+        // Case is confirmed closed - proceed with pickup
+        LOGGER.info("[NewtsCaseBlock] Picking up case at {} by player {}", pos, player.getName().getString());
         
         // Create ItemStack with preserved dimension data
         ItemStack itemStack = blockEntity.getItemStack();
@@ -104,9 +158,32 @@ public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock 
     
     /**
      * Handles right-click to access the dimension.
+     * Requires the player to be standing on the opened case.
      */
     private InteractionResult handleDimensionAccess(Level level, BlockPos pos, ServerPlayer player) {
         if (!(level instanceof ServerLevel serverLevel)) {
+            LOGGER.warn("[NewtsCaseBlock] handleDimensionAccess: level is not ServerLevel");
+            return InteractionResult.FAIL;
+        }
+
+        BlockState state = level.getBlockState(pos);
+        if (!state.getValue(OPEN)) {
+            LOGGER.warn("[NewtsCaseBlock] handleDimensionAccess: case is closed");
+            player.sendSystemMessage(Component.translatable("message.spells_n_squares.pocket_dimension.case_closed"));
+            return InteractionResult.FAIL;
+        }
+        
+        // Check if player is standing on top of the case block
+        Vec3 playerPos = player.position();
+        boolean isStandingOnCase = playerPos.x >= pos.getX() && playerPos.x < pos.getX() + 1 &&
+                                   playerPos.z >= pos.getZ() && playerPos.z < pos.getZ() + 1 &&
+                                   playerPos.y >= pos.getY() + 1 && playerPos.y <= pos.getY() + 2.5;
+        
+        LOGGER.info("[NewtsCaseBlock] Player position: {}, Case position: {}, Standing on case: {}", 
+            playerPos, pos, isStandingOnCase);
+        
+        if (!isStandingOnCase) {
+            player.sendSystemMessage(Component.literal("You must stand on the opened case to enter the pocket dimension"));
             return InteractionResult.FAIL;
         }
         
@@ -134,6 +211,13 @@ public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock 
         
         PocketDimensionData.PocketDimensionComponent data = blockEntity.getDimensionData();
         
+        // Require an additional click after opening before teleporting (enforce open-before-enter rule)
+        if (blockEntity.wasJustOpened(level.getGameTime(), 20)) {
+            // Case was just opened (within last second) - require explicit second click
+            player.sendSystemMessage(Component.translatable("message.spells_n_squares.pocket_dimension.case_open_click_again"));
+            return InteractionResult.SUCCESS;
+        }
+
         // Check if player is currently in the pocket dimension
         boolean inPocketDimension = serverLevel.dimension() == data.dimensionKey();
         
@@ -141,49 +225,53 @@ public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock 
             // Return to entry point
             return returnToEntryPoint(player, serverLevel, blockEntity, data);
         } else {
-            // Enter pocket dimension
-            return enterPocketDimension(player, serverLevel, blockEntity, data);
+            // Enter pocket dimension - pass the case block position
+            return enterPocketDimension(player, serverLevel, pos, blockEntity, data);
         }
     }
     
     /**
      * Teleports player to their pocket dimension.
+     * @param casePos The position of the case block (used for exit validation)
      */
     private InteractionResult enterPocketDimension(ServerPlayer player, ServerLevel currentLevel, 
+                                                   BlockPos casePos,
                                                    NewtsCaseBlockEntity blockEntity, 
                                                    PocketDimensionData.PocketDimensionComponent data) {
-        // Store entry position
-        BlockPos entryPos = player.blockPosition();
-        data = data.withEntry(currentLevel.dimension(), entryPos);
+        // Store case block position as entry position (for exit validation)
+        // This ensures we can check if the case is open when exiting
+        data = data.withEntry(currentLevel.dimension(), casePos);
         blockEntity.setDimensionData(data);
         
         // Get or create pocket dimension level
+        LOGGER.info("[NewtsCaseBlock] Getting or creating dimension: {}", data.dimensionKey());
         ServerLevel pocketLevel = PocketDimensionManager.getOrCreateDimension(
             currentLevel.getServer(), data.dimensionKey());
         if (pocketLevel == null) {
+            LOGGER.error("[NewtsCaseBlock] Failed to get or create dimension: {}", data.dimensionKey());
             pocketLevel = currentLevel.getServer().getLevel(data.dimensionKey());
             if (pocketLevel == null) {
+                LOGGER.error("[NewtsCaseBlock] Dimension does not exist: {}", data.dimensionKey());
                 player.sendSystemMessage(Component.translatable("message.spells_n_squares.pocket_dimension.not_available"));
                 return InteractionResult.FAIL;
             }
         }
         
-        // Get spawn position for this pocket dimension
-        net.minecraft.core.BlockPos spawnPos = PocketDimensionManager.getSpawnPosition(data.dimensionId(), data.size());
+        LOGGER.info("[NewtsCaseBlock] Dimension found/created: {}", pocketLevel.dimension());
+        
+        // Initialize Newt's Case dimension (loads structure if first time)
+        BlockPos spawnPos = PocketDimensionManager.initializeNewtsCaseDimension(pocketLevel, data.dimensionId());
+        LOGGER.info("[NewtsCaseBlock] Spawn position: {}", spawnPos);
         
         // Store player entry data for exit platform detection
+        // Use case position as entry position so we can check if it's open on exit
         PocketDimensionManager.storePlayerEntry(
-            player.getUUID(),
+            player,
             currentLevel.dimension(),
-            entryPos,
+            casePos,
             spawnPos,
             data.dimensionId()
         );
-        
-        // Initialize spawn area if needed (check if platform exists)
-        if (pocketLevel.getBlockState(spawnPos.below()).isAir()) {
-            PocketDimensionManager.initializeSpawnArea(pocketLevel, spawnPos, data.size(), data.type());
-        }
         
         // Visual effect at origin
         Vec3 origin = player.position();
@@ -236,6 +324,38 @@ public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock 
         
         BlockPos entryPos = data.entryPosition().get();
         
+        // Check if the case block at entry position is open
+        // entryPos should be the case block position (stored when entering)
+        BlockState caseState = targetLevel.getBlockState(entryPos);
+        if (caseState.getBlock() instanceof NewtsCaseBlock) {
+            // This is the case block - check if it's open
+            if (caseState.hasProperty(OPEN) && !caseState.getValue(OPEN)) {
+                // Case is closed - prevent exit
+                player.sendSystemMessage(Component.literal("§cThe case is closed! It must be opened to exit the pocket dimension."));
+                return InteractionResult.FAIL;
+            }
+        } else {
+            // Fallback: if entryPos is not the case, check positions below (legacy support)
+            BlockPos casePos = null;
+            for (int yOffset = -1; yOffset >= -2; yOffset--) {
+                BlockPos checkPos = entryPos.offset(0, yOffset, 0);
+                BlockState checkState = targetLevel.getBlockState(checkPos);
+                if (checkState.getBlock() instanceof NewtsCaseBlock) {
+                    casePos = checkPos;
+                    break;
+                }
+            }
+            
+            if (casePos != null) {
+                BlockState checkCaseState = targetLevel.getBlockState(casePos);
+                if (checkCaseState.hasProperty(OPEN) && !checkCaseState.getValue(OPEN)) {
+                    // Case is closed - prevent exit
+                    player.sendSystemMessage(Component.literal("§cThe case is closed! It must be opened to exit the pocket dimension."));
+                    return InteractionResult.FAIL;
+                }
+            }
+        }
+        
         // Visual effect at origin (pocket dimension)
         Vec3 origin = player.position();
         pocketLevel.sendParticles(ParticleTypes.PORTAL,
@@ -269,7 +389,7 @@ public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock 
         blockEntity.setDimensionData(data);
         
         // Clear player entry tracking
-        PocketDimensionManager.clearPlayerEntry(player.getUUID());
+        PocketDimensionManager.clearPlayerEntry(player);
         
         player.sendSystemMessage(Component.translatable("message.spells_n_squares.pocket_dimension.returned"));
         return InteractionResult.SUCCESS;
@@ -277,21 +397,84 @@ public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock 
     
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
+        // Use INVISIBLE for GeckoLib blocks - the BlockEntity renderer handles the actual rendering
+        return RenderShape.INVISIBLE;
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos, CollisionContext context) {
+        // Temporarily use full block for testing - make it easier to click
+        return Shapes.block();
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos, CollisionContext context) {
+        // Temporarily use full block for testing
+        return Shapes.block();
+    }
+
+    @Override
+    public VoxelShape getVisualShape(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos, CollisionContext context) {
+        // Use full block for visual shape to ensure proper interaction detection
+        return Shapes.block();
+    }
+
+    @Override
+    public VoxelShape getBlockSupportShape(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+        return CASE_SHAPE;
+    }
+
+    @Override
+    public VoxelShape getInteractionShape(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+        // Use full block shape for interaction to make it easier to click
+        return Shapes.block();
+    }
+    
+    @Override
+    public boolean isPossibleToRespawnInThis(BlockState state) {
+        return false;
+    }
+    
+    @Override
+    public boolean useShapeForLightOcclusion(BlockState state) {
+        // Return false to ensure proper interaction detection
+        return false;
+    }
+
+    private void setOpen(Level level, BlockPos pos, BlockState state, boolean open) {
+        BlockState newState = state.setValue(OPEN, open);
+        level.setBlock(pos, newState, 3);
+        
+        // Notify BlockEntity of state change to trigger animation
+        if (level.getBlockEntity(pos) instanceof NewtsCaseBlockEntity be) {
+            be.onBlockStateChanged(newState);
+            if (open) {
+                be.markOpened(level.getGameTime());
+            }
+        }
+        
+        // Play sound effects
+        if (open) {
+            level.playSound(null, pos, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, 0.6f, 1.0f);
+        } else {
+            level.playSound(null, pos, SoundEvents.CHEST_CLOSE, SoundSource.BLOCKS, 0.6f, 1.0f);
+        }
     }
     
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         if (StorageBlockEntities.NEWTS_CASE_BLOCK_ENTITY != null) {
-            try {
-                return new NewtsCaseBlockEntity(StorageBlockEntities.NEWTS_CASE_BLOCK_ENTITY.get(), pos, state);
-            } catch (Exception e) {
-                // BlockEntityType not ready yet
-                return null;
-            }
+            return new NewtsCaseBlockEntity(StorageBlockEntities.NEWTS_CASE_BLOCK_ENTITY.get(), pos, state);
         }
         return null;
+    }
+    
+    @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        LOGGER.info("[NewtsCaseBlock] Block placed at {} - Block type: {}", pos, level.getBlockState(pos).getBlock());
+        LOGGER.info("[NewtsCaseBlock] Is this block? {}", level.getBlockState(pos).getBlock() == this);
     }
     
     
@@ -300,14 +483,6 @@ public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock 
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, 
                                                                     BlockEntityType<T> type) {
         return null; // No ticker needed
-    }
-    
-    @Nullable
-    @Override
-    public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
-        // Return null to ensure the block's use() method is called instead of trying to open a menu
-        // This allows empty-hand interactions to work properly
-        return null;
     }
     
     @Override
@@ -331,5 +506,4 @@ public class NewtsCaseBlock extends BaseInteractiveBlock implements EntityBlock 
         return super.getDrops(state, builder);
     }
 }
-
 

@@ -2,136 +2,116 @@ package at.koopro.spells_n_squares.features.storage.block;
 
 import at.koopro.spells_n_squares.features.storage.PocketDimensionData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.client.GeoRenderProvider;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.manager.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.animation.object.PlayState;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
+import software.bernie.geckolib.util.GeckoLibUtil;
+
+import java.util.function.Consumer;
 
 /**
- * Custom BlockItem for Newt's Case that handles dimension data transfer.
+ * BlockItem for Newt's Case with GeckoLib item rendering and dimension data preservation.
  */
-public class NewtsCaseBlockItem extends BlockItem {
+public class NewtsCaseBlockItem extends BlockItem implements GeoItem {
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     
     public NewtsCaseBlockItem(NewtsCaseBlock block, Properties properties) {
         super(block, properties);
+        GeoItem.registerSyncedAnimatable(this);
     }
     
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        BlockPos clickedPos = context.getClickedPos();
         Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        ItemStack stack = context.getItemInHand();
         
-        // Check the clicked position (the block face you clicked on)
-        BlockState clickedState = level.getBlockState(clickedPos);
-        
-        // Also check the block on the other side of the clicked face
-        // When you click a face, getClickedPos() is the block the face belongs to
-        // getClickedFace() is the direction of the face (UP = top face, DOWN = bottom face, etc.)
-        // So the block you're actually clicking on is clickedPos.relative(getClickedFace())
-        BlockPos targetBlockPos = clickedPos.relative(context.getClickedFace());
-        BlockState targetBlockState = level.getBlockState(targetBlockPos);
-        
-        System.out.println("[BlockItem] useOn() called at " + clickedPos + ", face: " + context.getClickedFace());
-        System.out.println("[BlockItem] Clicked block (at clickedPos): " + BuiltInRegistries.BLOCK.getKey(clickedState.getBlock()));
-        System.out.println("[BlockItem] Target block (relative to face): " + BuiltInRegistries.BLOCK.getKey(targetBlockState.getBlock()) + " at " + targetBlockPos);
-        
-        // Check if either position has a Newt's Case block
-        boolean clickedIsNewtsCase = clickedState.getBlock() instanceof NewtsCaseBlock || 
-                                     clickedState.getBlock() == this.getBlock() ||
-                                     BuiltInRegistries.BLOCK.getKey(clickedState.getBlock())
-                                         .equals(BuiltInRegistries.BLOCK.getKey(this.getBlock()));
-        
-        boolean targetIsNewtsCase = targetBlockState.getBlock() instanceof NewtsCaseBlock || 
-                                    targetBlockState.getBlock() == this.getBlock() ||
-                                    BuiltInRegistries.BLOCK.getKey(targetBlockState.getBlock())
-                                        .equals(BuiltInRegistries.BLOCK.getKey(this.getBlock()));
-        
-        if (clickedIsNewtsCase || targetIsNewtsCase) {
-            System.out.println("[BlockItem] Detected NewtsCaseBlock, calling block's use() method directly");
-            
-            // Determine which position has the Newt's Case block
-            BlockPos newtsCasePos = clickedIsNewtsCase ? clickedPos : targetBlockPos;
-            BlockState newtsCaseState = level.getBlockState(newtsCasePos);
-            
-            // Create a BlockHitResult for the block's use() method
-            // Use the clicked face direction, but if we're using targetBlockPos, we need the opposite face
-            Direction hitFace = context.getClickedFace();
-            if (!clickedIsNewtsCase && targetIsNewtsCase) {
-                // We clicked on a different block, so the face is the opposite
-                hitFace = context.getClickedFace().getOpposite();
-            }
-            
-            Vec3 hitVec = Vec3.atCenterOf(newtsCasePos);
-            BlockHitResult blockHit = new BlockHitResult(hitVec, hitFace, newtsCasePos, false);
-            
-            // Get the player and hand from context
+        // CRITICAL: If clicking on an existing Newt's Case block, call the block's use() method directly
+        // instead of trying to place a new block
+        BlockState clickedState = level.getBlockState(pos);
+        if (clickedState.getBlock() instanceof NewtsCaseBlock block) {
+            // This is an existing Newt's Case block - call the block's use() method directly
+            System.out.println("[NewtsCaseBlockItem] Clicked on existing NewtsCase block at " + pos + ", calling block.use()");
             Player player = context.getPlayer();
             InteractionHand hand = context.getHand();
-            
-            // Call the block's use() method directly
-            if (newtsCaseState.getBlock() instanceof NewtsCaseBlock newtsCaseBlock) {
-                InteractionResult result = newtsCaseBlock.use(newtsCaseState, level, newtsCasePos, player, hand, blockHit);
-                System.out.println("[BlockItem] Block's use() returned: " + result);
-                // Return CONSUME to prevent other interactions
-                if (result == InteractionResult.SUCCESS) {
-                    return InteractionResult.CONSUME;
-                }
-                return result;
-            }
-            
-            // Fallback: return PASS if block type check fails
-            return InteractionResult.PASS;
+            BlockHitResult hitResult = new BlockHitResult(
+                context.getClickLocation(),
+                context.getClickedFace(),
+                context.getClickedPos(),
+                context.isInside()
+            );
+            return block.use(clickedState, level, pos, player, hand, hitResult);
         }
         
-        // Otherwise, use default BlockItem behavior (for placing)
-        System.out.println("[BlockItem] Using default BlockItem behavior");
-        return super.useOn(context);
+        // Check if ItemStack has dimension data
+        PocketDimensionData.PocketDimensionComponent existingData = 
+            stack.get(PocketDimensionData.POCKET_DIMENSION.get());
+        
+        // Place the block first (only if not clicking on existing Newt's Case)
+        InteractionResult result = super.useOn(context);
+        
+        // If placement was successful and we have dimension data, restore it to BlockEntity
+        if (result == InteractionResult.CONSUME || result == InteractionResult.SUCCESS) {
+            if (!level.isClientSide()) {
+                BlockState placedState = level.getBlockState(pos);
+                if (placedState.getBlock() instanceof NewtsCaseBlock) {
+                    if (level.getBlockEntity(pos) instanceof NewtsCaseBlockEntity blockEntity) {
+                        if (existingData != null) {
+                            // Restore existing dimension data (same UUID = same dimension)
+                            blockEntity.setDimensionData(existingData);
+                        }
+                        // If no existing data, BlockEntity will create new dimension data with new UUID
+                    }
+                }
+            }
+        }
+        
+        return result;
     }
     
     @Override
-    protected boolean placeBlock(BlockPlaceContext context, BlockState state) {
-        boolean placed = super.placeBlock(context, state);
-        
-        System.out.println("[BlockItem] placeBlock() called, placed: " + placed + ", pos: " + context.getClickedPos());
-        
-        if (placed && !context.getLevel().isClientSide()) {
-            // Initialize BlockEntity with dimension data from ItemStack
-            BlockPos pos = context.getClickedPos();
-            Level level = context.getLevel();
-            
-            System.out.println("[BlockItem] Block placed, checking BlockEntity at " + pos);
-            BlockEntity be = level.getBlockEntity(pos);
-            System.out.println("[BlockItem] BlockEntity type: " + (be != null ? be.getClass().getSimpleName() : "null"));
-            
-            if (be instanceof NewtsCaseBlockEntity blockEntity) {
-                ItemStack stack = context.getItemInHand();
-                PocketDimensionData.PocketDimensionComponent data = stack.get(PocketDimensionData.POCKET_DIMENSION.get());
-                
-                if (data != null) {
-                    blockEntity.setDimensionData(data);
-                    System.out.println("[BlockItem] Restored dimension data from ItemStack");
-                } else {
-                    // Initialize with default Newt's case data
-                    blockEntity.setDimensionData(PocketDimensionData.PocketDimensionComponent.createNewtsCase(32));
-                    System.out.println("[BlockItem] Created new dimension data");
+    public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
+        consumer.accept(new GeoRenderProvider() {
+            private at.koopro.spells_n_squares.features.storage.block.client.NewtsCaseItemRenderer renderer;
+
+            public @Nullable GeoItemRenderer<?> getGeoItemRenderer() {
+                if (this.renderer == null) {
+                    this.renderer = new at.koopro.spells_n_squares.features.storage.block.client.NewtsCaseItemRenderer();
                 }
-            } else {
-                System.out.println("[BlockItem] WARNING: BlockEntity is not NewtsCaseBlockEntity!");
+
+                return this.renderer;
             }
-        }
-        
-        return placed;
+        });
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        // Add idle animation when held in hand
+        controllers.add(new AnimationController<>("idle", 0, state -> {
+            // Play idle animation when item is held
+            state.setAnimation(RawAnimation.begin().thenLoop("idle"));
+            return PlayState.CONTINUE;
+        }));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
     }
 }
-
 

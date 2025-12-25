@@ -1,7 +1,6 @@
-# Source Directory Structure
+## Source Directory Structure
 
 ```
-src/
 ├── datagen/
 │   └── java/
 │       └── at/
@@ -293,9 +292,17 @@ src/
     │   └── spells_n_squares.mixins.json           // Mixin configuration
     │
     └── templates/                                 // Template files
-        └── META-INF/
+            └── META-INF/
             └── neoforge.mods.toml
 ```
+
+## Core API Conventions (summary)
+
+- **Public API location**: Modder-facing APIs live under `core/api` (and `core/api/addon` for addons), with helper registries for addons under `core/registry/addon`. Internal wiring and implementation details stay in `core/registry` and `features/*`.
+- **Nullability & collections**: Methods that may not find a value document this explicitly (for example `ISpellRegistry.get` may return `null` when a spell is missing). Collections returned from registries are unmodifiable views where appropriate (see `SpellRegistry.getAll` and `FeatureRegistry.getFeatures`).
+- **Error handling**: Programmer or configuration errors (such as duplicate registrations, invalid namespaces, or unsatisfied dependencies) use `IllegalArgumentException` or `IllegalStateException` and are logged with addon/feature identifiers (see `SpellRegistry.register` and `AddonRegistry`).
+- **Ordering guarantees**: `FeatureRegistry` and `AddonRegistry` intentionally use `LinkedHashSet` / `LinkedHashMap` so that initialization follows registration order. Code depending on ordering should register in the correct sequence instead of assuming sorted order.
+- **Logging**: Core lifecycle and addon operations log via SLF4J (`LogUtils.getLogger()`), and log messages are expected to include the addon ID or feature name to aid debugging.
 
 
 

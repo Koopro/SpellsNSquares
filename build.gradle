@@ -124,6 +124,14 @@ dependencies {
     
     // Datagen dependencies - needs access to main source set
     datagenImplementation sourceSets.main.output
+
+    // Test dependencies
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
 
 // Handle duplicate resources - generated resources override main resources

@@ -1,50 +1,50 @@
-/spells_n_squaresdebug fx shader grayscale 1
-/spells_n_squaresdebug fx shader grayscale
-/spells_n_squaresdebug fx pipeline status
-/spells_n_squaresdebug fx shader inverted
-/spells_n_squaresdebug fx shader inverted 1
-/spells_n_squaresdebug fx shader inverted
-/spells_n_squaresdebug cast spells_n_squares:incendio
-/spells_n_squaresdebug cast spells_n_squares:incendio d
-/give @a spells_n_squares:enchanted_bag_bottomless
-/waypoint create auto
-/give @a spells_n_squares:elder_wand
-/summon spells_n_squares:dementor
-/kill @e
-/summon spells_n_squares:thestral
-/summon spells_n_squares:acromantula
-/summon spells_n_squares:boggart
-/summon spells_n_squares:cat
-/summon spells_n_squares:dragon
-/summon spells_n_squares:hippogriff
-/summon spells_n_squares:house_elf
-/give @a spells_n_squares:gillyweed
-/setblock -5 56 -8 spells_n_squares:whomping_willow
-/setblock -5 56 -8 spells_n_squares:whomping_willow strict
-/give @a spells_n_squares:gillyweed
-/give @a spells_n_squares:galleon
-/give @a spells_n_squares:yew_stairs
-/give @a spells_n_squares:bestiary
-/locate biome spells_n_squares:azkaban
-/locate biome spells_n_squares:dark_forest_edge
-/fillbiome ~ ~ ~ ~ ~ ~ spells_n_squares:magical_meadow
-/fillbiome 0 0 0 1000 1000 1000 spells_n_squares:magical_meadow
-/fillbiome 0 0 0 100 100 100 spells_n_squares:magical_meadow
-/fillbiome 0 0 0 50 50 50 spells_n_squares:magical_meadow
-/fillbiome ~ ~ ~ ~ 360 ~
-/give @a spells_n_squares:wizard_tower
-/debug start
-/kill @e[type=spells_n_squares:shield_orb]
-/summon minecraft:cow
-/give @a minecraft:vault
-/give @a spells_n_squares:veritaserum
-/setblock -76 55 5 spells_n_squares:vault
-/setblock -76 55 5 spells_n_squares:
-/setblock -76 55 5 spells_n_squares:trading_post
-/give Dev spells_n_squares:newts_case
-/debug give spells_n_squares:newts_case
-/debug give spells_n_squares
-/setblock -3 55 2 spells_n_squares:newts_case
-/list uuids
-/execute in spells_n_squares:pocket_dimension run tp Dev
-/execute in spells_n_squares:pocket_dimension run tp 0.11 56.39 -15.00
+/spells_n_squaresdebug fx shader motion_blur off
+/spells_n_squaresdebug fx shader oil_painting on
+/spells_n_squaresdebug fx shader oil_painting off
+/spells_n_squaresdebug fx shader old_film on
+/spells_n_squaresdebug fx shader old_film off
+/spells_n_squaresdebug fx shader old_tv on
+/spells_n_squaresdebug fx shader old_tv off
+/spells_n_squaresdebug fx shader outline on
+/spells_n_squaresdebug fx shader outline off
+/spells_n_squaresdebug fx shader sharpen on
+/spells_n_squaresdebug fx shader sharpen off
+/spells_n_squaresdebug fx shader thermal on
+/time set night
+/time set day
+/spells_n_squaresdebug fx shader thermal off
+/spells_n_squaresdebug fx shader underwater on
+/spells_n_squaresdebug fx shader underwater off
+/spells_n_squaresdebug fx shader vignette on
+/spells_n_squaresdebug fx shader vignette off
+/spells_n_squaresdebug fx shader vignette on
+/spells_n_squaresdebug fx shader vignette off
+/spells_n_squaresdebug fx shader xray on
+/spells_n_squaresdebug fx shader xray off
+/spells_n_squaresdebug fx shader scrolling_stripes
+/spells_n_squaresdebug fx shader scrolling_stripes on
+/spells_n_squaresdebug fx shader scrolling_stripes off
+/spells_n_squaresdebug fx shader animated_noise on
+/spells_n_squaresdebug fx shader animated_noise off
+/spells_n_squaresdebug fx shader breathing_vignette on
+/spells_n_squaresdebug fx shader breathing_vignette off
+/spells_n_squaresdebug fx shader color_wave on
+/spells_n_squaresdebug fx shader color_wave off
+/spells_n_squaresdebug fx shader pulsing_glow on
+/spells_n_squaresdebug fx shader pulsing_glow off
+/spells_n_squaresdebug fx shader warping_vortex on
+/spells_n_squaresdebug fx shader warping_vortex off
+/spells_n_squaresdebug fx shader rotating_kaleidoscope on
+/spells_n_squaresdebug fx shader rotating_kaleidoscope off
+/spells_n_squaresdebug fx shader depth_of_field on
+/spells_n_squaresdebug fx shader depth_of_field off
+/spells_n_squaresdebug fx shader lens_flare on
+/spells_n_squaresdebug fx shader lens_flare off
+/spells_n_squaresdebug fx shader scrolling_stripes on
+/spells_n_squaresdebug fx shader scrolling_stripes off
+/spells_n_squaresdebug fx shader scrolling_stripes on
+/spells_n_squaresdebug fx shader scrolling_stripes off
+/spells_n_squaresdebug fx shader scrolling_stripes test
+/spells_n_squaresdebug fx shader cartoon on
+/spells_n_squaresdebug fx shader chromatic on
+/spells_n_squaresdebug fx shader black_and_white on

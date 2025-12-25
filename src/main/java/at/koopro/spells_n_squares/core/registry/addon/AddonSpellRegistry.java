@@ -1,6 +1,7 @@
 package at.koopro.spells_n_squares.core.registry.addon;
 
 import at.koopro.spells_n_squares.core.api.ISpellRegistry;
+import at.koopro.spells_n_squares.core.util.AddonRegistryUtils;
 import at.koopro.spells_n_squares.features.spell.Spell;
 import net.minecraft.resources.Identifier;
 
@@ -27,16 +28,10 @@ public final class AddonSpellRegistry {
         if (spell == null) {
             throw new IllegalArgumentException("Spell cannot be null");
         }
-        
+
         Identifier spellId = spell.getId();
-        
-        // Validate namespace matches addon ID
-        if (!spellId.getNamespace().equals(addonId)) {
-            throw new IllegalArgumentException(
-                "Spell ID namespace '" + spellId.getNamespace() + "' does not match addon ID '" + addonId + "'"
-            );
-        }
-        
+        AddonRegistryUtils.validateNamespace(addonId, spellId, "spell");
+
         spellRegistry.register(spell);
     }
     
@@ -46,7 +41,7 @@ public final class AddonSpellRegistry {
      * @return The Identifier
      */
     public Identifier spellId(String path) {
-        return Identifier.fromNamespaceAndPath(addonId, path);
+        return AddonRegistryUtils.addonId(addonId, path);
     }
     
     /**
@@ -65,6 +60,11 @@ public final class AddonSpellRegistry {
         return addonId;
     }
 }
+
+
+
+
+
 
 
 

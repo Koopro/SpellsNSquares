@@ -96,3 +96,8 @@ public class LocomotorSpell implements Spell {
 
 
 
+
+
+
+
+

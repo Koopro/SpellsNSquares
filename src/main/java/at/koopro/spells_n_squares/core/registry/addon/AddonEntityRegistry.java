@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.core.registry.addon;
 
+import at.koopro.spells_n_squares.core.util.AddonRegistryUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -41,13 +42,7 @@ public final class AddonEntityRegistry {
             String name,
             Supplier<EntityType<?>> entityTypeSupplier
     ) {
-        return entities.register(name, () -> {
-            Identifier id = Identifier.fromNamespaceAndPath(addonId, name);
-            ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
-            EntityType<?> entityType = entityTypeSupplier.get();
-            // Note: EntityType.Builder.build() already takes a ResourceKey, so we need to ensure it's set
-            return entityType;
-        });
+        return entities.register(name, () -> entityTypeSupplier.get());
     }
     
     /**
@@ -62,7 +57,7 @@ public final class AddonEntityRegistry {
             EntityType.Builder<T> builder
     ) {
         return entities.register(name, () -> {
-            Identifier id = Identifier.fromNamespaceAndPath(addonId, name);
+            Identifier id = AddonRegistryUtils.addonId(addonId, name);
             ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
             return builder.build(key);
         });
@@ -74,7 +69,7 @@ public final class AddonEntityRegistry {
      * @return The Identifier
      */
     public Identifier entityId(String path) {
-        return Identifier.fromNamespaceAndPath(addonId, path);
+        return AddonRegistryUtils.addonId(addonId, path);
     }
     
     /**
@@ -85,6 +80,7 @@ public final class AddonEntityRegistry {
         return addonId;
     }
 }
+
 
 
 

@@ -1,8 +1,7 @@
 package at.koopro.spells_n_squares.core.registry.addon;
 
-import net.minecraft.core.registries.Registries;
+import at.koopro.spells_n_squares.core.util.AddonRegistryUtils;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -38,7 +37,8 @@ public final class AddonItemRegistry {
      */
     public net.neoforged.neoforge.registries.DeferredHolder<Item, Item> registerItem(String name, Supplier<Item> itemSupplier) {
         return items.register(name, id -> {
-            ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
+            // Ensure the identifier uses the correct addon namespace
+            AddonRegistryUtils.validateNamespace(addonId, id, "item");
             return itemSupplier.get();
         });
     }
@@ -59,7 +59,7 @@ public final class AddonItemRegistry {
      * @return The Identifier
      */
     public Identifier itemId(String path) {
-        return Identifier.fromNamespaceAndPath(addonId, path);
+        return AddonRegistryUtils.addonId(addonId, path);
     }
     
     /**
@@ -70,6 +70,7 @@ public final class AddonItemRegistry {
         return addonId;
     }
 }
+
 
 
 

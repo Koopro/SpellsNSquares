@@ -58,3 +58,8 @@ public class FireCrabRenderer extends EntityRenderer<FireCrabEntity, EntityRende
 
 
 
+
+
+
+
+

@@ -383,3 +383,8 @@ public class BestiaryScreen extends AbstractContainerScreen<BestiaryMenu> {
 
 
 
+
+
+
+
+

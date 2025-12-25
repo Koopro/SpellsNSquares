@@ -80,10 +80,6 @@ public final class PocketDimensionData {
             );
         }
         
-        public static PocketDimensionComponent createNewtsCase(int size) {
-            return createDefault(size, DimensionType.NEWTS_CASE);
-        }
-        
         public PocketDimensionComponent withEntry(ResourceKey<Level> entryDimension, BlockPos entryPosition) {
             return new PocketDimensionComponent(
                 dimensionKey,
@@ -104,6 +100,13 @@ public final class PocketDimensionData {
                 Optional.empty(),
                 Optional.empty()
             );
+        }
+        
+        /**
+         * Creates a new Newt's Case pocket dimension component.
+         */
+        public static PocketDimensionComponent createNewtsCase(int size) {
+            return createDefault(size, DimensionType.NEWTS_CASE);
         }
     }
 }

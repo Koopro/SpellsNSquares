@@ -80,3 +80,8 @@ public class ChimaeraRenderer extends EntityRenderer<ChimaeraEntity, EntityRende
 
 
 
+
+
+
+
+

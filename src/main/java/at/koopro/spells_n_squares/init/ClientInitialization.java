@@ -8,6 +8,10 @@ import at.koopro.spells_n_squares.features.spell.client.DummyPlayerRenderer;
 import at.koopro.spells_n_squares.features.spell.client.LightOrbRenderer;
 import at.koopro.spells_n_squares.features.spell.client.LightningBeamRenderer;
 import at.koopro.spells_n_squares.features.spell.client.ShieldOrbRenderer;
+import at.koopro.spells_n_squares.features.fx.block.FxBlockEntities;
+import at.koopro.spells_n_squares.features.fx.block.client.EnergyBallBlockRenderer;
+import at.koopro.spells_n_squares.features.storage.block.StorageBlockEntities;
+import at.koopro.spells_n_squares.features.storage.block.client.NewtsCaseBlockRenderer;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.neoforged.api.distmarker.Dist;
@@ -78,5 +82,21 @@ public class ClientInitialization {
             SpellEntityRegistry.DUMMY_PLAYER.get(),
             (EntityRendererProvider.Context context) -> new DummyPlayerRenderer(context)
         );
+
+        // Register block entity renderers
+        event.registerBlockEntityRenderer(
+            FxBlockEntities.ENERGY_BALL_BLOCK_ENTITY.get(),
+            EnergyBallBlockRenderer::new
+        );
+        
+        if (StorageBlockEntities.NEWTS_CASE_BLOCK_ENTITY != null) {
+            event.registerBlockEntityRenderer(
+                StorageBlockEntities.NEWTS_CASE_BLOCK_ENTITY.get(),
+                NewtsCaseBlockRenderer::new
+            );
+        }
+        
+        // Note: GeckoLib item renderers are registered automatically via the item's createGeoRenderer method
+        // No need to register them here in EntityRenderersEvent
     }
 }

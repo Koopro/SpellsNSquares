@@ -290,4 +290,34 @@ public class ApparitionSpell implements Spell {
     public float getVisualEffectIntensity() {
         return 0.7f;
     }
+    
+    @Override
+    public void spawnCastEffects(Player player, Level level, boolean success) {
+        // Call default implementation
+        Spell.super.spawnCastEffects(player, level, success);
+        
+        if (success && level.isClientSide()) {
+            // Apply tunnel/fisheye effect during apparition for disorientation
+            if (at.koopro.spells_n_squares.core.config.Config.areShaderEffectsEnabled()) {
+                // Tunnel effect for the "traveling through space" feeling
+                if (at.koopro.spells_n_squares.features.fx.PostProcessingManager.isPostProcessingShaderAvailable(
+                        at.koopro.spells_n_squares.features.fx.PostProcessingManager.TUNNEL_POST_SHADER)) {
+                    at.koopro.spells_n_squares.features.fx.PostProcessingManager.addEffect(
+                        at.koopro.spells_n_squares.features.fx.PostProcessingManager.TUNNEL_POST_SHADER,
+                        0.6f,
+                        30 // 1.5 seconds
+                    );
+                }
+                // Also add fisheye for distortion during teleport
+                if (at.koopro.spells_n_squares.features.fx.PostProcessingManager.isPostProcessingShaderAvailable(
+                        at.koopro.spells_n_squares.features.fx.PostProcessingManager.FISHEYE_POST_SHADER)) {
+                    at.koopro.spells_n_squares.features.fx.PostProcessingManager.addEffect(
+                        at.koopro.spells_n_squares.features.fx.PostProcessingManager.FISHEYE_POST_SHADER,
+                        0.4f,
+                        25 // 1.25 seconds
+                    );
+                }
+            }
+        }
+    }
 }

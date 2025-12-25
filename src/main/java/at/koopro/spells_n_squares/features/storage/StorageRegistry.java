@@ -52,9 +52,10 @@ public class StorageRegistry {
             "auto_sort_chest",
             id -> new AutoSortChestBlock(createBlockProperties(id).strength(2.5f)));
     
+    // Newt's Case block and item
     public static final DeferredHolder<Block, NewtsCaseBlock> NEWTS_CASE = BLOCKS.register(
             "newts_case",
-            id -> new NewtsCaseBlock(createBlockProperties(id).strength(2.5f)));
+            id -> new NewtsCaseBlock(createBlockProperties(id).strength(2.5f).noOcclusion().isRedstoneConductor((state, level, pos) -> false)));
     
     public static final DeferredItem<NewtsCaseBlockItem> NEWTS_CASE_ITEM = ITEMS.register(
             "newts_case",
@@ -106,6 +107,11 @@ public class StorageRegistry {
         return block;
     }
 }
+
+
+
+
+
 
 
 

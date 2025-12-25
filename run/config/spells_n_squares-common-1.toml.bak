@@ -26,3 +26,22 @@
 	#Overall effect quality preset (LOW, MEDIUM, HIGH, ULTRA)
 	#Allowed Values: LOW, MEDIUM, HIGH, ULTRA
 	effectQuality = "MEDIUM"
+
+[gameplay]
+	#Spell balance settings
+	# Default: 1.0
+	# Range: 0.1 ~ 10.0
+	spellCooldownMultiplier = 1.0
+	# Default: 1.0
+	# Range: 0.1 ~ 10.0
+	spellDamageMultiplier = 1.0
+	enableDarkMagic = true
+	#Creature settings
+	creatureSpawnRate = 1.0
+	enableHostileCreatures = true
+	#Economy settings
+	currencyDropRate = 1.0
+	enableTrading = true
+	#Education settings
+	enableHousePoints = true
+	enableHomework = true
