@@ -32,6 +32,15 @@ public class ModKeybinds {
     
     // Spell selection screen keybind - default to R key
     public static KeyMapping SPELL_SELECTION_SCREEN;
+    
+    // Item/Block debugger keybind - default to F3+Shift+H
+    public static KeyMapping DEBUG_ITEM_TOOLTIP;
+    
+    // Debug tool keybinds
+    public static KeyMapping DEBUG_COPY_CLIPBOARD;      // F3+Shift+C
+    public static KeyMapping DEBUG_TOGGLE_FILTER;       // F3+Shift+F
+    public static KeyMapping DEBUG_EXPORT_FILE;         // F3+Shift+E
+    public static KeyMapping DEBUG_PLAYER_INFO;         // F3+Shift+P
 
     // Cache for Category instances to avoid duplicate registration
     private static final java.util.Map<String, Object> categoryCache = new java.util.HashMap<>();
@@ -77,6 +86,36 @@ public class ModKeybinds {
             KEY_CATEGORY
         );
         
+        DEBUG_ITEM_TOOLTIP = createKeyMapping(
+            "key.spells_n_squares.debug_item_tooltip",
+            InputConstants.Type.KEYSYM.getOrCreate(GLFW.GLFW_KEY_H),
+            KEY_CATEGORY
+        );
+        
+        DEBUG_COPY_CLIPBOARD = createKeyMapping(
+            "key.spells_n_squares.debug_copy_clipboard",
+            InputConstants.Type.KEYSYM.getOrCreate(GLFW.GLFW_KEY_C),
+            KEY_CATEGORY
+        );
+        
+        DEBUG_TOGGLE_FILTER = createKeyMapping(
+            "key.spells_n_squares.debug_toggle_filter",
+            InputConstants.Type.KEYSYM.getOrCreate(GLFW.GLFW_KEY_F),
+            KEY_CATEGORY
+        );
+        
+        DEBUG_EXPORT_FILE = createKeyMapping(
+            "key.spells_n_squares.debug_export_file",
+            InputConstants.Type.KEYSYM.getOrCreate(GLFW.GLFW_KEY_E),
+            KEY_CATEGORY
+        );
+        
+        DEBUG_PLAYER_INFO = createKeyMapping(
+            "key.spells_n_squares.debug_player_info",
+            InputConstants.Type.KEYSYM.getOrCreate(GLFW.GLFW_KEY_P),
+            KEY_CATEGORY
+        );
+        
         // Set conflict context and register all keybinds
         KeyMapping[] keybinds = {
             SPELL_SELECTOR_TOP,
@@ -84,7 +123,12 @@ public class ModKeybinds {
             SPELL_SELECTOR_LEFT,
             SPELL_SELECTOR_RIGHT,
             SPELL_CAST,
-            SPELL_SELECTION_SCREEN
+            SPELL_SELECTION_SCREEN,
+            DEBUG_ITEM_TOOLTIP,
+            DEBUG_COPY_CLIPBOARD,
+            DEBUG_TOGGLE_FILTER,
+            DEBUG_EXPORT_FILE,
+            DEBUG_PLAYER_INFO
         };
         
         for (KeyMapping keybind : keybinds) {

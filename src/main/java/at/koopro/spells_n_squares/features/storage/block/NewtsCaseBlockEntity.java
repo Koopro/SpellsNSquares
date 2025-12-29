@@ -34,7 +34,7 @@ public class NewtsCaseBlockEntity extends BlockEntity implements GeoBlockEntity 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private boolean lastOpenState = false;
     private boolean animationInitialized = false;
-    private long lastOpenedGameTime = Long.MIN_VALUE;
+    private long lastOpenedGameTime = 0; // Use 0 instead of Long.MIN_VALUE to avoid overflow issues
     
     public NewtsCaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -66,7 +66,12 @@ public class NewtsCaseBlockEntity extends BlockEntity implements GeoBlockEntity 
     }
 
     public boolean wasJustOpened(long gameTime, long thresholdTicks) {
-        return gameTime - lastOpenedGameTime <= thresholdTicks;
+        // If lastOpenedGameTime is 0, it means it was never marked as opened, so it wasn't just opened
+        if (lastOpenedGameTime == 0) {
+            return false;
+        }
+        // Check if it was opened within the threshold
+        return (gameTime - lastOpenedGameTime) <= thresholdTicks && (gameTime - lastOpenedGameTime) >= 0;
     }
     
     @Override

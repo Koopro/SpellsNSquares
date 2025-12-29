@@ -24,7 +24,30 @@ public final class SpellSelectionScreenConstants {
     
     // Close button positioning
     public static final int CLOSE_BUTTON_Y_OFFSET = 30;
+    
+    // Search bar
+    public static final int SEARCH_BAR_Y = 50;
+    public static final int SEARCH_BAR_WIDTH = 180;
+    public static final int SEARCH_BAR_HEIGHT = 16;
+    
+    // Category tabs
+    public static final int CATEGORY_TAB_Y = 70;
+    public static final int CATEGORY_TAB_HEIGHT = 20;
+    public static final int CATEGORY_TAB_SPACING = 2;
+    
+    // Sort dropdown
+    public static final int SORT_BUTTON_Y = 50;
+    public static final int SORT_BUTTON_WIDTH = 100;
+    public static final int SORT_BUTTON_HEIGHT = 16;
+    
+    // Updated start Y to account for new UI elements
+    public static final int START_Y_WITH_FILTERS = 95;
 }
+
+
+
+
+
 
 
 

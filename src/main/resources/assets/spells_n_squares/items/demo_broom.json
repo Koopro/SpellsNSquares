@@ -1,0 +1,9 @@
+{
+    "model": {
+      "type": "minecraft:special",
+      "base": "spells_n_squares:item/demo_broom",
+      "model": {
+        "type": "geckolib:geckolib"
+      }
+    }
+  }

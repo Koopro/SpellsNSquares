@@ -65,27 +65,66 @@ public final class CombatStatsData {
         }
     }
     
-    // Static storage for player combat stats (UUID -> CombatStatsComponent)
-    private static final java.util.Map<java.util.UUID, CombatStatsComponent> playerCombatStats = new java.util.HashMap<>();
+    private static final String PERSISTENT_DATA_KEY = "spells_n_squares:combat_stats";
     
     /**
-     * Gets combat stats for a player.
-     * TODO: Migrate to actual data component when player data components are fully implemented
+     * Gets combat stats for a player from their persistent data component.
      */
     public static CombatStatsComponent getCombatStats(Player player) {
-        return playerCombatStats.computeIfAbsent(player.getUUID(), uuid -> new CombatStatsComponent());
+        if (player.level().isClientSide()) {
+            // On client, return default (data syncs from server)
+            return new CombatStatsComponent();
+        }
+        
+        var persistentData = player.getPersistentData();
+        var tagOpt = persistentData.getCompound(PERSISTENT_DATA_KEY);
+        
+        if (tagOpt.isEmpty()) {
+            return new CombatStatsComponent();
+        }
+        
+        var tag = tagOpt.get();
+        if (tag.isEmpty()) {
+            return new CombatStatsComponent();
+        }
+        
+        try {
+            return CombatStatsComponent.CODEC.parse(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                tag
+            ).result().orElse(new CombatStatsComponent());
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to load combat stats for player {}, using default", player.getName().getString(), e);
+            return new CombatStatsComponent();
+        }
     }
     
     /**
-     * Sets combat stats for a player.
-     * TODO: Migrate to actual data component when player data components are fully implemented
+     * Sets combat stats for a player in their persistent data component.
      */
     public static void setCombatStats(Player player, CombatStatsComponent stats) {
-        if (!player.level().isClientSide()) {
-            playerCombatStats.put(player.getUUID(), stats);
+        if (player.level().isClientSide()) {
+            return; // Only set on server
+        }
+        
+        try {
+            var result = CombatStatsComponent.CODEC.encodeStart(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                stats
+            );
+            
+            result.result().ifPresent(tag -> {
+                player.getPersistentData().put(PERSISTENT_DATA_KEY, tag);
+            });
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to save combat stats for player {}", player.getName().getString(), e);
         }
     }
 }
+
+
 
 
 

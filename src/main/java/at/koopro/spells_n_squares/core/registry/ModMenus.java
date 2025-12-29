@@ -6,6 +6,7 @@ import at.koopro.spells_n_squares.features.education.BestiaryMenu;
 import at.koopro.spells_n_squares.features.enchantments.EnchantmentMenu;
 import at.koopro.spells_n_squares.features.mail.MailboxMenu;
 import at.koopro.spells_n_squares.features.storage.BagMenu;
+import at.koopro.spells_n_squares.features.wand.WandLatheMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -42,7 +43,14 @@ public class ModMenus {
         "enchantment_menu",
         () -> IMenuTypeExtension.create(EnchantmentMenu::new)
     );
+    
+    public static final DeferredHolder<MenuType<?>, MenuType<WandLatheMenu>> WAND_LATHE_MENU = MENUS.register(
+        "wand_lathe_menu",
+        () -> IMenuTypeExtension.create(WandLatheMenu::new)
+    );
 }
+
+
 
 
 

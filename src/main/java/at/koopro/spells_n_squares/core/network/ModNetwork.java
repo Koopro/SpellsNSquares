@@ -20,6 +20,8 @@ import at.koopro.spells_n_squares.features.artifacts.network.PensieveOpenScreenP
 import at.koopro.spells_n_squares.features.artifacts.network.MaraudersMapPayload;
 import at.koopro.spells_n_squares.features.artifacts.network.GobletOfFirePayload;
 import at.koopro.spells_n_squares.core.network.FXTestPayload;
+import at.koopro.spells_n_squares.features.transportation.network.BroomMovementInputPayload;
+import at.koopro.spells_n_squares.features.transportation.BroomEntity;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -358,6 +360,13 @@ public class ModNetwork {
                         break;
                 }
             });
+        });
+        
+        // Register broom movement input payload (client -> server)
+        registerToServer(registrar, BroomMovementInputPayload.TYPE, BroomMovementInputPayload.STREAM_CODEC, (payload, serverPlayer) -> {
+            if (serverPlayer.level().getEntity(payload.entityId()) instanceof BroomEntity broom) {
+                broom.updateMovementInput(payload.forward(), payload.strafe(), payload.jump());
+            }
         });
     }
 }

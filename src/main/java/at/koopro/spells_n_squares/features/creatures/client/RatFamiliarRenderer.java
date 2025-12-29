@@ -75,3 +75,7 @@ public class RatFamiliarRenderer extends EntityRenderer<RatEntity, EntityRenderS
 
 
 
+
+
+
+

@@ -63,7 +63,7 @@ damageTiltStrength:1.0
 highContrast:false
 highContrastBlockOutline:false
 narratorHotkey:true
-resourcePacks:["vanilla","mod_resources"]
+resourcePacks:[]
 incompatibleResourcePacks:[]
 lastServer:
 lang:en_us
@@ -171,6 +171,11 @@ key_key.spells_n_squares.spell_selector_left:key.keyboard.a
 key_key.spells_n_squares.spell_selector_right:key.keyboard.d
 key_key.spells_n_squares.spell_cast:key.mouse.right
 key_key.spells_n_squares.spell_selection_screen:key.keyboard.r
+key_key.spells_n_squares.debug_item_tooltip:key.keyboard.h
+key_key.spells_n_squares.debug_copy_clipboard:key.keyboard.c
+key_key.spells_n_squares.debug_toggle_filter:key.keyboard.f
+key_key.spells_n_squares.debug_export_file:key.mouse.4
+key_key.spells_n_squares.debug_player_info:key.keyboard.p
 soundCategory_master:0.08278145695364239
 soundCategory_music:0.0
 soundCategory_record:1.0

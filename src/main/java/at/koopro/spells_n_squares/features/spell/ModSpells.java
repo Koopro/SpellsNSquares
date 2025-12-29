@@ -64,6 +64,78 @@ public class ModSpells {
 
         // 12. Homenum Revelio - Reveal nearby living entities with glowing outline
         SpellRegistry.register(new HomenumRevelioSpell());
+        
+        // Utility Spells
+        
+        // 13. Lumos - Light spell that toggles magical light
+        SpellRegistry.register(new LumosSpell());
+        
+        // 14. Accio - The Summoning Charm
+        SpellRegistry.register(new AccioSpell());
+        
+        // 15. Evanesco - The Vanishing Spell
+        SpellRegistry.register(new EvanescoSpell());
+        
+        // 16. ExtensionCharm - Extends storage capacity
+        SpellRegistry.register(new ExtensionCharmSpell());
+        
+        // 17. ItemRecall - Recalls items to player
+        SpellRegistry.register(new ItemRecallSpell());
+        
+        // 18. PortableCrafting - Portable crafting table spell
+        SpellRegistry.register(new PortableCraftingSpell());
+        
+        // Combat Spells
+        
+        // 19. Protego - Protective shield spell
+        SpellRegistry.register(new ProtegoSpell());
+        
+        // 20. Lightning - Lightning beam spell
+        SpellRegistry.register(new LightningSpell());
+        
+        // 21. Immobulus - Immobilization spell
+        SpellRegistry.register(new ImmobulusSpell());
+        
+        // 22. Langlock - Tongue-tying spell
+        SpellRegistry.register(new LanglockSpell());
+        
+        // 23. Silencio - Silencing spell
+        SpellRegistry.register(new SilencioSpell());
+        
+        // Movement Spells
+        
+        // 24. Apparition - Line-of-sight teleportation with Splinching risk
+        SpellRegistry.register(new ApparitionSpell());
+        
+        // 25. Locomotor - Movement charm
+        SpellRegistry.register(new LocomotorSpell());
+        
+        // 26. Levicorpus - Levitation charm (hangs target upside down)
+        SpellRegistry.register(new LevicorpusSpell());
+        
+        // 27. Liberacorpus - Releases target from Levicorpus
+        SpellRegistry.register(new LiberacorpusSpell());
+        
+        // Transformation Spells
+        
+        // 28. Orchideous - Creates flowers
+        SpellRegistry.register(new OrchideousSpell());
+        
+        // 29. Riddikulus - Boggart-banishing spell
+        SpellRegistry.register(new RiddikulusSpell());
+        
+        // Detection Spells
+        
+        // 30. EntityDetection - Detects nearby entities
+        SpellRegistry.register(new EntityDetectionSpell());
+        
+        // Other Spells
+        
+        // 31. Tarantallegra - Dancing feet spell
+        SpellRegistry.register(new TarantallegraSpell());
+        
+        // 32. Muffliato - Privacy charm
+        SpellRegistry.register(new MuffliatoSpell());
     }
     
     /**

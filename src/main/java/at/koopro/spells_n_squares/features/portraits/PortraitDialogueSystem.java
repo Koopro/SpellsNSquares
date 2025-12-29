@@ -1,7 +1,6 @@
 package at.koopro.spells_n_squares.features.portraits;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
@@ -15,14 +14,15 @@ public final class PortraitDialogueSystem {
     /**
      * Initiates a conversation with a portrait.
      */
-    public static void startConversation(ServerPlayer player, PortraitData.PortraitComponent portrait) {
+    public static void startConversation(ServerPlayer player, PortraitData.PortraitComponent portrait, 
+                                        net.minecraft.core.BlockPos pos) {
         // Get greeting based on personality
         String greeting = getGreeting(portrait);
         player.sendSystemMessage(net.minecraft.network.chat.Component.translatable(
             "message.spells_n_squares.portrait.greeting", portrait.name(), greeting));
         
         // Record interaction
-        recordInteraction(portrait, player.getUUID());
+        recordInteraction(player, portrait, player.getUUID(), pos);
     }
     
     /**
@@ -44,7 +44,8 @@ public final class PortraitDialogueSystem {
      * Portraits can deliver messages between locations.
      */
     public static boolean sendMessage(ServerPlayer sender, PortraitData.PortraitComponent sourcePortrait,
-                                     PortraitData.PortraitComponent targetPortrait, String message) {
+                                     PortraitData.PortraitComponent targetPortrait, String message,
+                                     net.minecraft.core.BlockPos targetPos) {
         if (!sourcePortrait.isAwakened() || !targetPortrait.isAwakened()) {
             return false; // Both portraits must be awakened
         }
@@ -57,7 +58,11 @@ public final class PortraitDialogueSystem {
             timestamp
         );
         
-        // TODO: Update portrait data in storage
+        // Update portrait data in storage
+        if (sender.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            at.koopro.spells_n_squares.features.portraits.block.MagicalPortraitBlock.setPortraitData(
+                serverLevel, targetPos, updated);
+        }
         
         sender.sendSystemMessage(net.minecraft.network.chat.Component.translatable(
             "message.spells_n_squares.portrait.message_sent", targetPortrait.name()));
@@ -68,7 +73,8 @@ public final class PortraitDialogueSystem {
     /**
      * Records an interaction with a portrait.
      */
-    private static void recordInteraction(PortraitData.PortraitComponent portrait, UUID playerId) {
+    private static void recordInteraction(ServerPlayer player, PortraitData.PortraitComponent portrait, 
+                                         UUID playerId, net.minecraft.core.BlockPos pos) {
         long timestamp = System.currentTimeMillis();
         PortraitData.PortraitComponent updated = portrait.addDialogue(
             "Player interacted",
@@ -76,7 +82,11 @@ public final class PortraitDialogueSystem {
             timestamp
         );
         
-        // TODO: Update portrait data in storage
+        // Update portrait data in storage
+        if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            at.koopro.spells_n_squares.features.portraits.block.MagicalPortraitBlock.setPortraitData(
+                serverLevel, pos, updated);
+        }
     }
     
     /**
@@ -90,9 +100,14 @@ public final class PortraitDialogueSystem {
     /**
      * Makes a portrait remember a fact.
      */
-    public static void rememberFact(PortraitData.PortraitComponent portrait, String key, String value) {
+    public static void rememberFact(ServerPlayer player, PortraitData.PortraitComponent portrait, 
+                                   String key, String value, net.minecraft.core.BlockPos pos) {
         PortraitData.PortraitComponent updated = portrait.rememberFact(key, value);
-        // TODO: Update portrait data in storage
+        // Update portrait data in storage
+        if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            at.koopro.spells_n_squares.features.portraits.block.MagicalPortraitBlock.setPortraitData(
+                serverLevel, pos, updated);
+        }
     }
     
     /**
@@ -102,6 +117,8 @@ public final class PortraitDialogueSystem {
         return portrait.rememberedFacts().getOrDefault(key, null);
     }
 }
+
+
 
 
 

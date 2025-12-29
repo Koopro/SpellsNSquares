@@ -14,19 +14,64 @@ public final class ReputationSystem {
     private ReputationSystem() {
     }
     
+    private static final String PERSISTENT_DATA_KEY = "spells_n_squares:social_data";
+    
     /**
-     * Gets social data for a player.
+     * Gets social data for a player from their persistent data component.
+     * Uses the same key as FriendshipSystem since both use SocialData.SocialComponent.
      */
     private static SocialData.SocialComponent getSocialData(Player player) {
-        // TODO: Retrieve from player data component
-        return new SocialData.SocialComponent();
+        if (player.level().isClientSide()) {
+            // On client, return default (data syncs from server)
+            return new SocialData.SocialComponent();
+        }
+        
+        var persistentData = player.getPersistentData();
+        var tagOpt = persistentData.getCompound(PERSISTENT_DATA_KEY);
+        
+        if (tagOpt.isEmpty()) {
+            return new SocialData.SocialComponent();
+        }
+        
+        var tag = tagOpt.get();
+        if (tag.isEmpty()) {
+            return new SocialData.SocialComponent();
+        }
+        
+        try {
+            return SocialData.SocialComponent.CODEC.parse(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                tag
+            ).result().orElse(new SocialData.SocialComponent());
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to load social data for player {}, using default", player.getName().getString(), e);
+            return new SocialData.SocialComponent();
+        }
     }
     
     /**
-     * Sets social data for a player.
+     * Sets social data for a player in their persistent data component.
+     * Uses the same key as FriendshipSystem since both use SocialData.SocialComponent.
      */
     private static void setSocialData(Player player, SocialData.SocialComponent data) {
-        // TODO: Store in player data component
+        if (player.level().isClientSide()) {
+            return; // Only set on server
+        }
+        
+        try {
+            var result = SocialData.SocialComponent.CODEC.encodeStart(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                data
+            );
+            
+            result.result().ifPresent(tag -> {
+                player.getPersistentData().put(PERSISTENT_DATA_KEY, tag);
+            });
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to save social data for player {}", player.getName().getString(), e);
+        }
     }
     
     /**
@@ -117,6 +162,8 @@ public final class ReputationSystem {
         return reputation >= requiredReputation;
     }
 }
+
+
 
 
 

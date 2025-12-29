@@ -69,27 +69,66 @@ public final class CurrencyData {
         return new CurrencyDataComponent(amount.galleons(), amount.sickles(), amount.knuts());
     }
     
-    // Static storage for player currency data (UUID -> CurrencyDataComponent)
-    private static final java.util.Map<java.util.UUID, CurrencyDataComponent> playerCurrencyData = new java.util.HashMap<>();
+    private static final String PERSISTENT_DATA_KEY = "spells_n_squares:currency_data";
     
     /**
-     * Gets currency data for a player.
-     * TODO: Migrate to actual data component when player data components are fully implemented
+     * Gets currency data for a player from their persistent data component.
      */
     public static CurrencyDataComponent getCurrencyData(Player player) {
-        return playerCurrencyData.computeIfAbsent(player.getUUID(), uuid -> new CurrencyDataComponent());
+        if (player.level().isClientSide()) {
+            // On client, return default (data syncs from server)
+            return new CurrencyDataComponent();
+        }
+        
+        var persistentData = player.getPersistentData();
+        var tagOpt = persistentData.getCompound(PERSISTENT_DATA_KEY);
+        
+        if (tagOpt.isEmpty()) {
+            return new CurrencyDataComponent();
+        }
+        
+        var tag = tagOpt.get();
+        if (tag.isEmpty()) {
+            return new CurrencyDataComponent();
+        }
+        
+        try {
+            return CurrencyDataComponent.CODEC.parse(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                tag
+            ).result().orElse(new CurrencyDataComponent());
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to load currency data for player {}, using default", player.getName().getString(), e);
+            return new CurrencyDataComponent();
+        }
     }
     
     /**
-     * Sets currency data for a player.
-     * TODO: Migrate to actual data component when player data components are fully implemented
+     * Sets currency data for a player in their persistent data component.
      */
     public static void setCurrencyData(Player player, CurrencyDataComponent data) {
-        if (!player.level().isClientSide()) {
-            playerCurrencyData.put(player.getUUID(), data);
+        if (player.level().isClientSide()) {
+            return; // Only set on server
+        }
+        
+        try {
+            var result = CurrencyDataComponent.CODEC.encodeStart(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                data
+            );
+            
+            result.result().ifPresent(tag -> {
+                player.getPersistentData().put(PERSISTENT_DATA_KEY, tag);
+            });
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to save currency data for player {}", player.getName().getString(), e);
         }
     }
 }
+
+
 
 
 

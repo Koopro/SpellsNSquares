@@ -21,7 +21,7 @@ public final class GhostDialogueSystem {
             "message.spells_n_squares.ghost.greeting", ghost.name(), greeting));
         
         // Record interaction
-        recordInteraction(ghost, player.getUUID());
+        recordInteraction(player, ghost, player.getUUID());
     }
     
     /**
@@ -52,9 +52,12 @@ public final class GhostDialogueSystem {
     /**
      * Records an interaction with a ghost.
      */
-    private static void recordInteraction(GhostData.GhostComponent ghost, UUID playerId) {
+    private static void recordInteraction(ServerPlayer player, GhostData.GhostComponent ghost, UUID playerId) {
         GhostData.GhostComponent updated = ghost.recordInteraction(playerId);
-        // TODO: Update ghost data in storage
+        // Update ghost data in storage
+        if (player != null && player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            GhostStorageManager.saveGhostData(serverLevel, ghost.ghostId(), updated);
+        }
     }
     
     /**
@@ -68,12 +71,17 @@ public final class GhostDialogueSystem {
     /**
      * Adds dialogue to a ghost's history.
      */
-    public static void addDialogue(GhostData.GhostComponent ghost, String text, UUID speakerId) {
+    public static void addDialogue(ServerPlayer player, GhostData.GhostComponent ghost, String text, UUID speakerId) {
         long timestamp = System.currentTimeMillis();
         GhostData.GhostComponent updated = ghost.addDialogue(text, speakerId, timestamp);
-        // TODO: Update ghost data in storage
+        // Update ghost data in storage
+        if (player != null && player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            GhostStorageManager.saveGhostData(serverLevel, ghost.ghostId(), updated);
+        }
     }
 }
+
+
 
 
 

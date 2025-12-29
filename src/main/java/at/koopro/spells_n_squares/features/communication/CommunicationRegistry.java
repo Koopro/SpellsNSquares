@@ -1,6 +1,7 @@
 package at.koopro.spells_n_squares.features.communication;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
+import at.koopro.spells_n_squares.core.registry.RegistryHelper;
 import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import at.koopro.spells_n_squares.features.communication.block.NoticeBoardBlock;
 import net.minecraft.core.registries.Registries;
@@ -8,10 +9,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -27,12 +25,13 @@ public class CommunicationRegistry {
     
     // Communication items
     public static final DeferredItem<TwoWayMirrorItem> TWO_WAY_MIRROR = ITEMS.register(
-            "two_way_mirror", id -> new TwoWayMirrorItem(createItemProperties(id)));
+            "two_way_mirror", id -> new TwoWayMirrorItem(RegistryHelper.createItemProperties(id)));
     
     // Communication blocks
-    public static final DeferredHolder<Block, NoticeBoardBlock> NOTICE_BOARD = registerBlockWithItem(
+    public static final DeferredHolder<Block, NoticeBoardBlock> NOTICE_BOARD = RegistryHelper.registerBlockWithItem(
+            BLOCKS, ITEMS,
             "notice_board",
-            id -> new NoticeBoardBlock(createBlockProperties(id).strength(1.5f)));
+            id -> new NoticeBoardBlock(RegistryHelper.createBlockProperties(id).strength(1.5f)));
     
     // Communication entities
     public static final DeferredHolder<EntityType<?>, EntityType<OwlEntity>> OWL = ENTITIES.register(
@@ -54,38 +53,7 @@ public class CommunicationRegistry {
         ENTITIES.register(modEventBus);
         MirrorData.DATA_COMPONENTS.register(modEventBus);
     }
-    
-    private static Item.Properties createItemProperties(Identifier id) {
-        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
-        return new Item.Properties().setId(key);
-    }
-    
-    private static BlockBehaviour.Properties createBlockProperties(Identifier id) {
-        ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
-        return BlockBehaviour.Properties.of().setId(key);
-    }
-    
-    /**
-     * Registers a block and its corresponding BlockItem.
-     * @param name The block name
-     * @param blockSupplier The supplier that creates the block
-     * @return The DeferredHolder for the registered block
-     */
-    private static <T extends Block> DeferredHolder<Block, T> registerBlockWithItem(
-            String name,
-            java.util.function.Function<Identifier, T> blockSupplier) {
-        DeferredHolder<Block, T> block = BLOCKS.register(name, blockSupplier);
-        
-        // Register corresponding BlockItem
-        ITEMS.register(name, id -> new BlockItem(
-            block.value(),
-            createItemProperties(id)
-        ));
-        
-        return block;
-    }
 }
-
 
 
 

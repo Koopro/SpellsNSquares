@@ -46,3 +46,7 @@ public class MagicalJournalItem extends Item {
 
 
 
+
+
+
+

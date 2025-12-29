@@ -74,6 +74,12 @@ public class SpellManager {
         Identifier oldSpellId = slots[slot];
         slots[slot] = spellId;
         
+        // Save to persistent data
+        if (!player.level().isClientSide()) {
+            SpellSlotData.SpellSlotComponent savedData = SpellSlotData.SpellSlotComponent.fromArray(slots);
+            SpellSlotData.setSpellSlotData(player, savedData);
+        }
+        
         // Fire event if spell changed
         if (!Objects.equals(oldSpellId, spellId)) {
             SpellSlotChangeEvent event = new SpellSlotChangeEvent(player, slot, oldSpellId, spellId);

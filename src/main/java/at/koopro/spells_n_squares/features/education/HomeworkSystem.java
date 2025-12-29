@@ -89,15 +89,62 @@ public final class HomeworkSystem {
         }
     }
     
-    // Static storage for player homework data (UUID -> HomeworkData)
-    private static final java.util.Map<java.util.UUID, HomeworkData> playerHomeworkData = new java.util.HashMap<>();
+    private static final String PERSISTENT_DATA_KEY = "spells_n_squares:homework_data";
     
     /**
-     * Gets homework data for a player.
-     * TODO: Migrate to actual data component when player data components are fully implemented
+     * Gets homework data for a player from their persistent data component.
      */
     public static HomeworkData getHomeworkData(Player player) {
-        return playerHomeworkData.computeIfAbsent(player.getUUID(), uuid -> new HomeworkData());
+        if (player.level().isClientSide()) {
+            // On client, return default (data syncs from server)
+            return new HomeworkData();
+        }
+        
+        var persistentData = player.getPersistentData();
+        var tagOpt = persistentData.getCompound(PERSISTENT_DATA_KEY);
+        
+        if (tagOpt.isEmpty()) {
+            return new HomeworkData();
+        }
+        
+        var tag = tagOpt.get();
+        if (tag.isEmpty()) {
+            return new HomeworkData();
+        }
+        
+        try {
+            return HomeworkData.CODEC.parse(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                tag
+            ).result().orElse(new HomeworkData());
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to load homework data for player {}, using default", player.getName().getString(), e);
+            return new HomeworkData();
+        }
+    }
+    
+    /**
+     * Sets homework data for a player in their persistent data component.
+     */
+    private static void setHomeworkData(Player player, HomeworkData data) {
+        if (player.level().isClientSide()) {
+            return; // Only set on server
+        }
+        
+        try {
+            var result = HomeworkData.CODEC.encodeStart(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                data
+            );
+            
+            result.result().ifPresent(tag -> {
+                player.getPersistentData().put(PERSISTENT_DATA_KEY, tag);
+            });
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to save homework data for player {}", player.getName().getString(), e);
+        }
     }
     
     /**
@@ -108,7 +155,7 @@ public final class HomeworkSystem {
             HomeworkData current = getHomeworkData(player);
             HomeworkAssignment assignment = new HomeworkAssignment(classId, description, 0, requiredProgress, false);
             HomeworkData updated = current.withAssignment(classId, assignment);
-            playerHomeworkData.put(player.getUUID(), updated);
+            setHomeworkData(player, updated);
         }
     }
 }

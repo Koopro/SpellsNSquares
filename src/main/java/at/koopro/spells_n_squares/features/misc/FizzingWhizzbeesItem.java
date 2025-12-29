@@ -1,7 +1,6 @@
 package at.koopro.spells_n_squares.features.misc;
 
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
+import at.koopro.spells_n_squares.features.consumables.ConsumableEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -20,12 +19,17 @@ public class FizzingWhizzbeesItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         ItemStack result = super.finishUsingItem(stack, level, entity);
         
-        // Levitation effect (makes you float)
-        entity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 100, 0));
+        // Apply Fizzing Whizzbees effects
+        ConsumableEffects.applyFizzingWhizzbeesEffects(entity);
         
         return result;
     }
 }
+
+
+
+
+
 
 
 

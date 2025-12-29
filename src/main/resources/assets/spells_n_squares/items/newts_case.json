@@ -1,7 +1,7 @@
 {
   "model": {
     "type": "minecraft:special",
-    "base": "spells_n_squares:item/newts_case",
+    "base": "spells_n_squares:item/newts_case_item",
     "model": {
       "type": "geckolib:geckolib"
     }

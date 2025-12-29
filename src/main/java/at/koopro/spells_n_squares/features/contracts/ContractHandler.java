@@ -1,6 +1,5 @@
 package at.koopro.spells_n_squares.features.contracts;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -19,13 +18,20 @@ public final class ContractHandler {
     
     /**
      * Called when a contract is violated.
+     * 
+     * @param level The server level (required for enforcement)
      */
     public static void onContractViolated(UUID contractId, UUID violatorId, 
-                                         ContractData.ContractComponent contract) {
+                                         ContractData.ContractComponent contract,
+                                         ServerLevel level) {
+        if (level == null) {
+            return;
+        }
+        
         if (contract.isUnbreakableVow()) {
-            enforceUnbreakableVow(contractId, violatorId, contract);
+            enforceUnbreakableVow(contractId, violatorId, contract, level);
         } else {
-            enforceRegularContract(contractId, violatorId, contract);
+            enforceRegularContract(contractId, violatorId, contract, level);
         }
     }
     
@@ -34,13 +40,9 @@ public final class ContractHandler {
      * Unbreakable Vows have severe consequences (damage/death).
      */
     private static void enforceUnbreakableVow(UUID contractId, UUID violatorId,
-                                            ContractData.ContractComponent contract) {
+                                            ContractData.ContractComponent contract,
+                                            ServerLevel level) {
         if (violatorId == null) {
-            return;
-        }
-        
-        ServerLevel level = getServerLevel();
-        if (level == null) {
             return;
         }
         
@@ -69,13 +71,9 @@ public final class ContractHandler {
      * Regular contracts have lighter consequences (reputation loss, etc.).
      */
     private static void enforceRegularContract(UUID contractId, UUID violatorId,
-                                              ContractData.ContractComponent contract) {
+                                              ContractData.ContractComponent contract,
+                                              ServerLevel level) {
         if (violatorId == null) {
-            return;
-        }
-        
-        ServerLevel level = getServerLevel();
-        if (level == null) {
             return;
         }
         
@@ -113,7 +111,7 @@ public final class ContractHandler {
                 if (condition.expiryTime() > 0 && currentTime > condition.expiryTime()) {
                     // Time limit exceeded - find responsible party
                     // For now, mark as violated without specific violator
-                    ContractSystem.markContractViolated(contractId, null);
+                    ContractSystem.markContractViolated(contractId, null, level);
                     return;
                 }
             }
@@ -228,20 +226,7 @@ public final class ContractHandler {
             }
         }
     }
-    
-    /**
-     * Gets the server level (helper method).
-     * This should be called with a proper ServerLevel context.
-     */
-    private static ServerLevel getServerLevel() {
-        // This method should not be used - always pass ServerLevel as parameter
-        // Keeping for backward compatibility but should be removed
-        return null;
-    }
 }
-
-
-
 
 
 

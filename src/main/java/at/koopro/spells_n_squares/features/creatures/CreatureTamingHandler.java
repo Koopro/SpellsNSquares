@@ -13,11 +13,9 @@ public final class CreatureTamingHandler {
     /**
      * Attempts to tame a creature.
      * 
-     * <p>Note: This is a placeholder implementation. Most tamable creatures
-     * handle taming directly through their mobInteract() methods. This handler
-     * could be extended to provide centralized taming logic if needed.
-     * 
-     * <p>See TODO_TRACKING.md for implementation details.
+     * <p>Provides centralized taming logic for creatures that extend BaseTamableCreatureEntity.
+     * Most tamable creatures handle taming directly through their mobInteract() methods,
+     * but this handler can be used for programmatic taming or as a fallback.
      * 
      * @param creature The creature to tame
      * @param player The player attempting to tame
@@ -35,15 +33,26 @@ public final class CreatureTamingHandler {
                 return false;
             }
             
-            // Simple taming: set owner (creature-specific logic should be in mobInteract)
+            // Check if creature is already tamed by this player (shouldn't happen, but safety check)
+            if (tamable.isOwner(player)) {
+                return true; // Already tamed
+            }
+            
+            // Set owner - creature-specific requirements (items, conditions) should be checked
+            // in mobInteract() before calling this method
             tamable.setOwner(player);
+            
+            // Play taming sound
+            if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                creature.level().playSound(null, creature.blockPosition(), 
+                    net.minecraft.sounds.SoundEvents.VILLAGER_YES, 
+                    net.minecraft.sounds.SoundSource.NEUTRAL, 1.0f, 1.0f);
+            }
+            
             return true;
         }
         
-        // For other entities, check if they use CreatureData component
-        // This could be extended in the future for non-BaseTamableCreatureEntity creatures
-        // For now, return false as they should handle taming themselves
-        
+        // For other entities, they should handle taming themselves via their own systems
         return false;
     }
     
@@ -72,6 +81,11 @@ public final class CreatureTamingHandler {
         return false;
     }
 }
+
+
+
+
+
 
 
 

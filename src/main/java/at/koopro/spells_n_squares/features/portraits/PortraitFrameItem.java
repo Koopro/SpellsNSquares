@@ -36,8 +36,14 @@ public class PortraitFrameItem extends Item {
         
         BlockState state = level.getBlockState(pos);
         
-        // Check if we can place a portrait here
-        // TODO: Check if there's already a portrait block
+        // Check if there's already a portrait block at this position
+        if (state.getBlock() instanceof at.koopro.spells_n_squares.features.portraits.block.MagicalPortraitBlock) {
+            serverPlayer.sendSystemMessage(Component.translatable(
+                "message.spells_n_squares.portrait.already_exists"));
+            return InteractionResult.FAIL;
+        }
+        
+        // Check adjacent blocks for existing portraits (portraits are placed on walls)
         // For now, just create portrait data
         
         // Create portrait from player's appearance
@@ -79,6 +85,11 @@ public class PortraitFrameItem extends Item {
         );
     }
 }
+
+
+
+
+
 
 
 

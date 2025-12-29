@@ -1,7 +1,6 @@
 package at.koopro.spells_n_squares.features.education;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +22,11 @@ public class BestiaryMenuProvider implements MenuProvider {
         return new BestiaryMenu(containerId, playerInventory);
     }
 }
+
+
+
+
+
 
 
 

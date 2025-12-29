@@ -1,6 +1,5 @@
 package at.koopro.spells_n_squares.features.education;
 
-import at.koopro.spells_n_squares.features.playerclass.PlayerClass;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentType;
@@ -69,15 +68,62 @@ public final class HousePointsSystem {
         }
     }
     
-    // Static storage for player house points data (UUID -> HousePointsData)
-    private static final java.util.Map<java.util.UUID, HousePointsData> playerHousePointsData = new java.util.HashMap<>();
+    private static final String PERSISTENT_DATA_KEY = "spells_n_squares:house_points";
     
     /**
-     * Gets house points data for a player.
-     * TODO: Migrate to actual data component when player data components are fully implemented
+     * Gets house points data for a player from their persistent data component.
      */
     public static HousePointsData getHousePoints(Player player) {
-        return playerHousePointsData.computeIfAbsent(player.getUUID(), uuid -> new HousePointsData());
+        if (player.level().isClientSide()) {
+            // On client, return default (data syncs from server)
+            return new HousePointsData();
+        }
+        
+        var persistentData = player.getPersistentData();
+        var tagOpt = persistentData.getCompound(PERSISTENT_DATA_KEY);
+        
+        if (tagOpt.isEmpty()) {
+            return new HousePointsData();
+        }
+        
+        var tag = tagOpt.get();
+        if (tag.isEmpty()) {
+            return new HousePointsData();
+        }
+        
+        try {
+            return HousePointsData.CODEC.parse(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                tag
+            ).result().orElse(new HousePointsData());
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to load house points data for player {}, using default", player.getName().getString(), e);
+            return new HousePointsData();
+        }
+    }
+    
+    /**
+     * Sets house points data for a player in their persistent data component.
+     */
+    private static void setHousePoints(Player player, HousePointsData data) {
+        if (player.level().isClientSide()) {
+            return; // Only set on server
+        }
+        
+        try {
+            var result = HousePointsData.CODEC.encodeStart(
+                net.minecraft.nbt.NbtOps.INSTANCE,
+                data
+            );
+            
+            result.result().ifPresent(tag -> {
+                player.getPersistentData().put(PERSISTENT_DATA_KEY, tag);
+            });
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn(
+                "Failed to save house points data for player {}", player.getName().getString(), e);
+        }
     }
     
     /**
@@ -87,7 +133,7 @@ public final class HousePointsSystem {
         if (!player.level().isClientSide()) {
             HousePointsData current = getHousePoints(player);
             HousePointsData updated = current.addPoints(house, amount);
-            playerHousePointsData.put(player.getUUID(), updated);
+            setHousePoints(player, updated);
         }
     }
     
@@ -98,7 +144,7 @@ public final class HousePointsSystem {
         if (!player.level().isClientSide()) {
             HousePointsData current = getHousePoints(player);
             HousePointsData updated = current.removePoints(house, amount);
-            playerHousePointsData.put(player.getUUID(), updated);
+            setHousePoints(player, updated);
         }
     }
     
@@ -110,6 +156,8 @@ public final class HousePointsSystem {
         return data.getPoints(house);
     }
 }
+
+
 
 
 

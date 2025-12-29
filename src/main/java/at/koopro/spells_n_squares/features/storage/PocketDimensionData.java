@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,7 +47,10 @@ public final class PocketDimensionData {
         UUID dimensionId,
         DimensionType type,
         Optional<ResourceKey<Level>> entryDimension,
-        Optional<BlockPos> entryPosition
+        Optional<BlockPos> entryPosition,
+        int upgradeLevel,
+        boolean isLocked,
+        List<UUID> whitelistedPlayers
     ) {
         public static final Codec<PocketDimensionComponent> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
@@ -58,7 +62,10 @@ public final class PocketDimensionData {
                     t -> t.name().toLowerCase()
                 ).optionalFieldOf("type", DimensionType.STANDARD).forGetter(PocketDimensionComponent::type),
                 ResourceKey.codec(Registries.DIMENSION).optionalFieldOf("entryDimension").forGetter(PocketDimensionComponent::entryDimension),
-                BlockPos.CODEC.optionalFieldOf("entryPosition").forGetter(PocketDimensionComponent::entryPosition)
+                BlockPos.CODEC.optionalFieldOf("entryPosition").forGetter(PocketDimensionComponent::entryPosition),
+                Codec.INT.optionalFieldOf("upgradeLevel", 0).forGetter(PocketDimensionComponent::upgradeLevel),
+                Codec.BOOL.optionalFieldOf("isLocked", false).forGetter(PocketDimensionComponent::isLocked),
+                UUIDUtil.CODEC.listOf().optionalFieldOf("whitelistedPlayers", List.of()).forGetter(PocketDimensionComponent::whitelistedPlayers)
             ).apply(instance, PocketDimensionComponent::new)
         );
         
@@ -76,7 +83,10 @@ public final class PocketDimensionData {
                 dimensionId,
                 type,
                 Optional.empty(),
-                Optional.empty()
+                Optional.empty(),
+                0, // upgradeLevel
+                false, // isLocked
+                List.of() // whitelistedPlayers
             );
         }
         
@@ -87,7 +97,10 @@ public final class PocketDimensionData {
                 dimensionId,
                 type,
                 Optional.of(entryDimension),
-                Optional.of(entryPosition)
+                Optional.of(entryPosition),
+                upgradeLevel,
+                isLocked,
+                whitelistedPlayers
             );
         }
         
@@ -98,8 +111,101 @@ public final class PocketDimensionData {
                 dimensionId,
                 type,
                 Optional.empty(),
-                Optional.empty()
+                Optional.empty(),
+                upgradeLevel,
+                isLocked,
+                whitelistedPlayers
             );
+        }
+        
+        /**
+         * Upgrades the dimension, increasing size and unlocking features.
+         */
+        public PocketDimensionComponent upgrade() {
+            int newSize = size + 8; // Increase size by 8 blocks per upgrade
+            int newUpgradeLevel = upgradeLevel + 1;
+            return new PocketDimensionComponent(
+                dimensionKey,
+                newSize,
+                dimensionId,
+                type,
+                entryDimension,
+                entryPosition,
+                newUpgradeLevel,
+                isLocked,
+                whitelistedPlayers
+            );
+        }
+        
+        /**
+         * Sets the lock status of the dimension.
+         */
+        public PocketDimensionComponent setLocked(boolean locked) {
+            return new PocketDimensionComponent(
+                dimensionKey,
+                size,
+                dimensionId,
+                type,
+                entryDimension,
+                entryPosition,
+                upgradeLevel,
+                locked,
+                whitelistedPlayers
+            );
+        }
+        
+        /**
+         * Adds a player to the whitelist.
+         */
+        public PocketDimensionComponent addWhitelistedPlayer(UUID playerUuid) {
+            if (whitelistedPlayers.contains(playerUuid)) {
+                return this; // Already whitelisted
+            }
+            List<UUID> newWhitelist = new java.util.ArrayList<>(whitelistedPlayers);
+            newWhitelist.add(playerUuid);
+            return new PocketDimensionComponent(
+                dimensionKey,
+                size,
+                dimensionId,
+                type,
+                entryDimension,
+                entryPosition,
+                upgradeLevel,
+                isLocked,
+                newWhitelist
+            );
+        }
+        
+        /**
+         * Removes a player from the whitelist.
+         */
+        public PocketDimensionComponent removeWhitelistedPlayer(UUID playerUuid) {
+            if (!whitelistedPlayers.contains(playerUuid)) {
+                return this; // Not whitelisted
+            }
+            List<UUID> newWhitelist = new java.util.ArrayList<>(whitelistedPlayers);
+            newWhitelist.remove(playerUuid);
+            return new PocketDimensionComponent(
+                dimensionKey,
+                size,
+                dimensionId,
+                type,
+                entryDimension,
+                entryPosition,
+                upgradeLevel,
+                isLocked,
+                newWhitelist
+            );
+        }
+        
+        /**
+         * Checks if a player has access to this dimension.
+         */
+        public boolean hasAccess(UUID playerUuid) {
+            if (!isLocked) {
+                return true; // Unlocked - everyone has access
+            }
+            return whitelistedPlayers.contains(playerUuid);
         }
         
         /**

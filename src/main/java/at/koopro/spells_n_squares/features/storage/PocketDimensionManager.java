@@ -2,6 +2,7 @@ package at.koopro.spells_n_squares.features.storage;
 
 import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
 import at.koopro.spells_n_squares.features.storage.block.NewtsCaseBlock;
+import at.koopro.spells_n_squares.features.storage.block.NewtsCaseBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
@@ -44,6 +45,62 @@ public final class PocketDimensionManager {
     
     // Track which dimensions have had their structure loaded
     private static final Map<UUID, Boolean> structureLoadedMap = new HashMap<>();
+    
+    // Track last message time per player to prevent spam (cooldown: 3 seconds = 60 ticks)
+    private static final Map<UUID, Long> lastMessageTime = new HashMap<>();
+    private static final long MESSAGE_COOLDOWN_TICKS = 60;
+    
+    /**
+     * Teleports a player out of the pocket dimension to the target location.
+     */
+    private static void teleportPlayerOut(ServerPlayer player, ServerLevel pocketLevel, 
+                                         ServerLevel targetLevel, BlockPos targetPos) {
+        // Visual effect at origin (pocket dimension)
+        Vec3 origin = player.position();
+        pocketLevel.sendParticles(ParticleTypes.PORTAL,
+            origin.x, origin.y, origin.z,
+            30, 0.5, 0.5, 0.5, 0.1);
+        pocketLevel.sendParticles(ParticleTypes.END_ROD,
+            origin.x, origin.y, origin.z,
+            20, 0.3, 0.3, 0.3, 0.05);
+        
+        pocketLevel.playSound(null, origin.x, origin.y, origin.z,
+            SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
+        
+        // Find safe teleport position (above the target, on solid ground)
+        BlockPos safePos = targetPos;
+        if (!targetLevel.getBlockState(targetPos).isAir() || 
+            !targetLevel.getBlockState(targetPos.below()).isSolid()) {
+            // Find a safe spot above
+            for (int y = 1; y <= 5; y++) {
+                BlockPos testPos = targetPos.offset(0, y, 0);
+                if (targetLevel.getBlockState(testPos).isAir() && 
+                    targetLevel.getBlockState(testPos.below()).isSolid()) {
+                    safePos = testPos;
+                    break;
+                }
+            }
+        }
+        
+        // Teleport back
+        player.teleportTo(targetLevel, safePos.getX() + 0.5, safePos.getY(), safePos.getZ() + 0.5,
+            java.util.Set.of(), player.getYRot(), player.getXRot(), false);
+        
+        // Visual effect at destination
+        Vec3 dest = Vec3.atCenterOf(safePos);
+        targetLevel.sendParticles(ParticleTypes.PORTAL,
+            dest.x, dest.y, dest.z,
+            30, 0.5, 0.5, 0.5, 0.1);
+        targetLevel.sendParticles(ParticleTypes.END_ROD,
+            dest.x, dest.y, dest.z,
+            20, 0.3, 0.3, 0.3, 0.05);
+        
+        targetLevel.playSound(null, dest.x, dest.y, dest.z,
+            SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
+        
+        // Clear entry data
+        clearPlayerEntry(player);
+    }
 
     private static final String ENTRY_DATA_TAG = "spells_n_squares_pocket_entry";
     private static final String ENTRY_DIMENSION_KEY = "entryDimension";
@@ -205,25 +262,35 @@ public final class PocketDimensionManager {
      * Only loads the structure once per dimension UUID.
      */
     public static BlockPos initializeNewtsCaseDimension(ServerLevel level, UUID dimensionId) {
+        return initializeNewtsCaseDimension(level, dimensionId, 0);
+    }
+    
+    /**
+     * Initializes a Newt's Case dimension with a specific upgrade level.
+     */
+    public static BlockPos initializeNewtsCaseDimension(ServerLevel level, UUID dimensionId, int upgradeLevel) {
         if (level == null) {
             return new BlockPos(0, 64, 0);
         }
         
         // Check if structure already loaded for this dimension
-        if (structureLoadedMap.getOrDefault(dimensionId, false)) {
-            // Structure already loaded, return spawn position
+        // Note: Upgrades will require structure regeneration, so we check upgrade level too
+        if (structureLoadedMap.containsKey(dimensionId) && upgradeLevel == 0) {
+            // Structure already loaded at base level, return spawn position
             return getSpawnPosition(dimensionId, 32);
         }
         
-        // Get spawn position
-        BlockPos spawnPos = getSpawnPosition(dimensionId, 32);
+        // Get spawn position (size increases with upgrade level)
+        int baseSize = 32;
+        int currentSize = baseSize + (upgradeLevel * 8);
+        BlockPos spawnPos = getSpawnPosition(dimensionId, currentSize);
         
         // Load and place structure
         if (loadStructureSchematic(level, spawnPos)) {
             structureLoadedMap.put(dimensionId, true);
         } else {
             // If structure loading failed, create a code-generated structure with ladder exit
-            generateNewtsCaseStructure(level, spawnPos);
+            generateNewtsCaseStructure(level, spawnPos, upgradeLevel);
             structureLoadedMap.put(dimensionId, true);
         }
         
@@ -233,12 +300,13 @@ public final class PocketDimensionManager {
     /**
      * Generates a code-based structure for Newt's Case dimension.
      * Creates a room with a ladder leading up to an exit platform.
+     * @param upgradeLevel The upgrade level (affects room size)
      */
-    private static void generateNewtsCaseStructure(ServerLevel level, BlockPos spawnPos) {
+    private static void generateNewtsCaseStructure(ServerLevel level, BlockPos spawnPos, int upgradeLevel) {
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
         
-        // Create floor platform (5x5 area)
-        int floorSize = 5;
+        // Base floor size is 5x5, increases by 2 per upgrade level (max 11x11 at level 3)
+        int floorSize = Math.min(5 + (upgradeLevel * 2), 11);
         int halfFloor = floorSize / 2;
         for (int x = -halfFloor; x <= halfFloor; x++) {
             for (int z = -halfFloor; z <= halfFloor; z++) {
@@ -293,6 +361,30 @@ public final class PocketDimensionManager {
         level.setBlock(mutablePos, Blocks.TORCH.defaultBlockState(), 3);
         mutablePos.set(spawnPos.getX(), spawnPos.getY() + 1, spawnPos.getZ() + halfFloor - 1);
         level.setBlock(mutablePos, Blocks.TORCH.defaultBlockState(), 3);
+        
+        // Add storage chests along the walls
+        // Chest on west wall (left side when facing north)
+        mutablePos.set(spawnPos.getX() - halfFloor + 1, spawnPos.getY(), spawnPos.getZ() - 1);
+        level.setBlock(mutablePos, Blocks.CHEST.defaultBlockState()
+            .setValue(net.minecraft.world.level.block.ChestBlock.FACING, net.minecraft.core.Direction.EAST), 3);
+        
+        // Chest on east wall (right side when facing north)
+        mutablePos.set(spawnPos.getX() + halfFloor - 1, spawnPos.getY(), spawnPos.getZ() - 1);
+        level.setBlock(mutablePos, Blocks.CHEST.defaultBlockState()
+            .setValue(net.minecraft.world.level.block.ChestBlock.FACING, net.minecraft.core.Direction.WEST), 3);
+        
+        // Add crafting table in corner
+        mutablePos.set(spawnPos.getX() - halfFloor + 1, spawnPos.getY(), spawnPos.getZ() + 1);
+        level.setBlock(mutablePos, Blocks.CRAFTING_TABLE.defaultBlockState(), 3);
+        
+        // Add furnace in corner
+        mutablePos.set(spawnPos.getX() + halfFloor - 1, spawnPos.getY(), spawnPos.getZ() + 1);
+        level.setBlock(mutablePos, Blocks.FURNACE.defaultBlockState()
+            .setValue(net.minecraft.world.level.block.FurnaceBlock.FACING, net.minecraft.core.Direction.NORTH), 3);
+        
+        // Add brewing stand (if available)
+        mutablePos.set(spawnPos.getX(), spawnPos.getY(), spawnPos.getZ() + 1);
+        level.setBlock(mutablePos, Blocks.BREWING_STAND.defaultBlockState(), 3);
         
         // Create ladder going up from center of room
         // Ladder goes up through the ceiling to exit platform
@@ -499,36 +591,61 @@ public final class PocketDimensionManager {
             
             BlockPos entryPos = entryData.entryPosition();
             
-            // Check if the case block at entry position is open
-            // entryPos should be the case block position (stored when entering)
+            // Check if the case block exists at entry position
             BlockState caseState = targetLevel.getBlockState(entryPos);
-            if (caseState.getBlock() instanceof NewtsCaseBlock) {
-                // This is the case block - check if it's open
-                if (caseState.hasProperty(NewtsCaseBlock.OPEN) && !caseState.getValue(NewtsCaseBlock.OPEN)) {
-                    // Case is closed - prevent exit
-                    player.sendSystemMessage(Component.literal("§cThe case is closed! It must be opened to exit the pocket dimension."));
-                    return;
-                }
-            } else {
+            BlockPos casePos = entryPos;
+            boolean caseExists = caseState.getBlock() instanceof NewtsCaseBlock;
+            
+            if (!caseExists) {
                 // Fallback: if entryPos is not the case, check positions below (legacy support)
-                BlockPos casePos = null;
                 for (int yOffset = -1; yOffset >= -2; yOffset--) {
                     BlockPos checkPos = entryPos.offset(0, yOffset, 0);
                     BlockState checkState = targetLevel.getBlockState(checkPos);
                     if (checkState.getBlock() instanceof NewtsCaseBlock) {
                         casePos = checkPos;
+                        caseState = checkState;
+                        caseExists = true;
                         break;
                     }
                 }
-                
-                if (casePos != null) {
-                    BlockState checkCaseState = targetLevel.getBlockState(casePos);
-                    if (checkCaseState.hasProperty(NewtsCaseBlock.OPEN) && !checkCaseState.getValue(NewtsCaseBlock.OPEN)) {
-                        // Case is closed - prevent exit
-                        player.sendSystemMessage(Component.literal("§cThe case is closed! It must be opened to exit the pocket dimension."));
-                        return;
+            }
+            
+            // If case doesn't exist, still allow exit but warn player
+            if (!caseExists) {
+                // Case block is missing - allow exit anyway to prevent trapping
+                // Teleport to a safe location near the entry position
+                BlockPos safePos = entryPos.above();
+                if (!targetLevel.getBlockState(safePos).isAir()) {
+                    // Find a safe spot nearby
+                    for (int y = 1; y <= 5; y++) {
+                        BlockPos testPos = entryPos.offset(0, y, 0);
+                        if (targetLevel.getBlockState(testPos).isAir() && 
+                            targetLevel.getBlockState(testPos.below()).isSolid()) {
+                            safePos = testPos;
+                            break;
+                        }
                     }
                 }
+                
+                player.sendSystemMessage(Component.literal("§eWarning: Case block not found. Exiting to safe location."));
+                teleportPlayerOut(player, level, targetLevel, safePos);
+                return;
+            }
+            
+            // Case exists - check if it's closed
+            boolean caseClosed = caseState.hasProperty(NewtsCaseBlock.OPEN) && !caseState.getValue(NewtsCaseBlock.OPEN);
+            
+            if (caseClosed) {
+                // Case is closed - warn player but still allow exit to prevent trapping
+                // Check cooldown to prevent message spam
+                long currentTick = player.level().getGameTime();
+                Long lastMessage = lastMessageTime.get(playerUuid);
+                
+                if (lastMessage == null || (currentTick - lastMessage) >= MESSAGE_COOLDOWN_TICKS) {
+                    player.sendSystemMessage(Component.literal("§eWarning: The case is closed, but allowing exit to prevent trapping."));
+                    lastMessageTime.put(playerUuid, currentTick);
+                }
+                // Continue with exit - don't trap the player
             }
             
             // Visual effect at origin (pocket dimension)

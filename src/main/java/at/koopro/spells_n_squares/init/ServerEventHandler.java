@@ -4,6 +4,8 @@ import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.PlayerDataManagerRegistry;
 import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
 import at.koopro.spells_n_squares.features.communication.OwlEntity;
+import at.koopro.spells_n_squares.features.transportation.BroomEntity;
+import at.koopro.spells_n_squares.features.transportation.TransportationRegistry;
 import at.koopro.spells_n_squares.features.convenience.WaypointCommands;
 import at.koopro.spells_n_squares.features.spell.SpellManager;
 import at.koopro.spells_n_squares.core.registry.SpellRegistry;
@@ -30,6 +32,7 @@ public class ServerEventHandler {
     @SubscribeEvent
     public static void createDefaultAttributes(EntityAttributeCreationEvent event) {
         event.put(CommunicationRegistry.OWL.get(), OwlEntity.createAttributes().build());
+        event.put(TransportationRegistry.BROOM_ENTITY.get(), BroomEntity.createAttributes().build());
     }
     
     @SubscribeEvent
@@ -46,23 +49,42 @@ public class ServerEventHandler {
     }
     
     /**
-     * Handles player login: sets up default spells and syncs all player data to the client.
+     * Handles player login: loads saved spell slots or sets up default spells for new players.
      * Uses the PlayerDataManagerRegistry for centralized synchronization.
      */
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        // Set up default spell assignments for new players (using demo spells)
-        SpellManager.setSpellInSlot(event.getEntity(), SpellManager.SLOT_TOP, 
-            SpellRegistry.spellId("heal"));
-        SpellManager.setSpellInSlot(event.getEntity(), SpellManager.SLOT_BOTTOM, 
-            SpellRegistry.spellId("teleport"));
-        SpellManager.setSpellInSlot(event.getEntity(), SpellManager.SLOT_LEFT, 
-            SpellRegistry.spellId("fireball"));
-        SpellManager.setSpellInSlot(event.getEntity(), SpellManager.SLOT_RIGHT, 
-            SpellRegistry.spellId("periculum"));
+        Player player = event.getEntity();
+        
+        // Load saved spell slots if they exist
+        if (at.koopro.spells_n_squares.features.spell.SpellSlotData.hasSavedSlots(player)) {
+            at.koopro.spells_n_squares.features.spell.SpellSlotData.SpellSlotComponent savedData = 
+                at.koopro.spells_n_squares.features.spell.SpellSlotData.getSpellSlotData(player);
+            net.minecraft.resources.Identifier[] slots = savedData.toArray();
+            
+            // Restore spell slots to SpellManager
+            for (int i = 0; i < slots.length; i++) {
+                if (slots[i] != null) {
+                    // Only restore if spell is still registered
+                    if (SpellRegistry.isRegistered(slots[i])) {
+                        SpellManager.setSpellInSlot(player, i, slots[i]);
+                    }
+                }
+            }
+        } else {
+            // Set up default spell assignments for new players (using demo spells)
+            SpellManager.setSpellInSlot(player, SpellManager.SLOT_TOP, 
+                SpellRegistry.spellId("heal"));
+            SpellManager.setSpellInSlot(player, SpellManager.SLOT_BOTTOM, 
+                SpellRegistry.spellId("teleport"));
+            SpellManager.setSpellInSlot(player, SpellManager.SLOT_LEFT, 
+                SpellRegistry.spellId("fireball"));
+            SpellManager.setSpellInSlot(player, SpellManager.SLOT_RIGHT, 
+                SpellRegistry.spellId("periculum"));
+        }
         
         // Sync all player data to the client
-        ServerPlayer serverPlayer = at.koopro.spells_n_squares.core.util.PlayerValidationUtils.asServerPlayer(event.getEntity());
+        ServerPlayer serverPlayer = at.koopro.spells_n_squares.core.util.PlayerValidationUtils.asServerPlayer(player);
         if (serverPlayer != null) {
             PlayerDataManagerRegistry.syncAllToClient(serverPlayer);
         }

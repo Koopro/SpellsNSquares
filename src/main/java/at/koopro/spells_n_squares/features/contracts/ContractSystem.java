@@ -109,15 +109,17 @@ public final class ContractSystem {
     
     /**
      * Marks a contract as violated.
+     * 
+     * @param level The server level (required for enforcement)
      */
-    public static void markContractViolated(UUID contractId, UUID violatorId) {
+    public static void markContractViolated(UUID contractId, UUID violatorId, ServerLevel level) {
         ContractData.ContractComponent contract = activeContracts.get(contractId);
         if (contract != null && !contract.isViolated()) {
             ContractData.ContractComponent violated = contract.markAsViolated(violatorId);
             activeContracts.put(contractId, violated);
             
             // Notify contract handler
-            ContractHandler.onContractViolated(contractId, violatorId, violated);
+            ContractHandler.onContractViolated(contractId, violatorId, violated, level);
         }
     }
     
@@ -185,7 +187,7 @@ public final class ContractSystem {
                 boolean hasTimeLimit = contract.conditions().stream()
                     .anyMatch(c -> c.type() == ContractData.ConditionType.TIME_LIMIT);
                 if (hasTimeLimit) {
-                    markContractViolated(contractId, null); // No specific violator for expiration
+                    markContractViolated(contractId, null, level); // No specific violator for expiration
                 } else {
                     toRemove.add(contractId);
                 }
@@ -201,6 +203,7 @@ public final class ContractSystem {
         }
     }
 }
+
 
 
 

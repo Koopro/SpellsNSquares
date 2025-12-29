@@ -1,0 +1,102 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "texture_size": [
+    64,
+    64
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        0,
+        180
+      ],
+      "translation": [
+        0,
+        -1.75,
+        1
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        0,
+        180
+      ],
+      "translation": [
+        0,
+        -1.75,
+        1
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        -36.5,
+        0,
+        180
+      ],
+      "translation": [
+        0,
+        -1.75,
+        1
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        -36.5,
+        0,
+        180
+      ],
+      "translation": [
+        0,
+        -1.75,
+        1
+      ]
+    },
+    "ground": {
+      "rotation": [
+        83.61,
+        20.38,
+        22.66
+      ]
+    },
+    "gui": {
+      "rotation": [
+        0,
+        0,
+        -135.25
+      ],
+      "translation": [
+        -1.5,
+        1.5,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        -0.010000000000218279,
+        3,
+        -135.25
+      ],
+      "translation": [
+        -1.5,
+        1.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    }
+  },
+  "textures": {
+    "particle": "spells_n_squares:item/demo_broom"
+  }
+}

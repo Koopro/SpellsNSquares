@@ -1,8 +1,6 @@
 package at.koopro.spells_n_squares.features.ghosts;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -10,7 +8,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -74,11 +71,22 @@ public class GhostEntity extends Mob {
         return ghostData;
     }
     
+    /**
+     * Gets the ghost ID.
+     */
+    public UUID getGhostId() {
+        return ghostId;
+    }
+    
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         if (ghostId != null) {
             output.putString("GhostId", ghostId.toString());
+        }
+        // Save ghost data using Codec
+        if (ghostData != null) {
+            output.store("GhostData", GhostData.GhostComponent.CODEC, ghostData);
         }
     }
     
@@ -89,7 +97,11 @@ public class GhostEntity extends Mob {
         if (ghostIdStr != null) {
             try {
                 this.ghostId = UUID.fromString(ghostIdStr);
-                // TODO: Load ghost data from storage
+                // Load ghost data using Codec
+                var ghostDataOpt = input.read("GhostData", GhostData.GhostComponent.CODEC);
+                if (ghostDataOpt.isPresent()) {
+                    this.setGhostData(ghostDataOpt.get());
+                }
             } catch (IllegalArgumentException e) {
                 // Invalid UUID format, ignore
             }
@@ -112,6 +124,8 @@ public class GhostEntity extends Mob {
         }
     }
 }
+
+
 
 
 

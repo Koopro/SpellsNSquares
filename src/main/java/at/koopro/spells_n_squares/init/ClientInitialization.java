@@ -8,10 +8,13 @@ import at.koopro.spells_n_squares.features.spell.client.DummyPlayerRenderer;
 import at.koopro.spells_n_squares.features.spell.client.LightOrbRenderer;
 import at.koopro.spells_n_squares.features.spell.client.LightningBeamRenderer;
 import at.koopro.spells_n_squares.features.spell.client.ShieldOrbRenderer;
+import at.koopro.spells_n_squares.features.transportation.TransportationRegistry;
+import at.koopro.spells_n_squares.features.transportation.client.DemoBroomEntityRenderer;
 import at.koopro.spells_n_squares.features.fx.block.FxBlockEntities;
 import at.koopro.spells_n_squares.features.fx.block.client.EnergyBallBlockRenderer;
 import at.koopro.spells_n_squares.features.storage.block.StorageBlockEntities;
 import at.koopro.spells_n_squares.features.storage.block.client.NewtsCaseBlockRenderer;
+import at.koopro.spells_n_squares.features.education.client.BestiaryScreen;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.neoforged.api.distmarker.Dist;
@@ -55,6 +58,14 @@ public class ClientInitialization {
             at.koopro.spells_n_squares.core.registry.ModMenus.ENCHANTMENT_MENU.get(),
             at.koopro.spells_n_squares.features.enchantments.client.EnchantmentScreen::new
         );
+        event.register(
+            at.koopro.spells_n_squares.core.registry.ModMenus.BESTIARY_MENU.get(),
+            BestiaryScreen::new
+        );
+        event.register(
+            at.koopro.spells_n_squares.core.registry.ModMenus.WAND_LATHE_MENU.get(),
+            at.koopro.spells_n_squares.features.wand.client.WandLatheScreen::new
+        );
     }
     
     @SubscribeEvent
@@ -81,6 +92,12 @@ public class ClientInitialization {
         event.registerEntityRenderer(
             SpellEntityRegistry.DUMMY_PLAYER.get(),
             (EntityRendererProvider.Context context) -> new DummyPlayerRenderer(context)
+        );
+        
+        // Register broom entity renderer
+        event.registerEntityRenderer(
+            TransportationRegistry.BROOM_ENTITY.get(),
+            (EntityRendererProvider.Context context) -> new DemoBroomEntityRenderer(context)
         );
 
         // Register block entity renderers

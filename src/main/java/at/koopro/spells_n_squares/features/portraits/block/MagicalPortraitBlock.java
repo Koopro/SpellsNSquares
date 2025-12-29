@@ -9,14 +9,19 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Block entity for magical portraits.
+ * Block for magical portraits.
  * Portraits can hold conversations and deliver messages.
  */
-public class MagicalPortraitBlock extends BaseInteractiveBlock {
+public class MagicalPortraitBlock extends BaseInteractiveBlock implements EntityBlock {
     
     public MagicalPortraitBlock(Properties properties) {
         super(properties);
@@ -36,18 +41,19 @@ public class MagicalPortraitBlock extends BaseInteractiveBlock {
         }
         
         // Start conversation
-        PortraitDialogueSystem.startConversation(serverPlayer, portrait);
+        PortraitDialogueSystem.startConversation(serverPlayer, portrait, pos);
         
         return InteractionResult.SUCCESS;
     }
     
     /**
      * Gets portrait data for this block.
-     * TODO: Retrieve from BlockEntity or persistent storage
+     * Retrieves from BlockEntity.
      */
     private PortraitData.PortraitComponent getPortraitData(Level level, BlockPos pos) {
-        // TODO: Implement proper storage
-        // For now, return null
+        if (level.getBlockEntity(pos) instanceof PortraitBlockEntity blockEntity) {
+            return blockEntity.getPortraitData();
+        }
         return null;
     }
     
@@ -55,9 +61,27 @@ public class MagicalPortraitBlock extends BaseInteractiveBlock {
      * Sets portrait data for this block.
      */
     public static void setPortraitData(Level level, BlockPos pos, PortraitData.PortraitComponent portrait) {
-        // TODO: Store in BlockEntity or persistent storage
+        if (level.getBlockEntity(pos) instanceof PortraitBlockEntity blockEntity) {
+            blockEntity.setPortraitData(portrait);
+        }
+    }
+    
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        // Note: BlockEntityType must be registered separately
+        // For now, return null - this will be set up when the BlockEntityType is registered
+        return null;
+    }
+    
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return null; // No ticker needed
     }
 }
+
+
 
 
 

@@ -42,3 +42,7 @@ public record SpellSlotAssignPayload(int slot, Optional<Identifier> spellId) imp
 
 
 
+
+
+
+

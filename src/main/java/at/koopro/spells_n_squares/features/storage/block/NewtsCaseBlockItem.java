@@ -46,7 +46,6 @@ public class NewtsCaseBlockItem extends BlockItem implements GeoItem {
         BlockState clickedState = level.getBlockState(pos);
         if (clickedState.getBlock() instanceof NewtsCaseBlock block) {
             // This is an existing Newt's Case block - call the block's use() method directly
-            System.out.println("[NewtsCaseBlockItem] Clicked on existing NewtsCase block at " + pos + ", calling block.use()");
             Player player = context.getPlayer();
             InteractionHand hand = context.getHand();
             BlockHitResult hitResult = new BlockHitResult(

@@ -49,18 +49,12 @@ public class NewtsCaseInteractionHandler {
         ItemStack heldItem = event.getItemStack();
         boolean isEmptyHand = heldItem.isEmpty();
         
-        System.out.println("[NewtsCaseInteractionHandler] Right-click detected on NewtsCase block");
-        System.out.println("[NewtsCaseInteractionHandler] Pos: " + pos);
-        System.out.println("[NewtsCaseInteractionHandler] Empty hand: " + isEmptyHand);
-        System.out.println("[NewtsCaseInteractionHandler] Item: " + (isEmptyHand ? "EMPTY" : heldItem.getItem()));
-        
         // Only intercept if empty hand (when holding case item, let the normal flow handle it)
         if (isEmptyHand && event.getEntity() instanceof ServerPlayer) {
             // Manually call the block's interaction logic
             InteractionHand hand = event.getHand();
             BlockHitResult hitResult = event.getHitVec();
             
-            System.out.println("[NewtsCaseInteractionHandler] Calling block.use() for empty hand interaction");
             NewtsCaseBlock block = (NewtsCaseBlock) state.getBlock();
             InteractionResult result = block.use(state, level, pos, event.getEntity(), hand, hitResult);
             
