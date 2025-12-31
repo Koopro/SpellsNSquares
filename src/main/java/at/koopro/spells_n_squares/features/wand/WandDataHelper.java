@@ -2,6 +2,8 @@ package at.koopro.spells_n_squares.features.wand;
 
 import net.minecraft.world.item.ItemStack;
 
+import java.util.UUID;
+
 /**
  * Helper class for accessing and modifying wand data.
  */
@@ -84,6 +86,21 @@ public final class WandDataHelper {
      */
     public static boolean hasWandData(ItemStack stack) {
         return getWandData(stack) != null;
+    }
+    
+    /**
+     * Gets the owner UUID of a wand, or null if the wand has no owner.
+     */
+    public static UUID getOwner(ItemStack stack) {
+        WandData.WandDataComponent data = getWandData(stack);
+        if (data == null || !data.hasOwner()) {
+            return null;
+        }
+        try {
+            return UUID.fromString(data.ownerId());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }
 

@@ -841,7 +841,7 @@ public final class BestiaryCreatureRegistry {
     /**
      * Registers a creature in the bestiary.
      */
-    private static void registerCreature(String path, String name, CreatureCategory category,
+    public static void registerCreature(String path, String name, CreatureCategory category,
                                         String description, String habitat, String behavior,
                                         String abilities, String stats, String taming,
                                         String lore, boolean isImplemented) {

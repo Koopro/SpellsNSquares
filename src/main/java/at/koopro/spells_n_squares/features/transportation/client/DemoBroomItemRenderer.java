@@ -10,3 +10,4 @@ public class DemoBroomItemRenderer extends GeoItemRenderer<BroomstickItem> {
 }
 
 
+

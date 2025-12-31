@@ -82,10 +82,15 @@ public final class ParticlePool {
     
     /**
      * Flushes all levels (called on server tick).
+     * Uses a copy of the key set to avoid concurrent modification issues.
      */
     public static void flushAll() {
-        for (ServerLevel level : requestQueues.keySet()) {
-            flush(level);
+        // Create a copy to avoid concurrent modification if levels are unloaded during iteration
+        java.util.Set<ServerLevel> levels = new java.util.HashSet<>(requestQueues.keySet());
+        for (ServerLevel level : levels) {
+            if (level != null && !level.isClientSide()) {
+                flush(level);
+            }
         }
     }
     

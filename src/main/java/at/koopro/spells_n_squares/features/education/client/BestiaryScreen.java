@@ -64,15 +64,10 @@ public class BestiaryScreen extends AbstractContainerScreen<BestiaryMenu> {
         // Initialize creature registry if not already done
         BestiaryCreatureRegistry.initialize();
         
-        // Debug: Check if creatures are loaded
+        // Ensure creatures are loaded
         int creatureCount = BestiaryCreatureRegistry.getAllCreatures().size();
         if (creatureCount == 0) {
-            System.err.println("[BestiaryScreen] WARNING: No creatures found in registry! Initializing...");
             BestiaryCreatureRegistry.initialize();
-            creatureCount = BestiaryCreatureRegistry.getAllCreatures().size();
-            if (creatureCount == 0) {
-                System.err.println("[BestiaryScreen] ERROR: Still no creatures after initialization!");
-            }
         }
         
         // Create search box (on left page)
@@ -84,7 +79,6 @@ public class BestiaryScreen extends AbstractContainerScreen<BestiaryMenu> {
             String newQuery = query != null ? query : "";
             if (!newQuery.equals(this.searchQuery)) {
                 this.searchQuery = newQuery;
-                System.out.println("[BestiaryScreen] Search query changed to: '" + this.searchQuery + "'");
                 updateFilteredCreatures();
             }
         });
@@ -163,9 +157,7 @@ public class BestiaryScreen extends AbstractContainerScreen<BestiaryMenu> {
     }
     
     private void updateFilteredCreatures() {
-        System.out.println("[BestiaryScreen] updateFilteredCreatures: Starting, current size = " + filteredCreatures.size());
         filteredCreatures.clear();
-        System.out.println("[BestiaryScreen] updateFilteredCreatures: After clear, size = " + filteredCreatures.size());
         
         // Ensure registry is initialized
         BestiaryCreatureRegistry.initialize();
@@ -185,32 +177,24 @@ public class BestiaryScreen extends AbstractContainerScreen<BestiaryMenu> {
                 }
             }
         }
-        System.out.println("[BestiaryScreen] updateFilteredCreatures: Total creatures = " + allCreatures.size() + 
-            ", searchQuery = '" + currentSearch + "', category = " + selectedCategory);
         
         // Filter by category
         if (selectedCategory != null) {
-            int beforeSize = allCreatures.size();
             allCreatures.removeIf(entry -> entry.getCategory() != selectedCategory);
-            System.out.println("[BestiaryScreen] After category filter: " + allCreatures.size() + " (was " + beforeSize + ")");
         }
         
         // Filter by search query
         if (currentSearch != null && !currentSearch.isEmpty()) {
             String lowerQuery = currentSearch.toLowerCase().trim();
-            int beforeSize = allCreatures.size();
             allCreatures.removeIf(entry -> {
                 String name = entry.getName() != null ? entry.getName().toLowerCase() : "";
                 String desc = entry.getDescription() != null ? entry.getDescription().toLowerCase() : "";
                 boolean matches = name.contains(lowerQuery) || desc.contains(lowerQuery);
                 return !matches;
             });
-            System.out.println("[BestiaryScreen] After search filter: " + allCreatures.size() + " (was " + beforeSize + ")");
         }
         
-        System.out.println("[BestiaryScreen] updateFilteredCreatures: About to add " + allCreatures.size() + " creatures to filteredCreatures");
         filteredCreatures.addAll(allCreatures);
-        System.out.println("[BestiaryScreen] updateFilteredCreatures: After addAll, filteredCreatures.size() = " + filteredCreatures.size());
         scrollOffset = Math.min(scrollOffset, Math.max(0, filteredCreatures.size() - getVisibleCreatureCount()));
         
         System.out.println("[BestiaryScreen] Final filtered count: " + filteredCreatures.size());

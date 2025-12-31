@@ -4,6 +4,7 @@ import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.ModTags;
 import at.koopro.spells_n_squares.core.util.EventUtils;
 import at.koopro.spells_n_squares.core.util.PlayerItemUtils;
+import at.koopro.spells_n_squares.core.util.SafeEventHandler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,16 +28,18 @@ public class WandGlowTickHandler {
         
         Player player = event.getEntity();
         
-        // Only spawn glow every GLOW_INTERVAL ticks
-        if (player.tickCount % GLOW_INTERVAL != 0) {
-            return;
-        }
-        
-        ItemStack wand = PlayerItemUtils.findHeldItemByTag(player, ModTags.WANDS).orElse(ItemStack.EMPTY);
-        if (!wand.isEmpty() && WandDataHelper.isAttuned(wand)) {
-            // Spawn charged glow particles
-            WandVisualEffects.spawnChargedGlow(player.level(), player, wand);
-        }
+        SafeEventHandler.execute(() -> {
+            // Only spawn glow every GLOW_INTERVAL ticks
+            if (player.tickCount % GLOW_INTERVAL != 0) {
+                return;
+            }
+            
+            ItemStack wand = PlayerItemUtils.findHeldItemByTag(player, ModTags.WANDS).orElse(ItemStack.EMPTY);
+            if (!wand.isEmpty() && WandDataHelper.isAttuned(wand)) {
+                // Spawn charged glow particles
+                WandVisualEffects.spawnChargedGlow(player.level(), player, wand);
+            }
+        }, "ticking wand glow", player);
     }
 }
 

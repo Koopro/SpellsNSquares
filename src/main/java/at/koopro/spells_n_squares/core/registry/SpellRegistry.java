@@ -4,7 +4,9 @@ import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.features.spell.Spell;
 import net.minecraft.resources.Identifier;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

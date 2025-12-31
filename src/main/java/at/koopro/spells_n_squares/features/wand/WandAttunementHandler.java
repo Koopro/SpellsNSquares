@@ -123,58 +123,60 @@ public class WandAttunementHandler {
         Identifier spellId = event.getSpell().getId();
         Level level = event.getLevel();
         
-        // Spawn wand visual effects
-        ItemStack wand = PlayerItemUtils.findHeldItemByTag(player, ModTags.WANDS).orElse(ItemStack.EMPTY);
-        if (!wand.isEmpty()) {
-            WandVisualEffects.spawnCastTrail(level, player, wand);
-        }
-        AttunementProgress progress = attunementProgress.get(player);
-        if (progress == null) {
-            return;
-        }
-        
-        // Check timeout
-        int currentTick = (int) level.getGameTime();
-        if (currentTick - progress.lastCastTick > SEQUENCE_TIMEOUT) {
-            // Sequence timed out
-            attunementProgress.remove(player);
-            return;
-        }
-        
-        // Get required sequence
-        Identifier[] sequence = getRequiredSequence(progress.core, progress.wood);
-        
-        // Check if the cast spell matches the next in sequence
-        if (spellId.equals(sequence[progress.sequenceIndex])) {
-            progress.sequenceIndex++;
-            progress.lastCastTick = currentTick;
+        at.koopro.spells_n_squares.core.util.SafeEventHandler.execute(() -> {
+            // Spawn wand visual effects
+            ItemStack wand = PlayerItemUtils.findHeldItemByTag(player, ModTags.WANDS).orElse(ItemStack.EMPTY);
+            if (!wand.isEmpty()) {
+                WandVisualEffects.spawnCastTrail(level, player, wand);
+            }
+            AttunementProgress progress = attunementProgress.get(player);
+            if (progress == null) {
+                return;
+            }
             
-            // Check if sequence is complete
-            if (progress.sequenceIndex >= sequence.length) {
-                // Success! Attune the wand
-                WandDataHelper.setAttuned(progress.wand, true);
+            // Check timeout
+            int currentTick = (int) level.getGameTime();
+            if (currentTick - progress.lastCastTick > SEQUENCE_TIMEOUT) {
+                // Sequence timed out
+                attunementProgress.remove(player);
+                return;
+            }
+            
+            // Get required sequence
+            Identifier[] sequence = getRequiredSequence(progress.core, progress.wood);
+            
+            // Check if the cast spell matches the next in sequence
+            if (spellId.equals(sequence[progress.sequenceIndex])) {
+                progress.sequenceIndex++;
+                progress.lastCastTick = currentTick;
+                
+                // Check if sequence is complete
+                if (progress.sequenceIndex >= sequence.length) {
+                    // Success! Attune the wand
+                    WandDataHelper.setAttuned(progress.wand, true);
+                    attunementProgress.remove(player);
+                    
+                    // Visual feedback
+                    if (level instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles(
+                            net.minecraft.core.particles.ParticleTypes.TOTEM_OF_UNDYING,
+                            player.getX(), player.getY() + 1.0, player.getZ(),
+                            20, 0.5, 0.5, 0.5, 0.1
+                        );
+                    }
+                }
+            } else {
+                // Wrong spell - reset sequence
                 attunementProgress.remove(player);
                 
-                // Visual feedback
+                // Apply misfire debuff
                 if (level instanceof ServerLevel serverLevel) {
-                    serverLevel.sendParticles(
-                        net.minecraft.core.particles.ParticleTypes.TOTEM_OF_UNDYING,
-                        player.getX(), player.getY() + 1.0, player.getZ(),
-                        20, 0.5, 0.5, 0.5, 0.1
-                    );
+                    // Random spell cast as penalty
+                    int randomSlot = level.getRandom().nextInt(SpellManager.MAX_SLOTS);
+                    SpellManager.castSpellInSlot(player, level, randomSlot);
                 }
             }
-        } else {
-            // Wrong spell - reset sequence
-            attunementProgress.remove(player);
-            
-            // Apply misfire debuff
-            if (level instanceof ServerLevel serverLevel) {
-                // Random spell cast as penalty
-                int randomSlot = level.getRandom().nextInt(SpellManager.MAX_SLOTS);
-                SpellManager.castSpellInSlot(player, level, randomSlot);
-            }
-        }
+        }, "handling spell cast for attunement", player);
     }
     
     /**
@@ -187,16 +189,18 @@ public class WandAttunementHandler {
         }
         
         Player player = event.getEntity();
-        AttunementProgress progress = attunementProgress.get(player);
-        if (progress == null) {
-            return;
-        }
-        
-        // Check timeout
-        int currentTick = (int) player.level().getGameTime();
-        if (currentTick - progress.lastCastTick > SEQUENCE_TIMEOUT) {
-            attunementProgress.remove(player);
-        }
+        at.koopro.spells_n_squares.core.util.SafeEventHandler.execute(() -> {
+            AttunementProgress progress = attunementProgress.get(player);
+            if (progress == null) {
+                return;
+            }
+            
+            // Check timeout
+            int currentTick = (int) player.level().getGameTime();
+            if (currentTick - progress.lastCastTick > SEQUENCE_TIMEOUT) {
+                attunementProgress.remove(player);
+            }
+        }, "ticking wand attunement", player);
     }
     
     /**

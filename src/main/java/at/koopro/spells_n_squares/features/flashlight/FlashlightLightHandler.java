@@ -40,33 +40,35 @@ public class FlashlightLightHandler {
         
         Player player = mc.player;
         
-        // Find held flashlight using utility
-        var flashlightStackOpt = at.koopro.spells_n_squares.core.util.PlayerItemUtils.findHeldItem(player, FlashlightRegistry.FLASHLIGHT.get());
-        boolean hasFlashlight = flashlightStackOpt.isPresent();
-        boolean isOn = flashlightStackOpt.map(FlashlightItem::isOn).orElse(false);
-        
-        BlockPos currentBlockPos = player.blockPosition();
-        float currentYaw = player.getYRot();
-        
-        // Clear lights if flashlight is off, not held, or player moved/turned significantly
-        boolean shouldClear = !hasFlashlight || !isOn;
-        boolean playerMoved = lastPlayerBlockPos != null && !currentBlockPos.equals(lastPlayerBlockPos);
-        boolean playerTurned = !Float.isNaN(lastYaw) && Math.abs(currentYaw - lastYaw) > LightConstants.FLASHLIGHT_TURN_THRESHOLD;
-        
-        if (shouldClear || playerMoved || playerTurned) {
-            if (shouldClear) {
-                lightManager.clearAllLights(mc);
-            } else {
-                // Update lights when player moves or turns
+        at.koopro.spells_n_squares.core.util.SafeEventHandler.execute(() -> {
+            // Find held flashlight using utility
+            var flashlightStackOpt = at.koopro.spells_n_squares.core.util.PlayerItemUtils.findHeldItem(player, FlashlightRegistry.FLASHLIGHT.get());
+            boolean hasFlashlight = flashlightStackOpt.isPresent();
+            boolean isOn = flashlightStackOpt.map(FlashlightItem::isOn).orElse(false);
+            
+            BlockPos currentBlockPos = player.blockPosition();
+            float currentYaw = player.getYRot();
+            
+            // Clear lights if flashlight is off, not held, or player moved/turned significantly
+            boolean shouldClear = !hasFlashlight || !isOn;
+            boolean playerMoved = lastPlayerBlockPos != null && !currentBlockPos.equals(lastPlayerBlockPos);
+            boolean playerTurned = !Float.isNaN(lastYaw) && Math.abs(currentYaw - lastYaw) > LightConstants.FLASHLIGHT_TURN_THRESHOLD;
+            
+            if (shouldClear || playerMoved || playerTurned) {
+                if (shouldClear) {
+                    lightManager.clearAllLights(mc);
+                } else {
+                    // Update lights when player moves or turns
+                    updateLights(mc, player);
+                }
+            } else if (hasFlashlight && isOn) {
+                // Update lights if nothing changed but we should maintain them
                 updateLights(mc, player);
             }
-        } else if (hasFlashlight && isOn) {
-            // Update lights if nothing changed but we should maintain them
-            updateLights(mc, player);
-        }
-        
-        lastPlayerBlockPos = currentBlockPos;
-        lastYaw = currentYaw;
+            
+            lastPlayerBlockPos = currentBlockPos;
+            lastYaw = currentYaw;
+        }, "ticking flashlight light", player);
     }
     
     private static void placeLightIfPossible(Minecraft mc, BlockPos playerPos, BlockPos lightPos, Set<BlockPos> newLightPositions) {

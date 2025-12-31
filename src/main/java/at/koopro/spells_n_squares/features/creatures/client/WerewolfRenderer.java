@@ -67,3 +67,4 @@ public class WerewolfRenderer extends EntityRenderer<WerewolfEntity, EntityRende
 
 
 
+

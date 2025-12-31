@@ -463,9 +463,6 @@ public class BroomEntity extends Mob implements GeoEntity {
                 Vec3 boostDir = moveLength > 0.01 ? moveDir.normalize() : new Vec3(0, 1, 0);
                 Vec3 boost = boostDir.scale(0.8); // Boost strength
                 newVelocity = newVelocity.add(boost);
-                if (this.tickCount % 20 == 0) {
-                    LOGGER.debug("[BroomEntity] Boost applied!");
-                }
             }
             
             // When noPhysics is true (when ridden), don't apply gravity
@@ -477,12 +474,6 @@ public class BroomEntity extends Mob implements GeoEntity {
             }
             
             this.setDeltaMovement(newVelocity);
-            
-            if (this.tickCount % 20 == 0) {
-                Vec3 pos = this.position();
-                LOGGER.debug("[BroomEntity] Input - forward: {}, strafe: {}, jump: {}, Velocity: {}, Speed: {}, Pos: ({}, {}, {})", 
-                    forward, strafe, this.jumpInput, newVelocity, newVelocity.length(), pos.x, pos.y, pos.z);
-            }
         } else {
             // No stamina - apply deceleration and gravity
             Vec3 decelerated = currentVelocity.scale(0.95);

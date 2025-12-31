@@ -13,8 +13,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Manages spell slots and cooldowns for all players.
@@ -322,6 +329,48 @@ public class SpellManager {
         
         learnedSpells.add(spellId);
         return true; // Newly learned
+    }
+    
+    /**
+     * Forgets a spell for a player (removes it from learned spells).
+     * @param player The player
+     * @param spellId The spell ID to forget
+     * @return true if the spell was forgotten, false if it wasn't learned
+     */
+    public static boolean forgetSpell(Player player, Identifier spellId) {
+        if (spellId == null) {
+            return false;
+        }
+        
+        UUID uuid = player.getUUID();
+        Set<Identifier> learnedSpells = playerLearnedSpells.get(uuid);
+        if (learnedSpells == null || !learnedSpells.contains(spellId)) {
+            return false; // Not learned
+        }
+        
+        learnedSpells.remove(spellId);
+        
+        // Also remove from slots if it's assigned
+        Identifier[] slots = playerSpellSlots.get(uuid);
+        if (slots != null) {
+            for (int i = 0; i < slots.length; i++) {
+                if (spellId.equals(slots[i])) {
+                    slots[i] = null;
+                    // Save updated slots
+                    if (!player.level().isClientSide()) {
+                        SpellSlotData.SpellSlotComponent savedData = SpellSlotData.SpellSlotComponent.fromArray(slots);
+                        SpellSlotData.setSpellSlotData(player, savedData);
+                    }
+                }
+            }
+        }
+        
+        // Sync to client if this is a server player
+        if (player instanceof ServerPlayer serverPlayer) {
+            syncSpellSlotsToClient(serverPlayer);
+        }
+        
+        return true; // Successfully forgotten
     }
     
     /**

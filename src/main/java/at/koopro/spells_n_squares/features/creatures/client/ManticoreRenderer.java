@@ -79,3 +79,4 @@ public class ManticoreRenderer extends EntityRenderer<ManticoreEntity, EntityRen
 
 
 
+

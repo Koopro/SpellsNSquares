@@ -2,8 +2,10 @@ package at.koopro.spells_n_squares.features.fx;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.config.Config;
+import at.koopro.spells_n_squares.core.util.SafeEventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -139,15 +141,17 @@ public class ScreenEffectManager {
      */
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
-        activeShakes.removeIf(shake -> {
-            shake.tick();
-            return shake.isExpired();
-        });
-        
-        activeOverlays.removeIf(overlay -> {
-            overlay.tick();
-            return overlay.isExpired();
-        });
+        SafeEventHandler.execute(() -> {
+            activeShakes.removeIf(shake -> {
+                shake.tick();
+                return shake.isExpired();
+            });
+            
+            activeOverlays.removeIf(overlay -> {
+                overlay.tick();
+                return overlay.isExpired();
+            });
+        }, "ticking screen effects");
     }
     
     /**
@@ -156,23 +160,27 @@ public class ScreenEffectManager {
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || mc.player == null) {
-            return;
-        }
+        Player player = mc != null ? mc.player : null;
         
-        GuiGraphics guiGraphics = event.getGuiGraphics();
-        int width = mc.getWindow().getGuiScaledWidth();
-        int height = mc.getWindow().getGuiScaledHeight();
-        
-        // Apply screen shake to GUI
-        // Note: GuiGraphics.pose() returns Matrix3x2fStack which doesn't support push/pop
-        // Instead, we'll apply shake by offsetting overlay rendering positions
-        Vec3 shake = getShakeOffset();
-        
-        // Render overlays (shake will be applied per-overlay if needed)
-        for (ScreenOverlay overlay : activeOverlays) {
-            renderOverlay(guiGraphics, width, height, overlay, shake);
-        }
+        SafeEventHandler.execute(() -> {
+            if (mc == null || mc.level == null || mc.player == null) {
+                return;
+            }
+            
+            GuiGraphics guiGraphics = event.getGuiGraphics();
+            int width = mc.getWindow().getGuiScaledWidth();
+            int height = mc.getWindow().getGuiScaledHeight();
+            
+            // Apply screen shake to GUI
+            // Note: GuiGraphics.pose() returns Matrix3x2fStack which doesn't support push/pop
+            // Instead, we'll apply shake by offsetting overlay rendering positions
+            Vec3 shake = getShakeOffset();
+            
+            // Render overlays (shake will be applied per-overlay if needed)
+            for (ScreenOverlay overlay : activeOverlays) {
+                renderOverlay(guiGraphics, width, height, overlay, shake);
+            }
+        }, "rendering screen effects GUI", player);
     }
     
     /**
@@ -299,18 +307,22 @@ public class ScreenEffectManager {
         // Use time-based sine/cosine waves for smooth motion
         // Different frequencies for X and Y to avoid circular motion
         // Use multiple frequencies combined for more natural motion
-        float timeX = time * 0.3f;
-        float timeY = time * 0.5f;
+        float timeX = time * ScreenEffectConstants.SHAKE_FREQUENCY_X;
+        float timeY = time * ScreenEffectConstants.SHAKE_FREQUENCY_Y;
         
         // Combine multiple frequencies for more natural shake
-        double offsetX = (Math.sin(timeX * 1.0) * 0.6 + Math.sin(timeX * 2.3) * 0.4) * totalIntensity * 10.0;
-        double offsetY = (Math.cos(timeY * 1.0) * 0.6 + Math.cos(timeY * 1.7) * 0.4) * totalIntensity * 10.0;
+        double offsetX = (Math.sin(timeX * ScreenEffectConstants.SHAKE_WAVE_PRIMARY) * ScreenEffectConstants.SHAKE_AMPLITUDE_PRIMARY + 
+                         Math.sin(timeX * ScreenEffectConstants.SHAKE_WAVE_SECONDARY_X) * ScreenEffectConstants.SHAKE_AMPLITUDE_SECONDARY) * 
+                         totalIntensity * ScreenEffectConstants.SHAKE_INTENSITY_MULTIPLIER;
+        double offsetY = (Math.cos(timeY * ScreenEffectConstants.SHAKE_WAVE_PRIMARY) * ScreenEffectConstants.SHAKE_AMPLITUDE_PRIMARY + 
+                         Math.cos(timeY * ScreenEffectConstants.SHAKE_WAVE_SECONDARY_Y) * ScreenEffectConstants.SHAKE_AMPLITUDE_SECONDARY) * 
+                         totalIntensity * ScreenEffectConstants.SHAKE_INTENSITY_MULTIPLIER;
         
         // Interpolate with previous frame for smoother motion
         float currentX = (float) offsetX;
         float currentY = (float) offsetY;
-        float interpolatedX = previousShakeX + (currentX - previousShakeX) * 0.3f;
-        float interpolatedY = previousShakeY + (currentY - previousShakeY) * 0.3f;
+        float interpolatedX = previousShakeX + (currentX - previousShakeX) * ScreenEffectConstants.SHAKE_INTERPOLATION_FACTOR;
+        float interpolatedY = previousShakeY + (currentY - previousShakeY) * ScreenEffectConstants.SHAKE_INTERPOLATION_FACTOR;
         
         previousShakeX = currentX;
         previousShakeY = currentY;
@@ -324,15 +336,16 @@ public class ScreenEffectManager {
      */
     @SubscribeEvent
     public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
-        Vec3 shake = getShakeOffset();
-        if (shake.lengthSqr() < 0.001) {
-            return;
-        }
-        
-        // Apply shake as camera rotation offset
-        // Convert pixel offset to angle offset (small multiplier for subtle effect)
-        float shakeScale = 0.1f; // Adjust this to control shake intensity
-        event.setYaw(event.getYaw() + (float)shake.x * shakeScale);
-        event.setPitch(event.getPitch() + (float)shake.y * shakeScale);
+        SafeEventHandler.execute(() -> {
+            Vec3 shake = getShakeOffset();
+            if (shake.lengthSqr() < ScreenEffectConstants.MIN_SHAKE_LENGTH_SQR) {
+                return;
+            }
+            
+            // Apply shake as camera rotation offset
+            // Convert pixel offset to angle offset (small multiplier for subtle effect)
+            event.setYaw(event.getYaw() + (float)shake.x * ScreenEffectConstants.CAMERA_SHAKE_SCALE);
+            event.setPitch(event.getPitch() + (float)shake.y * ScreenEffectConstants.CAMERA_SHAKE_SCALE);
+        }, "computing camera angles with shake");
     }
 }
