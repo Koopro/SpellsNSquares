@@ -428,17 +428,8 @@ public class PostProcessingManager {
             effect.shaderId.equals(shaderId) && effect.duration < 0 && !effect.isExpired());
     }
     
-    /**
-     * Registers render pipelines for custom shader resources.
-     * Uses NeoForge's RegisterRenderPipelinesEvent to register custom shader pipelines.
-     */
-    @SubscribeEvent
-    public static void registerRenderPipelines(final RegisterRenderPipelinesEvent event) {
-        event.registerPipeline(LUMOS_ORB_PIPELINE);
-        event.registerPipeline(CUT_EFFECT_PIPELINE);
-        event.registerPipeline(ENERGY_BALL_PIPELINE);
-        LOGGER.debug("Registered render pipelines for custom shader resources");
-    }
+    // Pipeline registration is handled by PostProcessingManager in the system package
+    // to avoid duplicate registrations
     
     /**
      * Clears PostChain cache on resource reload so ShaderManager can rediscover shaders.

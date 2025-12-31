@@ -3,10 +3,7 @@ package at.koopro.spells_n_squares.core.registry;
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
 import at.koopro.spells_n_squares.features.building.BuildingRegistry;
-import at.koopro.spells_n_squares.features.combat.CombatRegistry;
-import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
 import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
-import at.koopro.spells_n_squares.features.education.EducationRegistry;
 import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
 import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
 import at.koopro.spells_n_squares.features.navigation.NavigationRegistry;
@@ -226,22 +223,6 @@ public class ModCreativeTabs {
             .build()
     );
     
-    // Communication tab
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> COMMUNICATION_TAB = CREATIVE_TABS.register(
-        "communication",
-        () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.spells_n_squares.communication"))
-            .icon(() -> new ItemStack(CommunicationRegistry.NOTICE_BOARD.get()))
-            .displayItems((parameters, output) -> {
-                Item noticeBoardItem = CommunicationRegistry.NOTICE_BOARD.get().asItem();
-                if (noticeBoardItem != null && noticeBoardItem != net.minecraft.world.item.Items.AIR) {
-                    output.accept(noticeBoardItem);
-                }
-                output.accept(CommunicationRegistry.TWO_WAY_MIRROR.get());
-            })
-            .build()
-    );
-    
     // Navigation tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> NAVIGATION_TAB = CREATIVE_TABS.register(
         "navigation",
@@ -252,38 +233,6 @@ public class ModCreativeTabs {
                 output.accept(NavigationRegistry.MAGICAL_MAP.get());
                 output.accept(NavigationRegistry.LOCATION_COMPASS.get());
                 output.accept(NavigationRegistry.MAGICAL_JOURNAL.get());
-            })
-            .build()
-    );
-    
-    // Education and combat tab
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EDUCATION_COMBAT_TAB = CREATIVE_TABS.register(
-        "education_combat",
-        () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.spells_n_squares.education_combat"))
-            .icon(() -> {
-                Item hourglassItem = EducationRegistry.HOUSE_POINTS_HOURGLASS.get().asItem();
-                return hourglassItem != null && hourglassItem != net.minecraft.world.item.Items.AIR 
-                    ? new ItemStack(hourglassItem) 
-                    : new ItemStack(CombatRegistry.DUEL_ARENA.get().asItem());
-            })
-            .displayItems((parameters, output) -> {
-                Item hourglassItem = EducationRegistry.HOUSE_POINTS_HOURGLASS.get().asItem();
-                if (hourglassItem != null && hourglassItem != net.minecraft.world.item.Items.AIR) {
-                    output.accept(hourglassItem);
-                }
-                Item duelArenaItem = CombatRegistry.DUEL_ARENA.get().asItem();
-                if (duelArenaItem != null && duelArenaItem != net.minecraft.world.item.Items.AIR) {
-                    output.accept(duelArenaItem);
-                }
-                Item noticeBoardItem = CommunicationRegistry.NOTICE_BOARD.get().asItem();
-                if (noticeBoardItem != null && noticeBoardItem != net.minecraft.world.item.Items.AIR) {
-                    output.accept(noticeBoardItem);
-                }
-                Item enchantmentTableItem = EnchantmentsRegistry.ENCHANTMENT_TABLE.get().asItem();
-                if (enchantmentTableItem != null && enchantmentTableItem != net.minecraft.world.item.Items.AIR) {
-                    output.accept(enchantmentTableItem);
-                }
             })
             .build()
     );

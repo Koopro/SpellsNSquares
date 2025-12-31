@@ -12,24 +12,15 @@ import at.koopro.spells_n_squares.features.artifacts.ResurrectionStoneData;
 import at.koopro.spells_n_squares.features.artifacts.SortingHatData;
 import at.koopro.spells_n_squares.features.artifacts.TimeTurnerItem;
 import at.koopro.spells_n_squares.features.cloak.CloakChargeData;
-import at.koopro.spells_n_squares.features.combat.CombatStatsData;
-import at.koopro.spells_n_squares.features.communication.MirrorData;
 import at.koopro.spells_n_squares.features.creatures.CreatureData;
-import at.koopro.spells_n_squares.features.contracts.ContractData;
 import at.koopro.spells_n_squares.features.economy.CurrencyData;
-import at.koopro.spells_n_squares.features.education.BestiaryData;
-import at.koopro.spells_n_squares.features.education.HomeworkSystem;
-import at.koopro.spells_n_squares.features.education.HousePointsSystem;
 import at.koopro.spells_n_squares.features.enchantments.EnchantmentSystem;
 import at.koopro.spells_n_squares.features.flashlight.FlashlightItem;
 import at.koopro.spells_n_squares.features.gear.SocketData;
 import at.koopro.spells_n_squares.features.ghosts.GhostData;
-import at.koopro.spells_n_squares.features.mail.MailData;
-import at.koopro.spells_n_squares.features.mail.MailboxData;
 import at.koopro.spells_n_squares.features.playerclass.PlayerClassData;
 import at.koopro.spells_n_squares.features.portraits.PortraitData;
 import at.koopro.spells_n_squares.features.potions.PotionData;
-import at.koopro.spells_n_squares.features.social.SocialData;
 import at.koopro.spells_n_squares.features.storage.BagInventoryData;
 import at.koopro.spells_n_squares.features.storage.PocketDimensionData;
 import at.koopro.spells_n_squares.features.storage.TrunkInventoryData;
@@ -85,19 +76,6 @@ public final class DataComponentRegistry {
         PortkeyData.DATA_COMPONENTS.register(modEventBus);
         BroomstickData.DATA_COMPONENTS.register(modEventBus);
         
-        // Communication
-        MirrorData.DATA_COMPONENTS.register(modEventBus);
-        
-        // Mail System
-        MailData.DATA_COMPONENTS.register(modEventBus);
-        MailboxData.DATA_COMPONENTS.register(modEventBus);
-        
-        // Contracts
-        ContractData.DATA_COMPONENTS.register(modEventBus);
-        
-        // Social Systems
-        SocialData.DATA_COMPONENTS.register(modEventBus);
-        
         // Portraits
         PortraitData.DATA_COMPONENTS.register(modEventBus);
         
@@ -108,13 +86,7 @@ public final class DataComponentRegistry {
         EnchantmentSystem.DATA_COMPONENTS.register(modEventBus);
         CreatureData.DATA_COMPONENTS.register(modEventBus);
         
-        // Education
-        BestiaryData.DATA_COMPONENTS.register(modEventBus);
-        HomeworkSystem.DATA_COMPONENTS.register(modEventBus);
-        HousePointsSystem.DATA_COMPONENTS.register(modEventBus);
-        
-        // Combat & Economy
-        CombatStatsData.DATA_COMPONENTS.register(modEventBus);
+        // Economy
         CurrencyData.DATA_COMPONENTS.register(modEventBus);
         
         // Potions

@@ -170,5 +170,15 @@ public final class DataMigrationSystem {
     public static List<DataMigration> getAllMigrations() {
         return Collections.unmodifiableList(migrations);
     }
+
+    /**
+     * Gets the migration for a specific source version.
+     *
+     * @param version The source version
+     * @return The migration for that version, or null if not found
+     */
+    public static DataMigration getMigrationForVersion(int version) {
+        return migrationMap.get(version);
+    }
 }
 

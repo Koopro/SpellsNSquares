@@ -2,8 +2,6 @@ package at.koopro.spells_n_squares.init;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.PlayerDataManagerRegistry;
-import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
-import at.koopro.spells_n_squares.features.communication.OwlEntity;
 import at.koopro.spells_n_squares.features.transportation.BroomEntity;
 import at.koopro.spells_n_squares.features.transportation.TransportationRegistry;
 import at.koopro.spells_n_squares.features.convenience.WaypointCommands;
@@ -31,7 +29,6 @@ public class ServerEventHandler {
     
     @SubscribeEvent
     public static void createDefaultAttributes(EntityAttributeCreationEvent event) {
-        event.put(CommunicationRegistry.OWL.get(), OwlEntity.createAttributes().build());
         event.put(TransportationRegistry.BROOM_ENTITY.get(), BroomEntity.createAttributes().build());
     }
     

@@ -6,15 +6,15 @@ import at.koopro.spells_n_squares.features.artifacts.ArtifactsRegistry;
 import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
 import at.koopro.spells_n_squares.features.building.BuildingRegistry;
 import at.koopro.spells_n_squares.features.cloak.CloakRegistry;
-import at.koopro.spells_n_squares.features.combat.CombatRegistry;
-import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+// import at.koopro.spells_n_squares.features.combat.CombatRegistry; // TODO: Re-enable when CombatRegistry is implemented
+// import at.koopro.spells_n_squares.features.communication.CommunicationRegistry; // TODO: Re-enable when CommunicationRegistry is implemented
 import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
-import at.koopro.spells_n_squares.features.education.EducationRegistry;
+// import at.koopro.spells_n_squares.features.education.EducationRegistry; // TODO: Re-enable when EducationRegistry is implemented
 import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
 import at.koopro.spells_n_squares.features.flashlight.FlashlightRegistry;
 import at.koopro.spells_n_squares.features.navigation.NavigationRegistry;
 import at.koopro.spells_n_squares.features.potions.PotionsRegistry;
-import at.koopro.spells_n_squares.features.quidditch.QuidditchRegistry;
+// import at.koopro.spells_n_squares.features.quidditch.QuidditchRegistry; // TODO: Re-enable when QuidditchRegistry is implemented
 import at.koopro.spells_n_squares.features.robes.RobesRegistry;
 import at.koopro.spells_n_squares.features.storage.StorageRegistry;
 import at.koopro.spells_n_squares.features.transportation.TransportationRegistry;
@@ -62,16 +62,16 @@ public class ModItemModelProvider implements DataProvider {
             ArtifactsRegistry.ITEMS,
             StorageRegistry.ITEMS,
             TransportationRegistry.ITEMS,
-            CommunicationRegistry.ITEMS,
+            // CommunicationRegistry.ITEMS, // TODO: Re-enable when CommunicationRegistry is implemented
             AutomationRegistry.ITEMS,
             BuildingRegistry.ITEMS,
             NavigationRegistry.ITEMS,
             RobesRegistry.ITEMS,
             PotionsRegistry.ITEMS,
-            QuidditchRegistry.ITEMS,
+            // QuidditchRegistry.ITEMS, // TODO: Re-enable when QuidditchRegistry is implemented
             EconomyRegistry.ITEMS,
-            EducationRegistry.ITEMS,
-            CombatRegistry.ITEMS,
+            // EducationRegistry.ITEMS, // TODO: Re-enable when EducationRegistry is implemented
+            // CombatRegistry.ITEMS, // TODO: Re-enable when CombatRegistry is implemented
             EnchantmentsRegistry.ITEMS
         );
         

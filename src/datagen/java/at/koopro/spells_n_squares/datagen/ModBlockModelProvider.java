@@ -4,10 +4,10 @@ import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.ModBlocks;
 import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
 import at.koopro.spells_n_squares.features.building.BuildingRegistry;
-import at.koopro.spells_n_squares.features.combat.CombatRegistry;
-import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+// import at.koopro.spells_n_squares.features.combat.CombatRegistry; // TODO: Re-enable when CombatRegistry is implemented
+// import at.koopro.spells_n_squares.features.communication.CommunicationRegistry; // TODO: Re-enable when CommunicationRegistry is implemented
 import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
-import at.koopro.spells_n_squares.features.education.EducationRegistry;
+// import at.koopro.spells_n_squares.features.education.EducationRegistry; // TODO: Re-enable when EducationRegistry is implemented
 import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
 import at.koopro.spells_n_squares.features.storage.StorageRegistry;
 import com.google.gson.JsonObject;
@@ -44,12 +44,12 @@ public class ModBlockModelProvider implements DataProvider {
         List<DeferredRegister<Block>> blockRegistries = List.of(
             ModBlocks.BLOCKS,  // Generic blocks (currently empty)
             StorageRegistry.BLOCKS,
-            CommunicationRegistry.BLOCKS,
+            // CommunicationRegistry.BLOCKS, // TODO: Re-enable when CommunicationRegistry is implemented
             AutomationRegistry.BLOCKS,
             BuildingRegistry.BLOCKS,
             EconomyRegistry.BLOCKS,
-            EducationRegistry.BLOCKS,
-            CombatRegistry.BLOCKS,
+            // EducationRegistry.BLOCKS, // TODO: Re-enable when EducationRegistry is implemented
+            // CombatRegistry.BLOCKS, // TODO: Re-enable when CombatRegistry is implemented
             EnchantmentsRegistry.BLOCKS
         );
         

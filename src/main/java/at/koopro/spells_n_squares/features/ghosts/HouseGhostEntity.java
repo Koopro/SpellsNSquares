@@ -2,7 +2,6 @@ package at.koopro.spells_n_squares.features.ghosts;
 
 import at.koopro.spells_n_squares.features.artifacts.SortingHatData;
 import at.koopro.spells_n_squares.features.artifacts.SortingHatItem;
-import at.koopro.spells_n_squares.features.education.HousePointsSystem;
 import at.koopro.spells_n_squares.features.spell.SpellManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -69,11 +68,6 @@ public class HouseGhostEntity extends GhostEntity {
                 false,
                 true
             ));
-            
-            // Small house points bonus over time (1 point per minute)
-            if (level.getGameTime() % 1200 == 0) { // Every 60 seconds (1200 ticks)
-                HousePointsSystem.addPoints(nearbyPlayer, data.houseAssociation().name(), 1);
-            }
         }
     }
     

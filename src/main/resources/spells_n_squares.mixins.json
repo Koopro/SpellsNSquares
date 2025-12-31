@@ -4,9 +4,25 @@
   "package": "at.koopro.spells_n_squares.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "PlayerMixin",
+    "ServerPlayerMixin",
+    "PlayerAbilitiesMixin",
+    "ItemStackMixin",
+    "ItemMixin",
+    "LivingEntityMixin",
+    "MobMixin",
+    "EntityMixin",
+    "BlockMixin",
+    "LevelMixin",
+    "ServerLevelMixin"
   ],
   "client": [
-    "client.HumanoidModelMixin"
+    "client.HumanoidModelMixin",
+    "client.LocalPlayerMixin",
+    "client.LivingEntityRendererMixin",
+    "client.EntityRendererMixin",
+    "client.LevelRendererMixin",
+    "client.GameRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

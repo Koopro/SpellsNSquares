@@ -1,8 +1,6 @@
 package at.koopro.spells_n_squares.init;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
-import at.koopro.spells_n_squares.features.creatures.client.OwlRenderer;
 import at.koopro.spells_n_squares.features.spell.SpellEntityRegistry;
 import at.koopro.spells_n_squares.features.spell.client.DummyPlayerRenderer;
 import at.koopro.spells_n_squares.features.spell.client.LightOrbRenderer;
@@ -14,7 +12,6 @@ import at.koopro.spells_n_squares.features.fx.block.FxBlockEntities;
 import at.koopro.spells_n_squares.features.fx.block.client.EnergyBallBlockRenderer;
 import at.koopro.spells_n_squares.features.storage.block.StorageBlockEntities;
 import at.koopro.spells_n_squares.features.storage.block.client.NewtsCaseBlockRenderer;
-import at.koopro.spells_n_squares.features.education.client.BestiaryScreen;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.neoforged.api.distmarker.Dist;
@@ -51,16 +48,8 @@ public class ClientInitialization {
             at.koopro.spells_n_squares.features.economy.client.VaultScreen::new
         );
         event.register(
-            at.koopro.spells_n_squares.core.registry.ModMenus.MAILBOX_MENU.get(),
-            at.koopro.spells_n_squares.features.mail.client.MailboxScreen::new
-        );
-        event.register(
             at.koopro.spells_n_squares.core.registry.ModMenus.ENCHANTMENT_MENU.get(),
             at.koopro.spells_n_squares.features.enchantments.client.EnchantmentScreen::new
-        );
-        event.register(
-            at.koopro.spells_n_squares.core.registry.ModMenus.BESTIARY_MENU.get(),
-            BestiaryScreen::new
         );
         event.register(
             at.koopro.spells_n_squares.core.registry.ModMenus.WAND_LATHE_MENU.get(),
@@ -70,12 +59,6 @@ public class ClientInitialization {
     
     @SubscribeEvent
     public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        // Register owl entity renderer
-        event.registerEntityRenderer(
-            CommunicationRegistry.OWL.get(),
-            (EntityRendererProvider.Context context) -> new OwlRenderer(context)
-        );
-        
         // Register spell entity renderers
         event.registerEntityRenderer(
             SpellEntityRegistry.SHIELD_ORB.get(),

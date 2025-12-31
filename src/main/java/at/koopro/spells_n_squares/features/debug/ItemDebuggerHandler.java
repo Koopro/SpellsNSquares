@@ -88,7 +88,7 @@ public class ItemDebuggerHandler {
         
         // Check player debug info keybind
         if (ModKeybinds.DEBUG_PLAYER_INFO.consumeClick()) {
-            PlayerDebuggerHandler.formatPlayerData(mc.player);
+            at.koopro.spells_n_squares.features.debug.handler.PlayerDebuggerHandler.formatPlayerData(mc.player);
         }
         
         // Check filter toggle keybind
@@ -126,7 +126,7 @@ public class ItemDebuggerHandler {
         
         // Check player debug info keybind
         if (ModKeybinds.DEBUG_PLAYER_INFO.consumeClick()) {
-            PlayerDebuggerHandler.formatPlayerData(mc.player);
+            at.koopro.spells_n_squares.features.debug.handler.PlayerDebuggerHandler.formatPlayerData(mc.player);
         }
     }
     

@@ -8,8 +8,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import at.koopro.spells_n_squares.features.artifacts.ArtifactsRegistry;
 import at.koopro.spells_n_squares.features.artifacts.TimeTurnerItem;
-import at.koopro.spells_n_squares.features.education.BestiaryCreatureRegistry;
-import at.koopro.spells_n_squares.features.education.BestiaryData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.registries.Registries;
@@ -30,7 +28,6 @@ import net.minecraft.world.level.Level;
  * Available commands:
  * - /debug give <item> [count] - Give an item to yourself (format: "modid:itemname")
  * - /debug setblock <block> - Set the block in front of you (format: "modid:blockname")
- * - /debug bestiary unlockall - Unlock all creatures in the bestiary
  * - /debug timeturner reset - Reset cooldowns on held Time-Turner
  */
 public class DebugCommands {
@@ -53,11 +50,6 @@ public class DebugCommands {
         root.then(Commands.literal("setblock")
             .then(Commands.argument("block", StringArgumentType.string())
                 .executes(ctx -> setBlock(ctx))));
-        
-        // debug bestiary unlockall
-        root.then(Commands.literal("bestiary")
-            .then(Commands.literal("unlockall")
-                .executes(ctx -> unlockAllBestiary(ctx))));
         
         // debug timeturner reset
         root.then(Commands.literal("timeturner")
@@ -158,46 +150,6 @@ public class DebugCommands {
             return 0;
         } catch (Exception e) {
             ctx.getSource().sendFailure(Component.literal("Error: " + e.getMessage()));
-            return 0;
-        }
-    }
-    
-    /**
-     * Unlocks all creatures in the bestiary for the player.
-     */
-    private static int unlockAllBestiary(CommandContext<CommandSourceStack> ctx) {
-        try {
-            ServerPlayer player = ctx.getSource().getPlayerOrException();
-            
-            // Initialize bestiary registry
-            BestiaryCreatureRegistry.initialize();
-            
-            // Get count before unlocking
-            int beforeCount = BestiaryData.getBestiaryData(player).getDiscoveredCount();
-            
-            // Unlock all creatures
-            BestiaryData.discoverAllCreatures(player);
-            
-            // Update client cache (for integrated server, this helps client access the data)
-            BestiaryData.BestiaryComponent data = BestiaryData.getBestiaryData(player);
-            BestiaryData.updateClientCache(player.getUUID(), data);
-            
-            // Get count after unlocking
-            int afterCount = BestiaryData.getBestiaryData(player).getDiscoveredCount();
-            int totalCount = BestiaryCreatureRegistry.getAllCreatures().size();
-            int newlyUnlocked = afterCount - beforeCount;
-            
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                String.format("Unlocked %d creatures! Total discovered: %d/%d", 
-                    newlyUnlocked, afterCount, totalCount)), true);
-            
-            return 1;
-        } catch (CommandSyntaxException e) {
-            ctx.getSource().sendFailure(Component.literal("This command can only be used by players"));
-            return 0;
-        } catch (Exception e) {
-            ctx.getSource().sendFailure(Component.literal("Error: " + e.getMessage()));
-            e.printStackTrace();
             return 0;
         }
     }

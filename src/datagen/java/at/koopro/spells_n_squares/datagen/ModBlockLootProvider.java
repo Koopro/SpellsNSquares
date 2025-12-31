@@ -4,10 +4,10 @@ import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
 import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
 import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
 import at.koopro.spells_n_squares.features.building.BuildingRegistry;
-import at.koopro.spells_n_squares.features.combat.CombatRegistry;
-import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+// import at.koopro.spells_n_squares.features.combat.CombatRegistry; // TODO: Re-enable when CombatRegistry is implemented
+// import at.koopro.spells_n_squares.features.communication.CommunicationRegistry; // TODO: Re-enable when CommunicationRegistry is implemented
 import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
-import at.koopro.spells_n_squares.features.education.EducationRegistry;
+// import at.koopro.spells_n_squares.features.education.EducationRegistry; // TODO: Re-enable when EducationRegistry is implemented
 import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
 import at.koopro.spells_n_squares.features.storage.StorageRegistry;
 import net.minecraft.core.HolderLookup;
@@ -89,7 +89,7 @@ public class ModBlockLootProvider extends LootTableProvider {
             dropSelfIfHasItem(StorageRegistry.AUTO_SORT_CHEST.get());
             
             // Communication blocks
-            dropSelfIfHasItem(CommunicationRegistry.NOTICE_BOARD.get());
+            // dropSelfIfHasItem(CommunicationRegistry.NOTICE_BOARD.get()); // TODO: Re-enable when CommunicationRegistry is implemented
             
             // Automation blocks - drop themselves
             dropSelfIfHasItem(AutomationRegistry.SELF_STIRRING_CAULDRON.get());
@@ -111,10 +111,10 @@ public class ModBlockLootProvider extends LootTableProvider {
             dropSelfIfHasItem(EnchantmentsRegistry.ENCHANTMENT_TABLE.get());
             
             // Education blocks - drop themselves
-            dropSelfIfHasItem(EducationRegistry.HOUSE_POINTS_HOURGLASS.get());
+            // dropSelfIfHasItem(EducationRegistry.HOUSE_POINTS_HOURGLASS.get()); // TODO: Re-enable when EducationRegistry is implemented
             
             // Combat blocks - drop themselves
-            dropSelfIfHasItem(CombatRegistry.DUEL_ARENA.get());
+            // dropSelfIfHasItem(CombatRegistry.DUEL_ARENA.get()); // TODO: Re-enable when CombatRegistry is implemented
             
             // Economy blocks - drop themselves
             dropSelfIfHasItem(EconomyRegistry.TRADING_POST.get());
@@ -166,7 +166,7 @@ public class ModBlockLootProvider extends LootTableProvider {
             // TODO: Re-enable when plant blocks are registered in feature registries (MANDRAKE_PLANT, WOLFSBANE_PLANT, GILLYWEED_PLANT)
             knownBlocks.add(StorageRegistry.MAGICAL_TRUNK.get());
             knownBlocks.add(StorageRegistry.AUTO_SORT_CHEST.get());
-            knownBlocks.add(CommunicationRegistry.NOTICE_BOARD.get());
+            // knownBlocks.add(CommunicationRegistry.NOTICE_BOARD.get()); // TODO: Re-enable when CommunicationRegistry is implemented
             knownBlocks.add(AutomationRegistry.SELF_STIRRING_CAULDRON.get());
             knownBlocks.add(AutomationRegistry.MAGICAL_FURNACE.get());
             knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_WHITE.get());
@@ -180,8 +180,8 @@ public class ModBlockLootProvider extends LootTableProvider {
             knownBlocks.add(AutomationRegistry.MAGICAL_COMPOSTER.get());
             knownBlocks.add(AutomationRegistry.RESOURCE_GENERATOR.get());
             knownBlocks.add(EnchantmentsRegistry.ENCHANTMENT_TABLE.get());
-            knownBlocks.add(EducationRegistry.HOUSE_POINTS_HOURGLASS.get());
-            knownBlocks.add(CombatRegistry.DUEL_ARENA.get());
+            // knownBlocks.add(EducationRegistry.HOUSE_POINTS_HOURGLASS.get()); // TODO: Re-enable when EducationRegistry is implemented
+            // knownBlocks.add(CombatRegistry.DUEL_ARENA.get()); // TODO: Re-enable when CombatRegistry is implemented
             knownBlocks.add(EconomyRegistry.TRADING_POST.get());
             knownBlocks.add(EconomyRegistry.AUTOMATED_SHOP.get());
             knownBlocks.add(EconomyRegistry.VAULT.get());

@@ -1,9 +1,7 @@
 package at.koopro.spells_n_squares.features.debug.handler;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.features.combat.data.CombatStatsData;
 import at.koopro.spells_n_squares.features.economy.data.CurrencyData;
-import at.koopro.spells_n_squares.features.education.system.HousePointsSystem;
 import at.koopro.spells_n_squares.features.debug.DebugConfig;
 import at.koopro.spells_n_squares.features.spell.SpellManager;
 import at.koopro.spells_n_squares.core.registry.SpellRegistry;
@@ -67,37 +65,6 @@ public class PlayerDebuggerHandler {
             output.add(Component.literal("§7Food Level: §f" + player.getFoodData().getFoodLevel()));
             output.add(Component.literal("§7Experience Level: §f" + player.experienceLevel));
             output.add(Component.literal(""));
-        }
-        
-        // House Points
-        try {
-            var housePoints = HousePointsSystem.getHousePoints(player);
-            if (housePoints != null && !housePoints.points().isEmpty()) {
-                output.add(Component.literal("§7--- House Points ---"));
-                for (var entry : housePoints.points().entrySet()) {
-                    output.add(Component.literal("§7  " + entry.getKey() + ": §f" + entry.getValue()));
-                }
-                output.add(Component.literal(""));
-            }
-        } catch (Exception e) {
-            // Ignore if house points not available
-        }
-        
-        // Combat Stats
-        try {
-            var combatStats = CombatStatsData.getCombatStats(player);
-            if (combatStats != null) {
-                output.add(Component.literal("§7--- Combat Stats ---"));
-                output.add(Component.literal("§7Accuracy: §f" + String.format("%.2f%%", combatStats.accuracy() * 100)));
-                output.add(Component.literal("§7Dodge Chance: §f" + String.format("%.2f%%", combatStats.dodgeChance() * 100)));
-                output.add(Component.literal("§7Critical Hit Chance: §f" + String.format("%.2f%%", combatStats.criticalHitChance() * 100)));
-                output.add(Component.literal("§7Spell Resistance: §f" + String.format("%.2f%%", combatStats.spellResistance() * 100)));
-                output.add(Component.literal("§7Duels Won: §f" + combatStats.duelsWon()));
-                output.add(Component.literal("§7Duels Lost: §f" + combatStats.duelsLost()));
-                output.add(Component.literal(""));
-            }
-        } catch (Exception e) {
-            // Ignore if combat stats not available
         }
         
         // Currency

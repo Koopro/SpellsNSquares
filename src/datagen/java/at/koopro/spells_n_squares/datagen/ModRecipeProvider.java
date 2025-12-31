@@ -5,7 +5,7 @@ import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
 import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
 import at.koopro.spells_n_squares.datagen.features.FeatureRecipeGenerator;
 import at.koopro.spells_n_squares.datagen.features.PotionsRecipeGenerator;
-import at.koopro.spells_n_squares.datagen.features.QuidditchRecipeGenerator;
+// import at.koopro.spells_n_squares.datagen.features.QuidditchRecipeGenerator; // TODO: Re-enable when QuidditchRecipeGenerator is implemented
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -45,8 +45,8 @@ public class ModRecipeProvider extends RecipeProvider {
         
         // Delegate to feature-specific recipe generators
         List<FeatureRecipeGenerator> generators = List.of(
-            new PotionsRecipeGenerator(),
-            new QuidditchRecipeGenerator()
+            new PotionsRecipeGenerator()
+            // new QuidditchRecipeGenerator() // TODO: Re-enable when QuidditchRecipeGenerator is implemented
             // Add more feature recipe generators as features add recipes
         );
         
