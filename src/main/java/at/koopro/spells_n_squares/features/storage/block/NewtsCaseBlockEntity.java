@@ -1,37 +1,31 @@
 package at.koopro.spells_n_squares.features.storage.block;
 
+import at.koopro.spells_n_squares.core.base.block.BaseGeoBlockEntity;
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
 import at.koopro.spells_n_squares.features.storage.PocketDimensionData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import software.bernie.geckolib.animatable.GeoBlockEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animatable.manager.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.animation.object.PlayState;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * BlockEntity for storing Newt's Case dimension data and managing animations.
  */
-public class NewtsCaseBlockEntity extends BlockEntity implements GeoBlockEntity {
+public class NewtsCaseBlockEntity extends BaseGeoBlockEntity {
     private static final RawAnimation OPEN_ANIMATION = RawAnimation.begin().thenPlayAndHold("open");
     private static final RawAnimation CLOSE_ANIMATION = RawAnimation.begin().thenPlayAndHold("close");
 
     private PocketDimensionData.PocketDimensionComponent dimensionData;
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private boolean lastOpenState = false;
     private boolean animationInitialized = false;
     private long lastOpenedGameTime = 0; // Use 0 instead of Long.MIN_VALUE to avoid overflow issues
@@ -47,53 +41,76 @@ public class NewtsCaseBlockEntity extends BlockEntity implements GeoBlockEntity 
     }
     
     public PocketDimensionData.PocketDimensionComponent getDimensionData() {
+        DevLogger.logMethodEntry(this, "getDimensionData", "pos=" + DevLogger.formatPos(worldPosition));
         if (dimensionData == null) {
+            DevLogger.logDebug(this, "getDimensionData", "Creating new dimension data");
             dimensionData = PocketDimensionData.PocketDimensionComponent.createNewtsCase(32);
+            DevLogger.logStateChange(this, "getDimensionData", 
+                "Created new dimension data, dimensionId=" + dimensionData.dimensionId());
         }
+        DevLogger.logMethodExit(this, "getDimensionData", 
+            dimensionData != null ? "dimensionId=" + dimensionData.dimensionId() : "null");
         return dimensionData;
     }
     
     public void setDimensionData(PocketDimensionData.PocketDimensionComponent data) {
+        DevLogger.logStateChange(this, "setDimensionData", 
+            "pos=" + DevLogger.formatPos(worldPosition) + 
+            ", dimensionId=" + (data != null ? data.dimensionId() : "null"));
+        DevLogger.logMethodEntry(this, "setDimensionData", 
+            "pos=" + DevLogger.formatPos(worldPosition) + 
+            ", dimensionId=" + (data != null ? data.dimensionId() : "null"));
         this.dimensionData = data;
         setChanged();
         if (level != null) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+        DevLogger.logMethodExit(this, "setDimensionData");
     }
 
     public void markOpened(long gameTime) {
+        DevLogger.logStateChange(this, "markOpened", 
+            "pos=" + DevLogger.formatPos(worldPosition) + ", gameTime=" + gameTime);
         this.lastOpenedGameTime = gameTime;
     }
 
     public boolean wasJustOpened(long gameTime, long thresholdTicks) {
+        DevLogger.logMethodEntry(this, "wasJustOpened", 
+            "gameTime=" + gameTime + ", thresholdTicks=" + thresholdTicks);
         // If lastOpenedGameTime is 0, it means it was never marked as opened, so it wasn't just opened
         if (lastOpenedGameTime == 0) {
+            DevLogger.logMethodExit(this, "wasJustOpened", false);
             return false;
         }
         // Check if it was opened within the threshold
-        return (gameTime - lastOpenedGameTime) <= thresholdTicks && (gameTime - lastOpenedGameTime) >= 0;
+        boolean result = (gameTime - lastOpenedGameTime) <= thresholdTicks && (gameTime - lastOpenedGameTime) >= 0;
+        DevLogger.logReturnValue(this, "wasJustOpened", result);
+        return result;
     }
     
     @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-    
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = saveWithFullMetadata(registries);
+    protected void saveCustomDataToTag(CompoundTag tag, HolderLookup.Provider registries) {
+        DevLogger.logDataOperation(this, "saveCustomDataToTag", "SAVE", 
+            "pos=" + DevLogger.formatPos(worldPosition) + 
+            ", hasDimensionData=" + (dimensionData != null));
         if (dimensionData != null) {
             tag.put("dimensionData", PocketDimensionData.PocketDimensionComponent.CODEC.encodeStart(
                 NbtOps.INSTANCE, dimensionData).result().orElse(new CompoundTag()));
+            DevLogger.logDebug(this, "saveCustomDataToTag", 
+                "Saved dimension data, dimensionId=" + dimensionData.dimensionId());
         }
-        return tag;
     }
     
     @Override
-    protected void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
+    protected void loadCustomDataFromInput(ValueInput input) {
+        DevLogger.logDataOperation(this, "loadCustomDataFromInput", "LOAD", 
+            "pos=" + DevLogger.formatPos(worldPosition));
         this.dimensionData = input.read("dimensionData", PocketDimensionData.PocketDimensionComponent.CODEC)
             .orElse(null);
+        if (dimensionData != null) {
+            DevLogger.logDebug(this, "loadCustomDataFromInput", 
+                "Loaded dimension data, dimensionId=" + dimensionData.dimensionId());
+        }
         // Restore lastOpenState from saved data, or sync with current block state
         boolean savedState = input.getBooleanOr("lastOpenState", false);
         // Sync with current block state if available (more reliable than saved state)
@@ -107,11 +124,15 @@ public class NewtsCaseBlockEntity extends BlockEntity implements GeoBlockEntity 
         } else {
             this.lastOpenState = savedState;
         }
+        DevLogger.logStateChange(this, "loadCustomDataFromInput", 
+            "Restored lastOpenState=" + lastOpenState);
     }
     
     @Override
-    protected void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
+    protected void saveCustomDataToOutput(ValueOutput output) {
+        DevLogger.logDataOperation(this, "saveCustomDataToOutput", "SAVE", 
+            "pos=" + DevLogger.formatPos(worldPosition) + 
+            ", hasDimensionData=" + (dimensionData != null));
         if (dimensionData != null) {
             output.store("dimensionData", PocketDimensionData.PocketDimensionComponent.CODEC, dimensionData);
         }
@@ -127,7 +148,7 @@ public class NewtsCaseBlockEntity extends BlockEntity implements GeoBlockEntity 
     }
 
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+    protected void setupAnimations(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>("state", 0, state -> {
             BlockState blockState = null;
             
@@ -171,17 +192,10 @@ public class NewtsCaseBlockEntity extends BlockEntity implements GeoBlockEntity 
             }
         }
     }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.cache;
-    }
     
-    /**
-     * Creates an ItemStack from this BlockEntity with preserved dimension data.
-     */
+    @Override
     public ItemStack getItemStack() {
-        ItemStack stack = new ItemStack(getBlockState().getBlock().asItem());
+        ItemStack stack = super.getItemStack();
         PocketDimensionData.PocketDimensionComponent data = getDimensionData();
         stack.set(PocketDimensionData.POCKET_DIMENSION.get(), data);
         return stack;

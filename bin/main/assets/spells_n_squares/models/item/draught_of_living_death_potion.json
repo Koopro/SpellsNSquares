@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "spells_n_squares:item/draught_of_living_death_potion"
-  }
-}

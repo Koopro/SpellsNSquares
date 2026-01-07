@@ -1,8 +1,8 @@
 package at.koopro.spells_n_squares.core.registry.addon;
 
 import at.koopro.spells_n_squares.core.api.ISpellRegistry;
-import at.koopro.spells_n_squares.core.util.AddonRegistryUtils;
-import at.koopro.spells_n_squares.features.spell.Spell;
+import at.koopro.spells_n_squares.core.util.registry.AddonRegistryUtils;
+import at.koopro.spells_n_squares.features.spell.base.Spell;
 import net.minecraft.resources.Identifier;
 
 /**

@@ -2,15 +2,14 @@ package at.koopro.spells_n_squares.features.fx.handler;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.config.Config;
+import at.koopro.spells_n_squares.core.fx.ParticlePool;
 import at.koopro.spells_n_squares.core.fx.FXConfigHelper;
 import at.koopro.spells_n_squares.core.registry.ModTags;
-import at.koopro.spells_n_squares.core.util.EventUtils;
-import at.koopro.spells_n_squares.core.util.PlayerItemUtils;
-import at.koopro.spells_n_squares.core.util.SafeEventHandler;
-import at.koopro.spells_n_squares.features.robes.House;
-import at.koopro.spells_n_squares.features.robes.HouseRobeBonusHandler;
-import at.koopro.spells_n_squares.features.wand.WandCore;
-import at.koopro.spells_n_squares.features.wand.WandVisualEffects;
+import at.koopro.spells_n_squares.core.util.event.EventUtils;
+import at.koopro.spells_n_squares.core.util.player.PlayerItemUtils;
+import at.koopro.spells_n_squares.core.util.event.SafeEventHandler;
+import at.koopro.spells_n_squares.features.wand.registry.WandCore;
+import at.koopro.spells_n_squares.features.wand.visual.WandVisualEffects;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -50,48 +49,9 @@ public class EnvironmentalEffectHandler {
                     WandVisualEffects.spawnWandAura(serverLevel, player, wand);
                 }
                 
-                // House robe aura
-                House houseSet = HouseRobeBonusHandler.getWornHouseSet(player);
-                if (houseSet != null) {
-                    spawnHouseRobeAura(serverLevel, player, houseSet);
-                }
+                // House robe aura removed
             }
         }, "spawning environmental effects", player);
-    }
-    
-    /**
-     * Spawns aura particles around players wearing house robes.
-     */
-    private static void spawnHouseRobeAura(ServerLevel level, Player player, House house) {
-        int auraCount = FXConfigHelper.calculateParticleCount(3);
-        
-        net.minecraft.core.particles.ParticleOptions particle = switch (house) {
-            case GRYFFINDOR -> ParticleTypes.FLAME; // Red/gold
-            case SLYTHERIN -> ParticleTypes.ELECTRIC_SPARK; // Green/silver
-            case HUFFLEPUFF -> ParticleTypes.END_ROD; // Yellow/black
-            case RAVENCLAW -> ParticleTypes.ENCHANT; // Blue/bronze
-        };
-        
-        Vec3 pos = player.position().add(0, player.getBbHeight() / 2, 0);
-        
-        for (int i = 0; i < auraCount; i++) {
-            double angle = level.getRandom().nextDouble() * Math.PI * 2;
-            double radius = 0.4 + level.getRandom().nextDouble() * 0.3;
-            double x = pos.x + Math.cos(angle) * radius;
-            double y = pos.y + (level.getRandom().nextDouble() - 0.5) * 0.3;
-            double z = pos.z + Math.sin(angle) * radius;
-            
-            Vec3 particlePos = new Vec3(x, y, z);
-            if (FXConfigHelper.shouldRenderParticles(player, particlePos)) {
-                level.sendParticles(
-                    particle,
-                    x, y, z,
-                    1,
-                    0.0, 0.0, 0.0,
-                    0.0
-                );
-            }
-        }
     }
     
     /**
@@ -112,9 +72,10 @@ public class EnvironmentalEffectHandler {
             case UNICORN_HAIR -> ParticleTypes.ELECTRIC_SPARK;
         };
         
-        level.sendParticles(
+        ParticlePool.queueParticle(
+            level,
             particle,
-            position.x, position.y, position.z,
+            position,
             residueCount,
             0.2, 0.2, 0.2,
             0.01

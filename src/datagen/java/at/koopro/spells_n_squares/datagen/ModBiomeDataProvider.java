@@ -5,8 +5,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.world.level.biome.Biome;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 
 import java.util.Set;
@@ -29,6 +27,13 @@ public class ModBiomeDataProvider extends DatapackBuiltinEntriesProvider {
         return "Spells N Squares Biomes";
     }
 }
+
+
+
+
+
+
+
 
 
 

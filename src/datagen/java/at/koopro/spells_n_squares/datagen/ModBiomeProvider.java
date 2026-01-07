@@ -6,13 +6,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.data.worldgen.biome.BiomeData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.*;
-import net.minecraft.world.level.levelgen.GenerationStep;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Generates biome data files for all magical biomes.

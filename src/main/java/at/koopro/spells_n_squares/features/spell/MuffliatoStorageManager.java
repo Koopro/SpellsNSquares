@@ -1,11 +1,15 @@
 package at.koopro.spells_n_squares.features.spell;
 
+import at.koopro.spells_n_squares.core.util.math.MathUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,7 +52,7 @@ public final class MuffliatoStorageManager {
          * Checks if a position is within this muffling area.
          */
         public boolean contains(Vec3 pos) {
-            return center.distanceTo(pos) <= radius;
+            return MathUtils.distance(center, pos) <= radius;
         }
         
         /**

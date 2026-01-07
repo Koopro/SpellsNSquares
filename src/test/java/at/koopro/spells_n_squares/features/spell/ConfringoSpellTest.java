@@ -1,6 +1,7 @@
 package at.koopro.spells_n_squares.features.spell;
 
 import at.koopro.spells_n_squares.core.config.Config;
+import at.koopro.spells_n_squares.features.spell.combat.ConfringoSpell;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

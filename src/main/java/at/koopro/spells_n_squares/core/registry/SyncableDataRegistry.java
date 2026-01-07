@@ -1,7 +1,7 @@
 package at.koopro.spells_n_squares.core.registry;
 
 import at.koopro.spells_n_squares.core.data.SyncableDataComponent;
-import at.koopro.spells_n_squares.core.util.PlayerDataSyncUtils;
+import at.koopro.spells_n_squares.core.util.player.PlayerDataSyncUtils;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;

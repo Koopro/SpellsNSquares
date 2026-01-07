@@ -1,8 +1,10 @@
 package at.koopro.spells_n_squares.features.storage;
 
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
+import at.koopro.spells_n_squares.core.fx.ParticlePool;
+import at.koopro.spells_n_squares.core.util.collection.CollectionFactory;
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
 import at.koopro.spells_n_squares.features.storage.block.NewtsCaseBlock;
-import at.koopro.spells_n_squares.features.storage.block.NewtsCaseBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
@@ -22,7 +24,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,20 +35,17 @@ public final class PocketDimensionManager {
     private PocketDimensionManager() {
     }
     
-    // Map of item UUID to dimension key
-    private static final Map<UUID, ResourceKey<Level>> dimensionRegistry = new HashMap<>();
-    
     // Shared pocket dimension key (we'll use one dimension with different areas per item)
     private static ResourceKey<Level> SHARED_POCKET_DIMENSION;
     
     // Map of player UUID to their entry data (dimension key, entry position, spawn position)
-    private static final Map<UUID, PlayerEntryData> playerEntryMap = new HashMap<>();
+    private static final Map<UUID, PlayerEntryData> playerEntryMap = CollectionFactory.createMap();
     
     // Track which dimensions have had their structure loaded
-    private static final Map<UUID, Boolean> structureLoadedMap = new HashMap<>();
+    private static final Map<UUID, Boolean> structureLoadedMap = CollectionFactory.createMap();
     
     // Track last message time per player to prevent spam (cooldown: 3 seconds = 60 ticks)
-    private static final Map<UUID, Long> lastMessageTime = new HashMap<>();
+    private static final Map<UUID, Long> lastMessageTime = CollectionFactory.createMap();
     private static final long MESSAGE_COOLDOWN_TICKS = 60;
     
     /**
@@ -55,14 +53,23 @@ public final class PocketDimensionManager {
      */
     private static void teleportPlayerOut(ServerPlayer player, ServerLevel pocketLevel, 
                                          ServerLevel targetLevel, BlockPos targetPos) {
+        DevLogger.logMethodEntry(PocketDimensionManager.class, "teleportPlayerOut", 
+            "player=" + (player != null ? player.getName().getString() : "null") +
+            ", targetPos=" + DevLogger.formatPos(targetPos));
         // Visual effect at origin (pocket dimension)
         Vec3 origin = player.position();
-        pocketLevel.sendParticles(ParticleTypes.PORTAL,
-            origin.x, origin.y, origin.z,
-            30, 0.5, 0.5, 0.5, 0.1);
-        pocketLevel.sendParticles(ParticleTypes.END_ROD,
-            origin.x, origin.y, origin.z,
-            20, 0.3, 0.3, 0.3, 0.05);
+        ParticlePool.queueParticle(
+            pocketLevel,
+            ParticleTypes.PORTAL,
+            origin,
+            30, 0.5, 0.5, 0.5, 0.1
+        );
+        ParticlePool.queueParticle(
+            pocketLevel,
+            ParticleTypes.END_ROD,
+            origin,
+            20, 0.3, 0.3, 0.3, 0.05
+        );
         
         pocketLevel.playSound(null, origin.x, origin.y, origin.z,
             SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
@@ -70,12 +77,12 @@ public final class PocketDimensionManager {
         // Find safe teleport position (above the target, on solid ground)
         BlockPos safePos = targetPos;
         if (!targetLevel.getBlockState(targetPos).isAir() || 
-            !targetLevel.getBlockState(targetPos.below()).isSolid()) {
+            !targetLevel.getBlockState(targetPos.below()).canOcclude()) {
             // Find a safe spot above
             for (int y = 1; y <= 5; y++) {
                 BlockPos testPos = targetPos.offset(0, y, 0);
                 if (targetLevel.getBlockState(testPos).isAir() && 
-                    targetLevel.getBlockState(testPos.below()).isSolid()) {
+                    targetLevel.getBlockState(testPos.below()).canOcclude()) {
                     safePos = testPos;
                     break;
                 }
@@ -83,23 +90,32 @@ public final class PocketDimensionManager {
         }
         
         // Teleport back
+        DevLogger.logStateChange(PocketDimensionManager.class, "teleportPlayerOut", 
+            "Teleporting player to safePos=" + DevLogger.formatPos(safePos));
         player.teleportTo(targetLevel, safePos.getX() + 0.5, safePos.getY(), safePos.getZ() + 0.5,
             java.util.Set.of(), player.getYRot(), player.getXRot(), false);
         
         // Visual effect at destination
         Vec3 dest = Vec3.atCenterOf(safePos);
-        targetLevel.sendParticles(ParticleTypes.PORTAL,
-            dest.x, dest.y, dest.z,
-            30, 0.5, 0.5, 0.5, 0.1);
-        targetLevel.sendParticles(ParticleTypes.END_ROD,
-            dest.x, dest.y, dest.z,
-            20, 0.3, 0.3, 0.3, 0.05);
+        ParticlePool.queueParticle(
+            targetLevel,
+            ParticleTypes.PORTAL,
+            dest,
+            30, 0.5, 0.5, 0.5, 0.1
+        );
+        ParticlePool.queueParticle(
+            targetLevel,
+            ParticleTypes.END_ROD,
+            dest,
+            20, 0.3, 0.3, 0.3, 0.05
+        );
         
         targetLevel.playSound(null, dest.x, dest.y, dest.z,
             SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
         
         // Clear entry data
         clearPlayerEntry(player);
+        DevLogger.logMethodExit(PocketDimensionManager.class, "teleportPlayerOut");
     }
 
     private static final String ENTRY_DATA_TAG = "spells_n_squares_pocket_entry";
@@ -122,14 +138,18 @@ public final class PocketDimensionManager {
      * Initializes the pocket dimension system.
      */
     public static void initialize(MinecraftServer server) {
+        DevLogger.logMethodEntry(PocketDimensionManager.class, "initialize");
         // Create shared pocket dimension key
         SHARED_POCKET_DIMENSION = ResourceKey.create(
             Registries.DIMENSION,
             ModIdentifierHelper.modId("pocket_dimension")
         );
+        DevLogger.logStateChange(PocketDimensionManager.class, "initialize", 
+            "Created shared pocket dimension key: " + SHARED_POCKET_DIMENSION);
         
         // Ensure the dimension exists
         ensureDimensionExists(server);
+        DevLogger.logMethodExit(PocketDimensionManager.class, "initialize");
     }
     
     /**
@@ -204,13 +224,22 @@ public final class PocketDimensionManager {
      * The dimension should be automatically loaded from data packs.
      */
     public static ServerLevel getOrCreateDimension(MinecraftServer server, ResourceKey<Level> dimensionKey) {
+        DevLogger.logMethodEntry(PocketDimensionManager.class, "getOrCreateDimension", 
+            "dimensionKey=" + (dimensionKey != null ? dimensionKey.toString() : "null"));
         ServerLevel level = server.getLevel(dimensionKey);
         if (level == null) {
             // Dimension should be loaded from data pack, but if it's not available,
             // it might not be registered. Log a warning.
             com.mojang.logging.LogUtils.getLogger().warn(
                 "Pocket dimension not found. Ensure dimension data pack is loaded.");
+            DevLogger.logWarn(PocketDimensionManager.class, "getOrCreateDimension", 
+                "Dimension not found: " + dimensionKey);
+        } else {
+            DevLogger.logDebug(PocketDimensionManager.class, "getOrCreateDimension", 
+                "Dimension found: " + dimensionKey);
         }
+        DevLogger.logMethodExit(PocketDimensionManager.class, "getOrCreateDimension", 
+            level != null ? "level" : "null");
         return level;
     }
     
@@ -269,7 +298,13 @@ public final class PocketDimensionManager {
      * Initializes a Newt's Case dimension with a specific upgrade level.
      */
     public static BlockPos initializeNewtsCaseDimension(ServerLevel level, UUID dimensionId, int upgradeLevel) {
+        DevLogger.logMethodEntry(PocketDimensionManager.class, "initializeNewtsCaseDimension", 
+            "dimensionId=" + dimensionId + ", upgradeLevel=" + upgradeLevel);
+        
         if (level == null) {
+            DevLogger.logWarn(PocketDimensionManager.class, "initializeNewtsCaseDimension", "Level is null");
+            DevLogger.logMethodExit(PocketDimensionManager.class, "initializeNewtsCaseDimension", 
+                new BlockPos(0, 64, 0));
             return new BlockPos(0, 64, 0);
         }
         
@@ -277,23 +312,38 @@ public final class PocketDimensionManager {
         // Note: Upgrades will require structure regeneration, so we check upgrade level too
         if (structureLoadedMap.containsKey(dimensionId) && upgradeLevel == 0) {
             // Structure already loaded at base level, return spawn position
-            return getSpawnPosition(dimensionId, 32);
+            BlockPos spawnPos = getSpawnPosition(dimensionId, 32);
+            DevLogger.logDebug(PocketDimensionManager.class, "initializeNewtsCaseDimension", 
+                "Structure already loaded, returning existing spawn position");
+            DevLogger.logMethodExit(PocketDimensionManager.class, "initializeNewtsCaseDimension", spawnPos);
+            return spawnPos;
         }
         
         // Get spawn position (size increases with upgrade level)
         int baseSize = 32;
         int currentSize = baseSize + (upgradeLevel * 8);
         BlockPos spawnPos = getSpawnPosition(dimensionId, currentSize);
+        DevLogger.logParameter(PocketDimensionManager.class, "initializeNewtsCaseDimension", 
+            "spawnPos", DevLogger.formatPos(spawnPos));
+        DevLogger.logParameter(PocketDimensionManager.class, "initializeNewtsCaseDimension", 
+            "currentSize", currentSize);
         
         // Load and place structure
         if (loadStructureSchematic(level, spawnPos)) {
             structureLoadedMap.put(dimensionId, true);
+            DevLogger.logStateChange(PocketDimensionManager.class, "initializeNewtsCaseDimension", 
+                "Structure loaded from schematic, dimensionId=" + dimensionId);
         } else {
             // If structure loading failed, create a code-generated structure with ladder exit
+            DevLogger.logDebug(PocketDimensionManager.class, "initializeNewtsCaseDimension", 
+                "Structure schematic not found, generating code-based structure");
             generateNewtsCaseStructure(level, spawnPos, upgradeLevel);
             structureLoadedMap.put(dimensionId, true);
+            DevLogger.logStateChange(PocketDimensionManager.class, "initializeNewtsCaseDimension", 
+                "Generated code-based structure, dimensionId=" + dimensionId);
         }
         
+        DevLogger.logMethodExit(PocketDimensionManager.class, "initializeNewtsCaseDimension", spawnPos);
         return spawnPos;
     }
     
@@ -499,23 +549,41 @@ public final class PocketDimensionManager {
      */
     public static void storePlayerEntry(ServerPlayer player, ResourceKey<Level> entryDimension,
                                         BlockPos entryPosition, BlockPos spawnPosition, UUID dimensionId) {
+        DevLogger.logMethodEntry(PocketDimensionManager.class, "storePlayerEntry", 
+            "player=" + (player != null ? player.getName().getString() : "null") +
+            ", entryPos=" + DevLogger.formatPos(entryPosition) +
+            ", spawnPos=" + DevLogger.formatPos(spawnPosition) +
+            ", dimensionId=" + dimensionId);
         storePlayerEntry(player.getUUID(), entryDimension, entryPosition, spawnPosition, dimensionId);
         savePersistentEntry(player, entryDimension, entryPosition, spawnPosition, dimensionId);
+        DevLogger.logStateChange(PocketDimensionManager.class, "storePlayerEntry", 
+            "Stored player entry data for " + (player != null ? player.getName().getString() : "null"));
+        DevLogger.logMethodExit(PocketDimensionManager.class, "storePlayerEntry");
     }
     
     /**
      * Removes player entry data when they exit.
      */
     public static void clearPlayerEntry(UUID playerUuid) {
+        DevLogger.logMethodEntry(PocketDimensionManager.class, "clearPlayerEntry", 
+            "playerUuid=" + playerUuid);
         playerEntryMap.remove(playerUuid);
+        DevLogger.logStateChange(PocketDimensionManager.class, "clearPlayerEntry", 
+            "Cleared entry data for player " + playerUuid);
+        DevLogger.logMethodExit(PocketDimensionManager.class, "clearPlayerEntry");
     }
 
     /**
      * Removes player entry data and clears persistent storage.
      */
     public static void clearPlayerEntry(ServerPlayer player) {
+        DevLogger.logMethodEntry(PocketDimensionManager.class, "clearPlayerEntry", 
+            "player=" + (player != null ? player.getName().getString() : "null"));
         clearPlayerEntry(player.getUUID());
         player.getPersistentData().remove(ENTRY_DATA_TAG);
+        DevLogger.logStateChange(PocketDimensionManager.class, "clearPlayerEntry", 
+            "Cleared entry data and persistent storage for " + (player != null ? player.getName().getString() : "null"));
+        DevLogger.logMethodExit(PocketDimensionManager.class, "clearPlayerEntry");
     }
 
     private static void savePersistentEntry(ServerPlayer player, ResourceKey<Level> entryDimension,
@@ -593,7 +661,6 @@ public final class PocketDimensionManager {
             
             // Check if the case block exists at entry position
             BlockState caseState = targetLevel.getBlockState(entryPos);
-            BlockPos casePos = entryPos;
             boolean caseExists = caseState.getBlock() instanceof NewtsCaseBlock;
             
             if (!caseExists) {
@@ -602,7 +669,7 @@ public final class PocketDimensionManager {
                     BlockPos checkPos = entryPos.offset(0, yOffset, 0);
                     BlockState checkState = targetLevel.getBlockState(checkPos);
                     if (checkState.getBlock() instanceof NewtsCaseBlock) {
-                        casePos = checkPos;
+                        // Found the case at checkPos
                         caseState = checkState;
                         caseExists = true;
                         break;
@@ -620,14 +687,14 @@ public final class PocketDimensionManager {
                     for (int y = 1; y <= 5; y++) {
                         BlockPos testPos = entryPos.offset(0, y, 0);
                         if (targetLevel.getBlockState(testPos).isAir() && 
-                            targetLevel.getBlockState(testPos.below()).isSolid()) {
+                            targetLevel.getBlockState(testPos.below()).canOcclude()) {
                             safePos = testPos;
                             break;
                         }
                     }
                 }
                 
-                player.sendSystemMessage(Component.literal("§eWarning: Case block not found. Exiting to safe location."));
+                player.sendSystemMessage(at.koopro.spells_n_squares.core.util.rendering.ColorUtils.coloredText("Warning: Case block not found. Exiting to safe location.", at.koopro.spells_n_squares.core.util.rendering.ColorUtils.SPELL_GOLD));
                 teleportPlayerOut(player, level, targetLevel, safePos);
                 return;
             }
@@ -642,7 +709,7 @@ public final class PocketDimensionManager {
                 Long lastMessage = lastMessageTime.get(playerUuid);
                 
                 if (lastMessage == null || (currentTick - lastMessage) >= MESSAGE_COOLDOWN_TICKS) {
-                    player.sendSystemMessage(Component.literal("§eWarning: The case is closed, but allowing exit to prevent trapping."));
+                    player.sendSystemMessage(at.koopro.spells_n_squares.core.util.rendering.ColorUtils.coloredText("Warning: The case is closed, but allowing exit to prevent trapping.", at.koopro.spells_n_squares.core.util.rendering.ColorUtils.SPELL_GOLD));
                     lastMessageTime.put(playerUuid, currentTick);
                 }
                 // Continue with exit - don't trap the player
@@ -650,12 +717,18 @@ public final class PocketDimensionManager {
             
             // Visual effect at origin (pocket dimension)
             Vec3 origin = player.position();
-            level.sendParticles(ParticleTypes.PORTAL,
-                origin.x, origin.y, origin.z,
-                30, 0.5, 0.5, 0.5, 0.1);
-            level.sendParticles(ParticleTypes.END_ROD,
-                origin.x, origin.y, origin.z,
-                20, 0.3, 0.3, 0.3, 0.05);
+            ParticlePool.queueParticle(
+                level,
+                ParticleTypes.PORTAL,
+                origin,
+                30, 0.5, 0.5, 0.5, 0.1
+            );
+            ParticlePool.queueParticle(
+                level,
+                ParticleTypes.END_ROD,
+                origin,
+                20, 0.3, 0.3, 0.3, 0.05
+            );
             
             level.playSound(null, origin.x, origin.y, origin.z,
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
@@ -666,12 +739,18 @@ public final class PocketDimensionManager {
             
             // Visual effect at destination
             Vec3 dest = Vec3.atCenterOf(entryPos);
-            targetLevel.sendParticles(ParticleTypes.PORTAL,
-                dest.x, dest.y, dest.z,
-                30, 0.5, 0.5, 0.5, 0.1);
-            targetLevel.sendParticles(ParticleTypes.END_ROD,
-                dest.x, dest.y, dest.z,
-                20, 0.3, 0.3, 0.3, 0.05);
+            ParticlePool.queueParticle(
+                targetLevel,
+                ParticleTypes.PORTAL,
+                dest,
+                30, 0.5, 0.5, 0.5, 0.1
+            );
+            ParticlePool.queueParticle(
+                targetLevel,
+                ParticleTypes.END_ROD,
+                dest,
+                20, 0.3, 0.3, 0.3, 0.05
+            );
             
             targetLevel.playSound(null, dest.x, dest.y, dest.z,
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);

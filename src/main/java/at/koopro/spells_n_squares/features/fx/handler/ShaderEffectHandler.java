@@ -2,7 +2,7 @@ package at.koopro.spells_n_squares.features.fx.handler;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.config.Config;
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
 import at.koopro.spells_n_squares.features.fx.ScreenEffectManager;
 import at.koopro.spells_n_squares.features.fx.system.PostProcessingManager;
 import net.minecraft.client.Minecraft;
@@ -296,26 +296,17 @@ public class ShaderEffectHandler {
      * Uses proper post-processing shader if available, otherwise falls back to overlay.
      */
     public static void triggerInvertedColors(float intensity) {
-        // Try post-processing shader first
-        if (areShadersAvailable()) {
-            // Convert Identifier to the type PostProcessingManager expects
-            Identifier postShaderId = PostProcessingManager.INVERTED_COLORS_POST_SHADER;
-            if (PostProcessingManager.isPostProcessingShaderAvailable(postShaderId)) {
-                PostProcessingManager.addEffect(
-                    postShaderId,
-                    intensity,
-                    30 // Duration in ticks
-                );
-                return;
-            }
-        }
-        
-        // Fallback: Full-screen inverted overlay
-        float opacity = Math.min(1.0f, intensity * 0.8f);
-        ScreenEffectManager.triggerOverlay(0xFFFFFFFF, opacity, 30, 
-            ScreenEffectManager.ScreenOverlay.OverlayType.FLASH);
-        // Also add a shake for disorientation
-        ScreenEffectManager.triggerShake(0.02f * intensity, 15);
+        ShaderEffectHelper.triggerPostProcessingShaderWithShake(
+            PostProcessingManager.INVERTED_COLORS_POST_SHADER,
+            intensity,
+            30,
+            0xFFFFFFFF,
+            0.8f,
+            30,
+            ScreenEffectManager.ScreenOverlay.OverlayType.FLASH,
+            0.02f,
+            15
+        );
     }
 
     /**
@@ -375,24 +366,17 @@ public class ShaderEffectHandler {
      * Uses proper post-processing shader if available, otherwise falls back to overlay.
      */
     public static void triggerChromaticAberration(float intensity) {
-        // Try post-processing shader first
-        if (areShadersAvailable()) {
-            Identifier postShaderId = PostProcessingManager.CHROMATIC_ABERRATION_POST_SHADER;
-            if (PostProcessingManager.isPostProcessingShaderAvailable(postShaderId)) {
-                PostProcessingManager.addEffect(
-                    postShaderId,
-                    intensity,
-                    25 // Duration in ticks
-                );
-                return;
-            }
-        }
-        
-        // Fallback: Red/cyan color separation effect
-        float opacity = Math.min(0.3f, intensity * 0.25f);
-        ScreenEffectManager.triggerOverlay(0xFFFF0000, opacity, 20, 
-            ScreenEffectManager.ScreenOverlay.OverlayType.GLOW);
-        ScreenEffectManager.triggerShake(0.01f * intensity, 10);
+        ShaderEffectHelper.triggerPostProcessingShaderWithShake(
+            PostProcessingManager.CHROMATIC_ABERRATION_POST_SHADER,
+            intensity,
+            25,
+            0xFFFF0000,
+            0.25f,
+            20,
+            ScreenEffectManager.ScreenOverlay.OverlayType.GLOW,
+            0.01f,
+            10
+        );
     }
     
     /**
@@ -400,23 +384,15 @@ public class ShaderEffectHandler {
      * Uses proper post-processing shader if available, otherwise falls back to overlay.
      */
     public static void triggerSepia(float intensity) {
-        // Try post-processing shader first
-        if (areShadersAvailable()) {
-            Identifier postShaderId = PostProcessingManager.SEPIA_POST_SHADER;
-            if (PostProcessingManager.isPostProcessingShaderAvailable(postShaderId)) {
-                PostProcessingManager.addEffect(
-                    postShaderId,
-                    intensity,
-                    30 // Duration in ticks
-                );
-                return;
-            }
-        }
-        
-        // Fallback: Brown/sepia overlay
-        float opacity = Math.min(0.35f, intensity * 0.3f);
-        ScreenEffectManager.triggerOverlay(0xFF8B4513, opacity, 30, 
-            ScreenEffectManager.ScreenOverlay.OverlayType.GLOW);
+        ShaderEffectHelper.triggerPostProcessingShader(
+            PostProcessingManager.SEPIA_POST_SHADER,
+            intensity,
+            30,
+            0xFF8B4513,
+            0.3f,
+            30,
+            ScreenEffectManager.ScreenOverlay.OverlayType.GLOW
+        );
     }
     
     /**

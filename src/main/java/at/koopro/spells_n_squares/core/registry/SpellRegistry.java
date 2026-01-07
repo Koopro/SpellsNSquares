@@ -1,7 +1,7 @@
 package at.koopro.spells_n_squares.core.registry;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.features.spell.Spell;
+import at.koopro.spells_n_squares.features.spell.base.Spell;
 import net.minecraft.resources.Identifier;
 
 import java.util.Collections;
@@ -45,16 +45,16 @@ public class SpellRegistry {
     
     /**
      * Gets a spell by its ID string (namespace:path format).
+     * Uses cached identifier parsing for better performance.
      * @param idString The spell ID as a string
      * @return The spell, or null if not found
      */
     public static Spell get(String idString) {
-        try {
-            Identifier id = Identifier.parse(idString);
-            return get(id);
-        } catch (Exception e) {
+        Identifier id = at.koopro.spells_n_squares.core.util.registry.RegistryHelper.parseIdentifierCached(idString);
+        if (id == null) {
             return null;
         }
+        return get(id);
     }
     
     /**

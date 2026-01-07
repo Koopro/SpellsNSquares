@@ -1,11 +1,9 @@
 package at.koopro.spells_n_squares.mixin.client;
 
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -31,26 +29,30 @@ public class LocalPlayerMixin {
     
     /**
      * Modify movement for visual spell effects on client.
+     * NOTE: The @ModifyVariable injection cannot find a matching Vec3 variable at the specified location.
+     * Commented out until the correct variable location is determined in LocalPlayer.tick().
      */
-    @ModifyVariable(method = "tick", at = @At(value = "STORE", ordinal = 0))
-    private Vec3 modifyClientMovement(Vec3 original) {
-        // Client-side movement modifications for spell effects
-        // Example: if (hasLevitationEffect(self)) {
-        //     return original.add(0, 0.05, 0);
-        // }
-        
-        return original;
-    }
+    // @ModifyVariable(method = "tick", at = @At(value = "STORE", ordinal = 0))
+    // private Vec3 modifyClientMovement(Vec3 original) {
+    //     // Client-side movement modifications for spell effects
+    //     // Example: if (hasLevitationEffect(self)) {
+    //     //     return original.add(0, 0.05, 0);
+    //     // }
+    //     
+    //     return original;
+    // }
     
     /**
      * Inject into handleNetInput() to add custom input handling for spell casting.
+     * NOTE: LocalPlayer.handleNetInput() may not exist or have a different signature.
+     * Commented out until proper method signature is determined.
      */
-    @Inject(method = "handleNetInput", at = @At("HEAD"))
-    private void onHandleNetInput(net.minecraft.network.protocol.game.ServerboundPlayerInputPacket packet, CallbackInfo ci) {
-        // Custom input handling for spell casting gestures
-        // Example: if (isSpellGesture(packet)) {
-        //     handleSpellGestureInput(packet);
-        // }
-    }
+    // @Inject(method = "handleNetInput", at = @At("HEAD"))
+    // private void onHandleNetInput(net.minecraft.network.protocol.game.ServerboundPlayerInputPacket packet, CallbackInfo ci) {
+    //     // Custom input handling for spell casting gestures
+    //     // Example: if (isSpellGesture(packet)) {
+    //     //     handleSpellGestureInput(packet);
+    //     // }
+    // }
 }
 

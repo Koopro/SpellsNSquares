@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.registry.addon;
 
-import at.koopro.spells_n_squares.core.util.AddonRegistryUtils;
+import at.koopro.spells_n_squares.core.util.registry.AddonRegistryUtils;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredRegister;

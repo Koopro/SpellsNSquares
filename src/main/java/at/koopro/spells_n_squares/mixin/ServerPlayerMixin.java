@@ -22,12 +22,12 @@ public class ServerPlayerMixin {
         ServerPlayer self = (ServerPlayer) (Object) this;
         
         // Update spell cooldowns (SpellManager handles this, but we ensure it's called)
-        at.koopro.spells_n_squares.features.spell.SpellManager.tickCooldowns(self);
+        at.koopro.spells_n_squares.features.spell.manager.SpellManager.tickCooldowns(self);
         
         // Track active hold-to-cast spells
         // SpellManager already tracks this, but we can add additional monitoring here
         net.minecraft.resources.Identifier activeHoldSpell = 
-            at.koopro.spells_n_squares.features.spell.SpellManager.getActiveHoldSpell(self);
+            at.koopro.spells_n_squares.features.spell.manager.SpellManager.getActiveHoldSpell(self);
         if (activeHoldSpell != null) {
             // Player is holding a spell - we can add additional tracking here
             // Example: updateHoldSpellEffects(self, activeHoldSpell);
@@ -37,32 +37,33 @@ public class ServerPlayerMixin {
     /**
      * Hook into teleportation to integrate with apparition system.
      * Allows custom teleportation handling for apparition spells.
+     * NOTE: The teleportTo() method with this signature may not exist in ServerPlayer.
+     * Commented out until the correct method signature is determined.
      */
-    @Inject(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDFF)V", at = @At("HEAD"))
-    private void onTeleportTo(net.minecraft.server.level.ServerLevel level, double x, double y, double z, 
-                              float yRot, float xRot, CallbackInfo ci) {
-        // Check if this is an apparition teleportation
-        // This can be tracked via a flag or data component
-        // Example: if (isApparating(self)) { spawnApparitionEffects(self, new Vec3(x, y, z)); }
-        
-        // For now, let normal teleportation proceed
-    }
+    // @Inject(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDFF)V", at = @At("HEAD"))
+    // private void onTeleportTo(net.minecraft.server.level.ServerLevel level, double x, double y, double z, 
+    //                           float yRot, float xRot, CallbackInfo ci) {
+    //     // Check if this is an apparition teleportation
+    //     // This can be tracked via a flag or data component
+    //     // Example: if (isApparating(self)) { spawnApparitionEffects(self, new Vec3(x, y, z)); }
+    //     
+    //     // For now, let normal teleportation proceed
+    // }
     
     /**
      * Modify player capabilities dynamically based on spell effects.
      * Allows spells to grant temporary abilities like flight or enhanced movement.
+     * NOTE: The target method Player.tick() may not exist or have a different signature.
+     * Commented out until the correct method signature is determined.
      */
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;tick()V", shift = At.Shift.AFTER))
-    private void updateDynamicAbilities(CallbackInfo ci) {
-        ServerPlayer self = (ServerPlayer) (Object) this;
-        
-        // Update player abilities based on active spell effects
-        // Example: if (hasSpellEffect(self, "flight")) { self.getAbilities().setMayFly(true); }
-        
-        // Check for broomstick flight
-        if (self.getVehicle() instanceof at.koopro.spells_n_squares.features.transportation.BroomEntity) {
-            // Broom flight is handled by BroomEntity, but we can add additional ability modifications here
-        }
-    }
+    // @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;tick()V", shift = At.Shift.AFTER))
+    // private void updateDynamicAbilities(CallbackInfo ci) {
+    //     ServerPlayer self = (ServerPlayer) (Object) this;
+    //     
+    //     // Update player abilities based on active spell effects
+    //     // Example: if (hasSpellEffect(self, "flight")) { self.getAbilities().setMayFly(true); }
+    //     
+    //     // BroomEntity removed - transportation feature removed
+    // }
 }
 

@@ -39,9 +39,14 @@ public final class ScreenEffectConstants {
     
     // Camera shake parameters
     /** Scale factor to convert pixel offset to camera angle offset */
-    public static final float CAMERA_SHAKE_SCALE = 0.1f;
+    /** Increased from 0.1f to 0.15f for more noticeable shake effect */
+    public static final float CAMERA_SHAKE_SCALE = 0.15f;
     /** Minimum shake offset squared length to apply camera shake */
-    public static final double MIN_SHAKE_LENGTH_SQR = 0.001;
+    public static final double MIN_SHAKE_LENGTH_SQR = 0.0001;
 }
+
+
+
+
 
 

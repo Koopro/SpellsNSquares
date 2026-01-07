@@ -1,14 +1,14 @@
 package at.koopro.spells_n_squares.features.spell.network;
 
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
-import at.koopro.spells_n_squares.features.spell.SpellManager;
+import at.koopro.spells_n_squares.core.util.collection.CollectionFactory;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
+import at.koopro.spells_n_squares.features.spell.manager.SpellManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,10 +27,10 @@ public record SpellSlotsSyncPayload(List<Identifier> slots) implements CustomPac
         ByteBufCodecs.optional(IDENTIFIER_CODEC);
     
     public static final StreamCodec<ByteBuf, SpellSlotsSyncPayload> STREAM_CODEC = StreamCodec.composite(
-        OPTIONAL_IDENTIFIER_CODEC.apply(ByteBufCodecs.collection(ArrayList::new)),
+        OPTIONAL_IDENTIFIER_CODEC.apply(ByteBufCodecs.collection(CollectionFactory::createList)),
         payload -> {
             // Convert List<Optional<Identifier>> to List<Identifier> (nulls become empty optionals)
-            List<Optional<Identifier>> optionalList = new ArrayList<>();
+            List<Optional<Identifier>> optionalList = CollectionFactory.createList();
             for (Identifier id : payload.slots) {
                 optionalList.add(Optional.ofNullable(id));
             }
@@ -38,7 +38,7 @@ public record SpellSlotsSyncPayload(List<Identifier> slots) implements CustomPac
         },
         optionalList -> {
             // Convert List<Optional<Identifier>> back to List<Identifier>
-            List<Identifier> idList = new ArrayList<>();
+            List<Identifier> idList = CollectionFactory.createList();
             for (Optional<Identifier> opt : optionalList) {
                 idList.add(opt.orElse(null));
             }

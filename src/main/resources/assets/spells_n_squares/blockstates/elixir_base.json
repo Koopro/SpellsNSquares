@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "": {
+      "model": "spells_n_squares:block/elixir_base"
+    }
+  }
+}
+

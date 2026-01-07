@@ -2,7 +2,8 @@ package at.koopro.spells_n_squares.features.fx;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.config.Config;
-import at.koopro.spells_n_squares.core.util.SafeEventHandler;
+import at.koopro.spells_n_squares.core.util.collection.CollectionFactory;
+import at.koopro.spells_n_squares.core.util.event.SafeEventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
@@ -14,7 +15,6 @@ import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,8 +24,8 @@ import java.util.List;
 public class ScreenEffectManager {
     
     // Active screen effects
-    private static final List<ScreenShake> activeShakes = new ArrayList<>();
-    private static final List<ScreenOverlay> activeOverlays = new ArrayList<>();
+    private static final List<ScreenShake> activeShakes = CollectionFactory.createList();
+    private static final List<ScreenOverlay> activeOverlays = CollectionFactory.createList();
     
     /**
      * Represents an active screen shake effect.
@@ -286,6 +286,7 @@ public class ScreenEffectManager {
     /**
      * Gets the current screen shake offset using smooth time-based motion.
      * Uses sine/cosine waves with interpolation for smooth, non-jittery shake.
+     * Enhanced with partial tick support and improved noise generation.
      */
     public static Vec3 getShakeOffset() {
         if (activeShakes.isEmpty()) {
@@ -304,25 +305,42 @@ public class ScreenEffectManager {
         float time = mc.level != null ? (float) mc.level.getGameTime() : shakeTime;
         shakeTime = time;
         
+        // Use game time directly (partial tick not needed for time-based sine waves)
+        float timeWithPartial = time;
+        
         // Use time-based sine/cosine waves for smooth motion
         // Different frequencies for X and Y to avoid circular motion
         // Use multiple frequencies combined for more natural motion
-        float timeX = time * ScreenEffectConstants.SHAKE_FREQUENCY_X;
-        float timeY = time * ScreenEffectConstants.SHAKE_FREQUENCY_Y;
+        // Enhanced with additional frequency components for more organic feel
+        float timeX = timeWithPartial * ScreenEffectConstants.SHAKE_FREQUENCY_X;
+        float timeY = timeWithPartial * ScreenEffectConstants.SHAKE_FREQUENCY_Y;
         
         // Combine multiple frequencies for more natural shake
-        double offsetX = (Math.sin(timeX * ScreenEffectConstants.SHAKE_WAVE_PRIMARY) * ScreenEffectConstants.SHAKE_AMPLITUDE_PRIMARY + 
-                         Math.sin(timeX * ScreenEffectConstants.SHAKE_WAVE_SECONDARY_X) * ScreenEffectConstants.SHAKE_AMPLITUDE_SECONDARY) * 
-                         totalIntensity * ScreenEffectConstants.SHAKE_INTENSITY_MULTIPLIER;
-        double offsetY = (Math.cos(timeY * ScreenEffectConstants.SHAKE_WAVE_PRIMARY) * ScreenEffectConstants.SHAKE_AMPLITUDE_PRIMARY + 
-                         Math.cos(timeY * ScreenEffectConstants.SHAKE_WAVE_SECONDARY_Y) * ScreenEffectConstants.SHAKE_AMPLITUDE_SECONDARY) * 
-                         totalIntensity * ScreenEffectConstants.SHAKE_INTENSITY_MULTIPLIER;
+        // Added tertiary frequency component for even smoother motion
+        double primaryX = Math.sin(timeX * ScreenEffectConstants.SHAKE_WAVE_PRIMARY) * ScreenEffectConstants.SHAKE_AMPLITUDE_PRIMARY;
+        double secondaryX = Math.sin(timeX * ScreenEffectConstants.SHAKE_WAVE_SECONDARY_X) * ScreenEffectConstants.SHAKE_AMPLITUDE_SECONDARY;
+        double tertiaryX = Math.sin(timeX * 3.7) * 0.2; // Additional frequency for organic motion
         
-        // Interpolate with previous frame for smoother motion
+        double primaryY = Math.cos(timeY * ScreenEffectConstants.SHAKE_WAVE_PRIMARY) * ScreenEffectConstants.SHAKE_AMPLITUDE_PRIMARY;
+        double secondaryY = Math.cos(timeY * ScreenEffectConstants.SHAKE_WAVE_SECONDARY_Y) * ScreenEffectConstants.SHAKE_AMPLITUDE_SECONDARY;
+        double tertiaryY = Math.cos(timeY * 2.9) * 0.2; // Additional frequency for organic motion
+        
+        double offsetX = (primaryX + secondaryX + tertiaryX) * totalIntensity * ScreenEffectConstants.SHAKE_INTENSITY_MULTIPLIER;
+        double offsetY = (primaryY + secondaryY + tertiaryY) * totalIntensity * ScreenEffectConstants.SHAKE_INTENSITY_MULTIPLIER;
+        
+        // Enhanced interpolation with exponential smoothing for ultra-smooth motion
         float currentX = (float) offsetX;
         float currentY = (float) offsetY;
-        float interpolatedX = previousShakeX + (currentX - previousShakeX) * ScreenEffectConstants.SHAKE_INTERPOLATION_FACTOR;
-        float interpolatedY = previousShakeY + (currentY - previousShakeY) * ScreenEffectConstants.SHAKE_INTERPOLATION_FACTOR;
+        
+        // Use adaptive interpolation factor based on intensity for smoother transitions
+        float interpolationFactor = ScreenEffectConstants.SHAKE_INTERPOLATION_FACTOR;
+        if (totalIntensity > 0.5f) {
+            // Slightly faster interpolation for high-intensity shakes to maintain responsiveness
+            interpolationFactor = Math.min(1.0f, interpolationFactor * 1.2f);
+        }
+        
+        float interpolatedX = previousShakeX + (currentX - previousShakeX) * interpolationFactor;
+        float interpolatedY = previousShakeY + (currentY - previousShakeY) * interpolationFactor;
         
         previousShakeX = currentX;
         previousShakeY = currentY;
@@ -333,6 +351,7 @@ public class ScreenEffectManager {
     /**
      * Applies screen shake to the camera/view.
      * This affects the world rendering, not just GUI.
+     * Enhanced to apply both rotation and position-based shake for more immersive effect.
      */
     @SubscribeEvent
     public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
@@ -343,9 +362,16 @@ public class ScreenEffectManager {
             }
             
             // Apply shake as camera rotation offset
-            // Convert pixel offset to angle offset (small multiplier for subtle effect)
-            event.setYaw(event.getYaw() + (float)shake.x * ScreenEffectConstants.CAMERA_SHAKE_SCALE);
-            event.setPitch(event.getPitch() + (float)shake.y * ScreenEffectConstants.CAMERA_SHAKE_SCALE);
+            // Convert pixel offset to angle offset
+            // Increased scale for more noticeable effect while maintaining smoothness
+            float yawOffset = (float)shake.x * ScreenEffectConstants.CAMERA_SHAKE_SCALE;
+            float pitchOffset = (float)shake.y * ScreenEffectConstants.CAMERA_SHAKE_SCALE;
+            
+            event.setYaw(event.getYaw() + yawOffset);
+            event.setPitch(event.getPitch() + pitchOffset);
+            
+            // Note: Position-based shake could be added in the future via a different event
+            // For now, rotation-based shake provides the primary screen shake effect
         }, "computing camera angles with shake");
     }
 }

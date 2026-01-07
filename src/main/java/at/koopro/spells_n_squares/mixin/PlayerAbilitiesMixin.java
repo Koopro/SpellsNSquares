@@ -1,6 +1,5 @@
 package at.koopro.spells_n_squares.mixin;
 
-import at.koopro.spells_n_squares.features.transportation.BroomEntity;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,27 +22,13 @@ public abstract class PlayerAbilitiesMixin {
      */
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;updatePlayerPose()V", shift = At.Shift.AFTER))
     private void updateSpellBasedAbilities(CallbackInfo ci) {
-        Player self = (Player) (Object) this;
-        net.minecraft.world.entity.player.Abilities abilities = this.getAbilities();
-        
-        // Check if player is riding a broomstick
-        if (self.getVehicle() instanceof BroomEntity) {
-            // Grant flight ability while on broomstick
-            // BroomEntity handles the actual flight mechanics, but we ensure abilities are set correctly
-            if (!abilities.mayfly) {
-                abilities.mayfly = true;
-            }
-            // Set appropriate flying speed for broomstick (default is 0.05f, which is fine)
-            // BroomEntity controls the actual movement, so we just enable flight
-        } else {
-            // When not on broom, check if flight was granted by broomstick
-            // Only disable if it was granted by broomstick (we track this by checking if player was on broom)
-            // For now, let other systems handle flight removal to avoid conflicts
-            // Note: Creative mode and other mods might grant flight, so we don't force-disable it
-        }
+        // BroomEntity removed - transportation feature removed
+        // This mixin is kept for potential future spell-based ability modifications
         
         // Apply spell-based ability modifications
         // Example: Levitation spell could grant flight
+        // Player self = (Player) (Object) this;
+        // net.minecraft.world.entity.player.Abilities abilities = this.getAbilities();
         // if (hasSpellEffect(self, "levitation")) {
         //     abilities.mayfly = true;
         //     abilities.flying = true;

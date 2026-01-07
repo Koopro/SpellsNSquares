@@ -1,0 +1,140 @@
+{
+    "targets": {
+        "swap": {}
+    },
+    "passes": [
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "spells_n_squares:post/unified",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main",
+                    "bilinear": true
+                }
+            ],
+            "output": "swap",
+            "uniforms": {
+                "UnifiedConfig": [
+                    {
+                        "name": "Desat",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "RedTint",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "BlueTint",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "Contrast",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Bright",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Satur",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Invert",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "Chrom",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "Vignette",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "RadBlur",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "Barrel",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "Edge",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "EdgeThk",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "EdgeGlow",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Bloom",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "Blur",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "Sharp",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "ShakeX",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "ShakeY",
+                        "type": "float",
+                        "value": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/blit",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "swap"
+                }
+            ],
+            "uniforms": {
+                "BlitConfig": [
+                    {
+                        "name": "ColorModulate",
+                        "type": "vec4",
+                        "value": [1.0, 1.0, 1.0, 1.0]
+                    }
+                ]
+            },
+            "output": "minecraft:main"
+        }
+    ]
+}
+
+

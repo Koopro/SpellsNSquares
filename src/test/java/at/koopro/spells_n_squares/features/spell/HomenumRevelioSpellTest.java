@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.features.spell;
 
+import at.koopro.spells_n_squares.features.spell.utility.HomenumRevelioSpell;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

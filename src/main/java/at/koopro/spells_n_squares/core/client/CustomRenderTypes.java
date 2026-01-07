@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.client;
 
-import at.koopro.spells_n_squares.features.fx.ShaderEffectHandler;
+import at.koopro.spells_n_squares.features.fx.handler.ShaderEffectHandler;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;

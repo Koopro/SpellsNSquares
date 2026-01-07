@@ -26,8 +26,6 @@ public abstract class MobMixin {
      */
     @Inject(method = "registerGoals", at = @At("RETURN"))
     private void onRegisterGoals(CallbackInfo ci) {
-        Mob self = (Mob) (Object) this;
-        
         // Add custom AI goals for magical creatures
         // Example: if (isMagicalCreature(self)) {
         //     this.goalSelector.addGoal(1, new MagicalCreatureGoal(self));
@@ -44,8 +42,6 @@ public abstract class MobMixin {
      */
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTick(CallbackInfo ci) {
-        Mob self = (Mob) (Object) this;
-        
         // Check for spell resistance/immunity
         // Example: if (hasSpellResistance(self)) {
         //     // Reduce spell damage or effects
@@ -59,22 +55,22 @@ public abstract class MobMixin {
     
     /**
      * Hook into hurt() to apply spell resistance.
+     * NOTE: The hurt() method does not exist in the Mob class (it's in LivingEntity).
+     * Commented out until the correct method signature is determined.
      */
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void onHurt(net.minecraft.world.damagesource.DamageSource source, float amount, 
-                        org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
-        Mob self = (Mob) (Object) this;
-        
-        // Check for spell-based damage and apply resistance
-        // Example: if (isSpellDamage(source) && hasSpellResistance(self)) {
-        //     amount *= 0.5f; // 50% spell damage reduction
-        // }
-        
-        // Check for complete spell immunity
-        // Example: if (isSpellDamage(source) && hasSpellImmunity(self)) {
-        //     cir.setReturnValue(false);
-        //     return;
-        // }
-    }
+    // @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    // private void onHurt(net.minecraft.world.damagesource.DamageSource source, float amount, 
+    //                     org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
+    //     // Check for spell-based damage and apply resistance
+    //     // Example: if (isSpellDamage(source) && hasSpellResistance(self)) {
+    //     //     amount *= 0.5f; // 50% spell damage reduction
+    //     // }
+    //     
+    //     // Check for complete spell immunity
+    //     // Example: if (isSpellDamage(source) && hasSpellImmunity(self)) {
+    //     //     cir.setReturnValue(false);
+    //     //     return;
+    //     // }
+    // }
 }
 

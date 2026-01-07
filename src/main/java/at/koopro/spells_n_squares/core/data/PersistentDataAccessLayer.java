@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.core.data;
 
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
 import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -30,26 +31,46 @@ public final class PersistentDataAccessLayer implements DataAccessLayer {
     
     @Override
     public <T> T load(Player player, String dataKey, Codec<T> codec, Supplier<T> defaultSupplier) {
-        return PersistentDataAccessHelper.load(player, dataKey, codec, defaultSupplier, dataKey);
+        DevLogger.logDataOperation(this, "load", "LOAD", 
+            "player=" + (player != null ? player.getName().getString() : "null") + 
+            ", dataKey=" + dataKey);
+        T result = PersistentDataAccessHelper.load(player, dataKey, codec, defaultSupplier, dataKey);
+        DevLogger.logMethodExit(this, "load", result != null ? "data" : "default");
+        return result;
     }
     
     @Override
     public <T> void save(Player player, String dataKey, Codec<T> codec, T data) {
+        DevLogger.logDataOperation(this, "save", "SAVE", 
+            "player=" + (player != null ? player.getName().getString() : "null") + 
+            ", dataKey=" + dataKey);
         PersistentDataAccessHelper.save(player, dataKey, codec, data, dataKey);
+        DevLogger.logMethodExit(this, "save");
     }
     
     @Override
     public boolean hasData(Player player, String dataKey) {
-        return PersistentDataAccessHelper.hasData(player, dataKey);
+        DevLogger.logMethodEntry(this, "hasData", 
+            "player=" + (player != null ? player.getName().getString() : "null") + 
+            ", dataKey=" + dataKey);
+        boolean result = PersistentDataAccessHelper.hasData(player, dataKey);
+        DevLogger.logReturnValue(this, "hasData", result);
+        return result;
     }
     
     @Override
     public void removeData(Player player, String dataKey) {
+        DevLogger.logDataOperation(this, "removeData", "REMOVE", 
+            "player=" + (player != null ? player.getName().getString() : "null") + 
+            ", dataKey=" + dataKey);
         if (player == null || dataKey == null || player.level().isClientSide()) {
+            DevLogger.logMethodExit(this, "removeData");
             return;
         }
         
         player.getPersistentData().remove(dataKey);
+        DevLogger.logStateChange(this, "removeData", "Data removed");
+        DevLogger.logMethodExit(this, "removeData");
     }
     
     @Override

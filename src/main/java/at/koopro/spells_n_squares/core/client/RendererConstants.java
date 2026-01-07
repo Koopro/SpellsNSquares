@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.client;
 
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
 import net.minecraft.resources.Identifier;
 
 /**

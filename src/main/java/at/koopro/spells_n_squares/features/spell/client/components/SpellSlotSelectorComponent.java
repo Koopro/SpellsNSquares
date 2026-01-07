@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.features.spell.client.components;
 
-import at.koopro.spells_n_squares.features.spell.SpellManager;
+import at.koopro.spells_n_squares.features.spell.manager.SpellManager;
 import at.koopro.spells_n_squares.features.spell.client.SpellSelectionScreenConstants;
 import at.koopro.spells_n_squares.features.spell.client.SpellSlotManager;
 import at.koopro.spells_n_squares.features.spell.client.SpellUIConstants;

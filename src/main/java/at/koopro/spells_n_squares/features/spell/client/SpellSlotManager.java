@@ -1,7 +1,6 @@
 package at.koopro.spells_n_squares.features.spell.client;
 
-import at.koopro.spells_n_squares.features.spell.SpellManager;
-import net.minecraft.network.chat.Component;
+import at.koopro.spells_n_squares.features.spell.manager.SpellManager;
 
 /**
  * Helper class for managing spell slot selection and assignment.
@@ -49,6 +48,13 @@ public final class SpellSlotManager {
         return SpellSelectionScreenConstants.BUTTON_WIDTH / 2 - SpellSelectionScreenConstants.BUTTON_SPACING / 2;
     }
 }
+
+
+
+
+
+
+
 
 
 

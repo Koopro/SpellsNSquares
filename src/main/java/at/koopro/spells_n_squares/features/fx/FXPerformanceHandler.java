@@ -2,7 +2,7 @@ package at.koopro.spells_n_squares.features.fx;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.fx.ParticlePool;
-import at.koopro.spells_n_squares.core.util.SafeEventHandler;
+import at.koopro.spells_n_squares.core.util.event.SafeEventHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;

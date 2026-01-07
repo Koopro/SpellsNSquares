@@ -4,13 +4,11 @@ import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Mixin to enhance player mechanics with spell effects and magical abilities.
- * Handles movement modifiers, jump power, and spell-based damage modifications.
+ * Handles movement modifiers, jump power, spell-based damage modifications, and player model scaling.
  */
 @Mixin(Player.class)
 public class PlayerMixin {
@@ -26,45 +24,49 @@ public class PlayerMixin {
         // Example: if (hasSpellEffect(self, "levitation")) { applyLevitation(self); }
     }
     
+    
     /**
      * Modify jump power for spell-based jump modifications.
-     * Allows spells to enhance or reduce jump height.
+     * NOTE: Player.getJumpPower() may not exist or have a different signature.
+     * Commented out until proper method signature is determined.
      */
-    @ModifyVariable(method = "getJumpPower", at = @At("HEAD"), ordinal = 0)
-    private float modifyJumpPower(float original) {
-        // Check for spell-based jump modifications
-        // Example: if (hasSpellEffect(self, "jump_boost")) { return original * 1.5f; }
-        
-        // For now, return original - can be extended with spell effect system
-        return original;
-    }
+    // @ModifyVariable(method = "getJumpPower", at = @At("HEAD"), ordinal = 0)
+    // private float modifyJumpPower(float original) {
+    //     // Check for spell-based jump modifications
+    //     // Example: if (hasSpellEffect(self, "jump_boost")) { return original * 1.5f; }
+    //     
+    //     // For now, return original - can be extended with spell effect system
+    //     // return original;
+    // }
     
     /**
      * Hook into hurt() for spell-based damage immunity/resistance.
-     * Allows spells like Protego to reduce or prevent damage.
+     * NOTE: Player.hurt() signature may be different in this version.
+     * Commented out until proper method signature is determined.
      */
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void onHurt(net.minecraft.world.damagesource.DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        // Check for spell-based damage immunity
-        // Example: if (hasActiveProtego(self)) { cir.setReturnValue(false); return; }
-        
-        // Check for spell-based damage reduction
-        // Example: if (hasSpellEffect(self, "damage_reduction")) { amount *= 0.5f; }
-        
-        // For now, let normal damage handling proceed
-    }
-    
-    /**
-     * Modify movement speed for spell effects.
-     * Allows spells to enhance or reduce movement speed.
-     */
-    @ModifyVariable(method = "getSpeed", at = @At("HEAD"), ordinal = 0)
-    private float modifyMovementSpeed(float original) {
-        // Check for spell-based speed modifications
-        // Example: if (hasSpellEffect(self, "speed_boost")) { return original * 1.3f; }
-        
-        // For now, return original - can be extended with spell effect system
-        return original;
-    }
+    // @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    // private void onHurt(net.minecraft.world.damagesource.DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    //     // Check for spell-based damage immunity
+    //     // Example: if (hasActiveProtego(self)) { cir.setReturnValue(false); return; }
+    //     
+    //     // Check for spell-based damage reduction
+    //     // Example: if (hasSpellEffect(self, "damage_reduction")) { amount *= 0.5f; }
+    //     
+    //     // For now, let normal damage handling proceed
+    // }
+    // 
+    // /**
+    //  * Modify movement speed for spell effects.
+    //  * NOTE: Player.getSpeed() may not exist or have a different signature.
+    //  * Commented out until proper method signature is determined.
+    //  */
+    // @ModifyVariable(method = "getSpeed", at = @At("HEAD"), ordinal = 0)
+    // private float modifyMovementSpeed(float original) {
+    //     // Check for spell-based speed modifications
+    //     // Example: if (hasSpellEffect(self, "speed_boost")) { return original * 1.3f; }
+    //     
+    //     // For now, return original - can be extended with spell effect system
+    //     // return original;
+    // }
 }
 

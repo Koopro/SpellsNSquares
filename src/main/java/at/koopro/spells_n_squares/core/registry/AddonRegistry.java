@@ -1,6 +1,5 @@
 package at.koopro.spells_n_squares.core.registry;
 
-import at.koopro.spells_n_squares.core.api.IPlayerClassManager;
 import at.koopro.spells_n_squares.core.api.ISpellManager;
 import at.koopro.spells_n_squares.core.api.ISpellRegistry;
 import at.koopro.spells_n_squares.core.api.ModContext;
@@ -9,23 +8,19 @@ import at.koopro.spells_n_squares.core.api.addon.AddonMetadata;
 import at.koopro.spells_n_squares.core.api.addon.AddonMod;
 import at.koopro.spells_n_squares.core.api.addon.IAddon;
 import at.koopro.spells_n_squares.core.api.addon.dependency.DependencyChecker;
+import at.koopro.spells_n_squares.core.util.collection.CollectionFactory;
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.loading.moddiscovery.ModInfo;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Registry for managing addons.
@@ -36,8 +31,8 @@ public final class AddonRegistry {
     private static final String API_VERSION = "1.0.0";
     
     // Using LinkedHashMap - insertion order matters for initialization order
-    private static final Map<String, AddonEntry> registeredAddons = new LinkedHashMap<>();
-    private static final Map<String, AddonMetadata> addonMetadata = new HashMap<>();
+    private static final Map<String, AddonEntry> registeredAddons = CollectionFactory.createLinkedMap();
+    private static final Map<String, AddonMetadata> addonMetadata = CollectionFactory.createMap();
     
     /**
      * Represents a registered addon entry.
@@ -61,6 +56,7 @@ public final class AddonRegistry {
      * @param modContainer The mod container
      */
     public static void discoverAndRegisterAddons(IEventBus modEventBus, ModContainer modContainer) {
+        DevLogger.logMethodEntry(AddonRegistry.class, "discoverAndRegisterAddons");
         LOGGER.info("Discovering addons for Spells_n_Squares...");
         
         // Discover addons from all loaded mods
@@ -68,10 +64,13 @@ public final class AddonRegistry {
         
         if (discoveredAddons.isEmpty()) {
             LOGGER.info("No addons discovered");
+            DevLogger.logMethodExit(AddonRegistry.class, "discoverAndRegisterAddons");
             return;
         }
         
         LOGGER.info("Found {} potential addon(s)", discoveredAddons.size());
+        DevLogger.logStateChange(AddonRegistry.class, "discoverAndRegisterAddons", 
+            "Found " + discoveredAddons.size() + " addon(s)");
         
         // Validate and register addons
         for (IAddon addon : discoveredAddons) {
@@ -79,10 +78,15 @@ public final class AddonRegistry {
                 registerAddon(addon, modEventBus, modContainer);
             } catch (Exception e) {
                 LOGGER.error("Failed to register addon '{}': {}", addon.getAddonId(), e.getMessage(), e);
+                DevLogger.logError(AddonRegistry.class, "discoverAndRegisterAddons", 
+                    "Failed to register addon: " + addon.getAddonId(), e);
             }
         }
         
         LOGGER.info("Successfully registered {} addon(s)", registeredAddons.size());
+        DevLogger.logStateChange(AddonRegistry.class, "discoverAndRegisterAddons", 
+            "Successfully registered " + registeredAddons.size() + " addon(s)");
+        DevLogger.logMethodExit(AddonRegistry.class, "discoverAndRegisterAddons");
     }
     
     /**
@@ -93,6 +97,9 @@ public final class AddonRegistry {
      * @param modContainer The mod container
      */
     public static void registerAddon(IAddon addon, IEventBus modEventBus, ModContainer modContainer) {
+        DevLogger.logMethodEntry(AddonRegistry.class, "registerAddon", 
+            "addon=" + (addon != null ? addon.getAddonId() : "null"));
+        
         if (addon == null) {
             throw new IllegalArgumentException("Addon cannot be null");
         }
@@ -129,6 +136,9 @@ public final class AddonRegistry {
         addonMetadata.put(addonId, metadata);
         
         LOGGER.info("Registered addon: {} v{}", metadata.getAddonName(), metadata.getAddonVersion());
+        DevLogger.logStateChange(AddonRegistry.class, "registerAddon", 
+            "Addon registered: " + metadata.getAddonName() + " v" + metadata.getAddonVersion());
+        DevLogger.logMethodExit(AddonRegistry.class, "registerAddon");
     }
     
     /**
@@ -222,7 +232,7 @@ public final class AddonRegistry {
      * @return List of discovered addons
      */
     private static List<IAddon> discoverAddons() {
-        List<IAddon> addons = new ArrayList<>();
+        List<IAddon> addons = CollectionFactory.createList();
         
         // Preferred discovery: ServiceLoader via META-INF/services entries provided by addons
         try {
@@ -278,7 +288,6 @@ public final class AddonRegistry {
     private static AddonContext createAddonContext(String addonId, IEventBus modEventBus, ModContainer modContainer) {
         // Get API instances from ModContext
         ISpellManager spellManager = ModContext.getSpellManager();
-        IPlayerClassManager playerClassManager = ModContext.getPlayerClassManager();
         ISpellRegistry spellRegistry = ModContext.getSpellRegistry();
         
         // Create event bus for addon events (will be created in Phase 2)
@@ -288,7 +297,6 @@ public final class AddonRegistry {
         return new AddonContext(
             addonId,
             spellManager,
-            playerClassManager,
             spellRegistry,
             eventBus,
             modEventBus,

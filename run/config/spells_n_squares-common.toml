@@ -26,6 +26,28 @@
 	#Overall effect quality preset (LOW, MEDIUM, HIGH, ULTRA)
 	#Allowed Values: LOW, MEDIUM, HIGH, ULTRA
 	effectQuality = "MEDIUM"
+	#Spell clash and custom particle settings
+	#Enable spell clash lightning effects
+	enableSpellClashEffects = true
+	#Enable custom particle types
+	enableCustomParticles = true
+	#Maximum range for duel detection (blocks)
+	# Default: 20.0
+	# Range: 5.0 ~ 50.0
+	spellClashRange = 20.0
+	#Intensity multiplier for clash effects
+	# Default: 1.0
+	# Range: 0.1 ~ 2.0
+	spellClashIntensity = 1.0
+	#Duration of clash effects in ticks
+	# Default: 40
+	# Range: 10 ~ 100
+	spellClashDuration = 40
+	#Quality for custom particles (LOW, MEDIUM, HIGH)
+	#Allowed Values: LOW, MEDIUM, HIGH, ULTRA
+	customParticleQuality = "MEDIUM"
+	#Enable effect graph system
+	effectGraphEnabled = true
 
 [gameplay]
 	#Spell balance settings
@@ -35,6 +57,10 @@
 	# Default: 1.0
 	# Range: 0.1 ~ 10.0
 	spellDamageMultiplier = 1.0
+	#Global potion duration multiplier (1.0 = default)
+	# Default: 1.0
+	# Range: 0.1 ~ 5.0
+	potionDurationMultiplier = 1.0
 	enableDarkMagic = true
 	#Creature settings
 	creatureSpawnRate = 1.0
@@ -45,7 +71,29 @@
 	#Education settings
 	enableHousePoints = true
 	enableHomework = true
-	#Global potion duration multiplier (1.0 = default)
-	# Default: 1.0
-	# Range: 0.1 ~ 5.0
-	potionDurationMultiplier = 1.0
+
+[development]
+	#Development and debugging logging options
+	#Master switch for verbose development logging. When disabled, all verbose logging is skipped for performance.
+	enableVerboseLogging = true
+	#Log method entry and exit points
+	logMethodEntryExit = true
+	#Log method parameters
+	logParameters = true
+	#Log method return values
+	logReturnValues = true
+	#Log state changes (block states, entity states, etc.)
+	logStateChanges = true
+	#Log network packet send/receive operations
+	logNetworkPackets = true
+	#Log block interaction events
+	logBlockInteractions = true
+	#Log item interaction events
+	logItemInteractions = true
+	#Log entity events (spawn, despawn, updates, etc.)
+	logEntityEvents = true
+	#Log data save/load operations
+	logDataOperations = true
+	#Debug tooltip settings
+	#Enable debug tooltips showing detailed data about items, blocks, entities, and players
+	enableDebugTooltips = true

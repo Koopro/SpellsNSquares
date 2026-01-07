@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.api.addon.events;
 
-import at.koopro.spells_n_squares.features.spell.Spell;
+import at.koopro.spells_n_squares.features.spell.base.Spell;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.Event;

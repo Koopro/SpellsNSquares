@@ -20,6 +20,7 @@
     "client.HumanoidModelMixin",
     "client.LocalPlayerMixin",
     "client.LivingEntityRendererMixin",
+    "client.AvatarRendererMixin",
     "client.EntityRendererMixin",
     "client.LevelRendererMixin",
     "client.GameRendererMixin"

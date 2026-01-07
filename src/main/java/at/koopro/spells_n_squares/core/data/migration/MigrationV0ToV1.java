@@ -90,6 +90,15 @@ public class MigrationV0ToV1 implements DataMigration {
             if (!data.contains("patronus")) {
                 data.put("patronus", new CompoundTag());
             }
+            
+            // Add identity data with defaults if not present
+            if (!data.contains("identity")) {
+                CompoundTag identityTag = new CompoundTag();
+                identityTag.putString("bloodStatus", "HALF_BLOOD");
+                identityTag.putString("magicalType", "WIZARD");
+                data.put("identity", identityTag);
+                LOGGER.debug("Added default identity data to player data");
+            }
 
             return true;
         } catch (Exception e) {

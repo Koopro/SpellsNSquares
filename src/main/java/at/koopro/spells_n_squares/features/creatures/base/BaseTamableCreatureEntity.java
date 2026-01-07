@@ -1,10 +1,9 @@
 package at.koopro.spells_n_squares.features.creatures.base;
 
-import at.koopro.spells_n_squares.features.creatures.util.CreatureOwnerHelper;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.AgeableMob;
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -15,78 +14,120 @@ import java.util.UUID;
 
 /**
  * Base class for tamable creature entities.
- * Provides common owner management and save/load functionality.
+ * Provides taming mechanics, owner tracking, and pet AI goals.
+ * Uses composition with TamingComponent for flexibility.
+ * 
+ * <p>Subclasses should override {@link #registerCreatureGoals()} to add creature-specific goals
+ * and call {@code super.registerCreatureGoals()} to include pet behaviors.
  */
-public abstract class BaseTamableCreatureEntity extends TamableAnimal {
-    private Optional<UUID> ownerId = Optional.empty();
+public abstract class BaseTamableCreatureEntity extends BaseCreatureEntity {
+    protected final TamingComponent tamingComponent;
     
-    protected BaseTamableCreatureEntity(EntityType<? extends BaseTamableCreatureEntity> type, Level level) {
-        super(type, level);
-    }
-    
-    /**
-     * Gets the owner UUID if present.
-     * @return Optional containing the owner UUID, or empty if not owned
-     */
-    public Optional<UUID> getOwnerId() {
-        return ownerId;
-    }
-    
-    /**
-     * Sets the owner of this creature.
-     * @param player The player to set as owner
-     */
-    public void setOwner(Player player) {
-        this.ownerId = Optional.of(player.getUUID());
-    }
-    
-    /**
-     * Checks if this creature has an owner.
-     * @return true if owned, false otherwise
-     */
-    public boolean hasOwner() {
-        return ownerId.isPresent();
-    }
-    
-    /**
-     * Checks if the given player is the owner of this creature.
-     * @param player The player to check
-     * @return true if the player is the owner, false otherwise
-     */
-    public boolean isOwner(Player player) {
-        return ownerId.isPresent() && ownerId.get().equals(player.getUUID());
+    public BaseTamableCreatureEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
+        super(entityType, level);
+        DevLogger.logMethodEntry(this, "BaseTamableCreatureEntity");
+        
+        this.tamingComponent = new TamingComponent(this, BaseTamableCreatureEntity.class);
     }
     
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        return null; // Most creatures don't breed by default
+    protected void defineCreatureSynchedData(SynchedEntityData.Builder builder) {
+        super.defineCreatureSynchedData(builder);
+        tamingComponent.defineSynchedData(builder);
+    }
+    
+    @Override
+    protected void registerCreatureGoals() {
+        super.registerCreatureGoals();
+        
+        // Pet-specific goals - subclasses should implement custom follow/sit goals
+        // Example: this.goalSelector.addGoal(2, new CustomSitGoal(this));
+        // Example: this.goalSelector.addGoal(4, new CustomFollowOwnerGoal(this, 1.0, 10.0f, 2.0f));
+    }
+    
+    /**
+     * Gets the owner UUID if this creature is tamed.
+     * 
+     * @return The owner UUID, or empty if not tamed
+     */
+    public Optional<UUID> getOwnerUUID() {
+        return tamingComponent.getOwnerUUID();
+    }
+    
+    /**
+     * Sets the owner UUID.
+     * 
+     * @param ownerUUID The owner UUID, or empty to clear
+     */
+    public void setOwnerUUID(Optional<UUID> ownerUUID) {
+        tamingComponent.setOwnerUUID(ownerUUID);
+    }
+    
+    /**
+     * Gets the owner player if this creature is tamed and the owner is online.
+     * 
+     * @return The owner player, or null if not tamed or owner not found
+     */
+    public Player getOwner() {
+        return tamingComponent.getOwner();
+    }
+    
+    /**
+     * Checks if this creature is tamed.
+     * 
+     * @return true if tamed
+     */
+    public boolean isTamed() {
+        return tamingComponent.isTamed();
+    }
+    
+    /**
+     * Checks if this creature is owned by the given player.
+     * 
+     * @param player The player to check
+     * @return true if owned by the player
+     */
+    public boolean isOwnedBy(Player player) {
+        return tamingComponent.isOwnedBy(player);
+    }
+    
+    /**
+     * Tames this creature for the given player.
+     * 
+     * @param player The player to tame for
+     */
+    public void tame(Player player) {
+        tamingComponent.tame(player);
+    }
+    
+    /**
+     * Checks if this creature is sitting.
+     * 
+     * @return true if sitting
+     */
+    public boolean isSitting() {
+        return tamingComponent.isSitting();
+    }
+    
+    /**
+     * Sets whether this creature is sitting.
+     * 
+     * @param sitting true to sit, false to stand
+     */
+    public void setSitting(boolean sitting) {
+        tamingComponent.setSitting(sitting);
     }
     
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
-        CreatureOwnerHelper.saveOwner(output, ownerId);
+        tamingComponent.saveData(output);
     }
     
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
-        ownerId = CreatureOwnerHelper.loadOwner(input);
+        tamingComponent.loadData(input);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

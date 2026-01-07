@@ -2,7 +2,8 @@ package at.koopro.spells_n_squares.features.storage.handler;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.features.storage.system.PocketDimensionManager;
-import at.koopro.spells_n_squares.core.util.EventUtils;
+import at.koopro.spells_n_squares.core.util.event.EventUtils;
+import at.koopro.spells_n_squares.core.util.event.SafeEventHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -28,7 +29,9 @@ public class PocketDimensionExitHandler {
             if (serverPlayer.level() instanceof ServerLevel serverLevel) {
                 // Only check periodically to reduce overhead
                 if (serverPlayer.tickCount % CHECK_INTERVAL == 0) {
-                    PocketDimensionManager.checkExitPlatform(serverPlayer, serverLevel);
+                    SafeEventHandler.execute(() -> {
+                        PocketDimensionManager.checkExitPlatform(serverPlayer, serverLevel);
+                    }, "checking exit platform", serverPlayer);
                 }
             }
         }

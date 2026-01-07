@@ -105,3 +105,10 @@ public interface ISpellManager {
 
 
 
+
+
+
+
+
+
+

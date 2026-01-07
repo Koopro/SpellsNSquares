@@ -1,8 +1,6 @@
 package at.koopro.spells_n_squares.datagen;
 
-import at.koopro.spells_n_squares.features.worldgen.CreatureSpawnConfig;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.DataMapProvider;
 
@@ -24,11 +22,9 @@ public class ModBiomeModifierProvider extends DataMapProvider {
         // This provider is kept for potential future use with data maps
         // For now, spawns should be added directly in ModBiomeProvider.create* methods
         // TODO: Implement biome modifier data map registration when API is available
-        
-        // Group spawns by biome to create one modifier per biome
-        // Only process biomes that are available in the lookup (may not be available during datagen)
-        for (var biomeKey : CreatureSpawnConfig.getConfiguredBiomes()) {
-            // TODO: Implement biome modifier data map registration when API is available
-        }
+        // TODO: Re-enable when CreatureSpawnConfig is implemented
+        // for (var biomeKey : CreatureSpawnConfig.getConfiguredBiomes()) {
+        //     // TODO: Implement biome modifier data map registration when API is available
+        // }
     }
 }

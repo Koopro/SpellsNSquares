@@ -34,6 +34,15 @@ public final class SpellUIConstants {
     public static final int BG_COLOR_BUTTON_HOVER = 0xFF3C3C3C; // Lighter gray for button hover
     public static final int BG_COLOR_BUTTON_SELECTED = 0xFF4A4A2C; // Yellow-tinted for selected button
     
+    // Enhanced visual design colors
+    public static final int BG_COLOR_GRADIENT_START = 0xF0151515; // Slightly lighter for gradient
+    public static final int BG_COLOR_GRADIENT_END = 0xF0050505; // Darker for gradient
+    public static final int SHADOW_COLOR = 0x80000000; // Black shadow
+    public static final int GLOW_COLOR_SELECTED = 0x40FFFFFF; // White glow
+    public static final int GLOW_COLOR_HOVER = 0x30FFFFFF; // Subtle white glow on hover
+    public static final int BORDER_COLOR_ENHANCED = 0xFF505050; // Enhanced border color
+    public static final int BORDER_COLOR_HOVER = 0xFF707070; // Border color on hover
+    
     // Border colors (ARGB format)
     public static final int BORDER_COLOR_KEYBIND = 0xFF606060; // Medium gray border
     public static final int BORDER_COLOR_KEYBIND_WHITE = 0xFFFFFFFF; // White border
@@ -49,6 +58,11 @@ public final class SpellUIConstants {
     public static final int KEYBIND_CHIP_PADDING_X = 3; // Horizontal padding for keybind chips (reduced from 6)
     public static final int KEYBIND_CHIP_PADDING_Y = 1; // Vertical padding for keybind chips (reduced from 3)
     public static final int SELECTION_GLOW_SIZE = 4; // Size of selection glow effect
+    
+    // Enhanced visual effects
+    public static final int SHADOW_OFFSET = 2; // Shadow offset for depth
+    public static final float GRADIENT_INTENSITY = 0.3f; // Gradient intensity (0.0-1.0)
+    public static final int BUTTON_ROUNDING = 2; // Button corner rounding (pixels)
 }
 
 

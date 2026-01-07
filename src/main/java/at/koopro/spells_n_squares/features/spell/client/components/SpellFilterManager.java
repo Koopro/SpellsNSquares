@@ -1,11 +1,12 @@
 package at.koopro.spells_n_squares.features.spell.client.components;
 
-import at.koopro.spells_n_squares.features.spell.Spell;
-import at.koopro.spells_n_squares.features.spell.SpellCategory;
+import at.koopro.spells_n_squares.features.spell.base.Spell;
+import at.koopro.spells_n_squares.features.spell.base.SpellCategory;
 import at.koopro.spells_n_squares.core.registry.SpellRegistry;
 import net.minecraft.resources.Identifier;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**

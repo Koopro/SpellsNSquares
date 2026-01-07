@@ -1,6 +1,7 @@
 package at.koopro.spells_n_squares.features.storage;
 
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
+import at.koopro.spells_n_squares.core.util.collection.CollectionFactory;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
 import at.koopro.spells_n_squares.features.storage.data.PocketDimensionData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -8,7 +9,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public final class PocketDimensionStructureLoader {
     // Track which dimensions have had their structure loaded
     // Thread safety: Accessed only from main server thread
-    private static final Map<UUID, Boolean> structureLoadedMap = new HashMap<>();
+    private static final Map<UUID, Boolean> structureLoadedMap = CollectionFactory.createMap();
     
     private PocketDimensionStructureLoader() {}
     

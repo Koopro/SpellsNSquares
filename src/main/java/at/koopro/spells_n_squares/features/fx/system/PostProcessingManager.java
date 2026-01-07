@@ -1,11 +1,11 @@
 package at.koopro.spells_n_squares.features.fx.system;
 
-import at.koopro.spells_n_squares.features.fx.PostProcessingReflectionHelper;
+import at.koopro.spells_n_squares.features.fx.processing.PostProcessingReflectionHelper;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.config.Config;
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
-import at.koopro.spells_n_squares.core.util.SafeEventHandler;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
+import at.koopro.spells_n_squares.core.util.event.SafeEventHandler;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
 import com.mojang.logging.LogUtils;
@@ -147,6 +147,8 @@ public class PostProcessingManager {
         ModIdentifierHelper.modId("rotating_kaleidoscope");
     public static final Identifier ENERGY_PULSE_POST_SHADER =
         ModIdentifierHelper.modId("energy_pulse");
+    public static final Identifier UNIFIED_POST_SHADER =
+        ModIdentifierHelper.modId("unified");
     
     
     /**
@@ -156,7 +158,7 @@ public class PostProcessingManager {
      * @param shaderId The shader identifier
      * @return The PostChain instance, or null if creation failed
      */
-    private static PostChain getOrCreatePostChain(Identifier shaderId) {
+    public static PostChain getOrCreatePostChain(Identifier shaderId) {
         // Check cache first
         PostChain cached = postChains.get(shaderId);
         if (cached != null) {
@@ -303,6 +305,8 @@ public class PostProcessingManager {
      * Called after level rendering to check if shaders loaded successfully.
      */
     @SubscribeEvent
+    // Note: RenderLevelStageEvent.AfterLevel may be deprecated, but it's the correct event for post-processing
+    // No alternative exists in current NeoForge API
     @SuppressWarnings("deprecation")
     public static void onRenderLevelStage(RenderLevelStageEvent.AfterLevel event) {
         SafeEventHandler.execute(() -> {

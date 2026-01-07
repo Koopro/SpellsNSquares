@@ -1,0 +1,14 @@
+{
+  "variants": {
+    "level=1": {
+      "model": "spells_n_squares:block/elixir_of_life_cauldron_level1"
+    },
+    "level=2": {
+      "model": "spells_n_squares:block/elixir_of_life_cauldron_level2"
+    },
+    "level=3": {
+      "model": "spells_n_squares:block/elixir_of_life_cauldron"
+    }
+  }
+}
+

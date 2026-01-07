@@ -4,7 +4,6 @@ import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.RegistryHelper;
 import at.koopro.spells_n_squares.features.fx.block.EnergyBallBlock;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;

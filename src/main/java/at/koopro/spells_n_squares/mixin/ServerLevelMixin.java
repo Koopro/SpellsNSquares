@@ -18,8 +18,6 @@ public class ServerLevelMixin {
      */
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTick(CallbackInfo ci) {
-        ServerLevel self = (ServerLevel) (Object) this;
-        
         // Server-side world modifications
         // Example: updateMagicalWorldState(self);
         
@@ -32,8 +30,6 @@ public class ServerLevelMixin {
      */
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;tickTime()V", shift = At.Shift.AFTER))
     private void onTickTime(CallbackInfo ci) {
-        ServerLevel self = (ServerLevel) (Object) this;
-        
         // Magical event system hooks
         // Example: processMagicalEvents(self);
         
@@ -43,13 +39,13 @@ public class ServerLevelMixin {
     
     /**
      * Inject into tick() to handle custom entity spawning for magical effects.
+     * NOTE: The target method tickNonPassenger() may not exist or have a different signature.
+     * Commented out until the correct method signature is determined.
      */
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;tickNonPassenger(Lnet/minecraft/world/entity/Entity;)V", shift = At.Shift.AFTER))
-    private void onTickEntity(CallbackInfo ci) {
-        ServerLevel self = (ServerLevel) (Object) this;
-        
-        // Custom entity tick handling for magical entities
-        // Example: tickMagicalEntities(self);
-    }
+    // @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;tickNonPassenger(Lnet/minecraft/world/entity/Entity;)V", shift = At.Shift.AFTER))
+    // private void onTickEntity(CallbackInfo ci) {
+    //     // Custom entity tick handling for magical entities
+    //     // Example: tickMagicalEntities(self);
+    // }
 }
 

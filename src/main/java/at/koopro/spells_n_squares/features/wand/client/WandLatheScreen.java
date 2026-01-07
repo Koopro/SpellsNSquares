@@ -1,23 +1,28 @@
 package at.koopro.spells_n_squares.features.wand.client;
 
-import at.koopro.spells_n_squares.features.wand.WandCore;
-import at.koopro.spells_n_squares.features.wand.WandData;
-import at.koopro.spells_n_squares.features.wand.WandLatheMenu;
-import at.koopro.spells_n_squares.features.wand.WandRegistry;
-import at.koopro.spells_n_squares.features.wand.WandWood;
+import at.koopro.spells_n_squares.core.client.gui.BaseModScreen;
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
+import at.koopro.spells_n_squares.features.wand.registry.WandCore;
+import at.koopro.spells_n_squares.features.wand.core.WandData;
+import at.koopro.spells_n_squares.features.wand.system.WandLatheMenu;
+import at.koopro.spells_n_squares.features.wand.registry.WandRegistry;
+import at.koopro.spells_n_squares.features.wand.registry.WandWood;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
+
 /**
  * Client-side GUI screen for the wand lathe.
  * Allows players to select wood type and core to craft a wand.
  */
-public class WandLatheScreen extends AbstractContainerScreen<WandLatheMenu> {
+public class WandLatheScreen extends BaseModScreen<WandLatheMenu> {
     private static final Identifier WAND_LATHE_GUI_TEXTURE = 
         Identifier.fromNamespaceAndPath("spells_n_squares", "textures/gui/container/wand_lathe.png");
     
@@ -30,16 +35,16 @@ public class WandLatheScreen extends AbstractContainerScreen<WandLatheMenu> {
     
     public WandLatheScreen(WandLatheMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
-        this.inventoryLabelY = this.imageHeight - 94;
     }
     
     @Override
-    protected void init() {
-        super.init();
-        
-        int centerX = this.leftPos + this.imageWidth / 2;
+    protected Identifier getBackgroundTexture() {
+        return WAND_LATHE_GUI_TEXTURE;
+    }
+    
+    @Override
+    protected void initCustomWidgets() {
+        int centerX = getCenterX();
         int startY = this.topPos + 20;
         
         // Wood type selector - cycles through wood types
@@ -89,47 +94,63 @@ public class WandLatheScreen extends AbstractContainerScreen<WandLatheMenu> {
     }
     
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int x = (this.width - this.imageWidth) / 2;
-        int y = (this.height - this.imageHeight) / 2;
+    protected void renderStandardLabels(GuiGraphics guiGraphics) {
+        super.renderStandardLabels(guiGraphics);
         
-        // Draw background (fallback to generic container texture if custom texture not available)
-        try {
-            guiGraphics.blit(WAND_LATHE_GUI_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
-        } catch (Exception e) {
-            // Fallback to generic container texture
-            Identifier fallbackTexture = Identifier.fromNamespaceAndPath("minecraft", "textures/gui/container/generic_54.png");
-            guiGraphics.blit(fallbackTexture, x, y, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
-        }
-    }
-    
-    @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // Render title
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        // Render selected wand preview info with enhanced visual feedback
+        int infoY = this.topPos + 50;
+        int textColor = 0x404040;
+        int highlightColor = 0xFFFFFF;
         
-        // Render selected wand preview info
-        int infoY = 50;
+        // Wood type label with highlight
+        Component woodLabel = Component.translatable("gui.spells_n_squares.wand_lathe.selected_wood", 
+            Component.translatable("wand.wood." + selectedWood.getId()));
+        guiGraphics.drawString(this.font, woodLabel, this.leftPos + 8, infoY, highlightColor, false);
+        
+        // Core type label with highlight
+        Component coreLabel = Component.translatable("gui.spells_n_squares.wand_lathe.selected_core", 
+            Component.translatable("wand.core." + selectedCore.getId()));
+        guiGraphics.drawString(this.font, coreLabel, this.leftPos + 8, infoY + 12, highlightColor, false);
+        
+        // Add tooltip hint
         guiGraphics.drawString(this.font, 
-            Component.translatable("gui.spells_n_squares.wand_lathe.selected_wood", 
-                Component.translatable("wand.wood." + selectedWood.getId())), 
-            8, infoY, 0x404040, false);
-        
-        guiGraphics.drawString(this.font, 
-            Component.translatable("gui.spells_n_squares.wand_lathe.selected_core", 
-                Component.translatable("wand.core." + selectedCore.getId())), 
-            8, infoY + 12, 0x404040, false);
+            Component.translatable("gui.spells_n_squares.wand_lathe.tooltip_hint"), 
+            this.leftPos + 8, infoY + 30, textColor, false);
     }
     
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+        
+        // Render tooltips for buttons
+        renderTooltipForButton(guiGraphics, woodTypeButton, "gui.spells_n_squares.wand_lathe.wood_tooltip", mouseX, mouseY);
+        renderTooltipForButton(guiGraphics, coreTypeButton, "gui.spells_n_squares.wand_lathe.core_tooltip", mouseX, mouseY);
+        renderTooltipForButton(guiGraphics, craftButton, "gui.spells_n_squares.wand_lathe.craft_tooltip", mouseX, mouseY);
+    }
+    
+    /**
+     * Renders a tooltip for a button if the mouse is over it.
+     * @param guiGraphics The graphics context
+     * @param button The button to check
+     * @param translationKey The translation key for the tooltip
+     * @param mouseX The mouse X position
+     * @param mouseY The mouse Y position
+     */
+    private void renderTooltipForButton(GuiGraphics guiGraphics, Button button, String translationKey, int mouseX, int mouseY) {
+        if (button != null && button.isMouseOver(mouseX, mouseY)) {
+            Component tooltip = Component.translatable(translationKey);
+            List<ClientTooltipComponent> tooltipComponents = List.of(ClientTooltipComponent.create(tooltip.getVisualOrderText()));
+            guiGraphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
+        }
     }
     
     private void craftWand() {
+        DevLogger.logMethodEntry(this, "craftWand", 
+            "wood=" + selectedWood.getId() + ", core=" + selectedCore.getId());
+        
         if (this.minecraft == null || this.minecraft.player == null) {
+            DevLogger.logWarn(this, "craftWand", "Minecraft or player is null");
+            DevLogger.logMethodExit(this, "craftWand");
             return;
         }
         
@@ -146,9 +167,15 @@ public class WandLatheScreen extends AbstractContainerScreen<WandLatheMenu> {
         
         wandStack.set(WandData.WAND_DATA.get(), wandData);
         
+        DevLogger.logStateChange(this, "craftWand", 
+            "Created wand with wood=" + selectedWood.getId() + ", core=" + selectedCore.getId());
+        
         // Add wand to player inventory or drop if full
         if (!this.minecraft.player.getInventory().add(wandStack)) {
             this.minecraft.player.drop(wandStack, false);
+            DevLogger.logDebug(this, "craftWand", "Inventory full, dropped wand");
+        } else {
+            DevLogger.logDebug(this, "craftWand", "Added wand to inventory");
         }
         
         // Close the screen
@@ -162,6 +189,8 @@ public class WandLatheScreen extends AbstractContainerScreen<WandLatheMenu> {
                     Component.translatable("wand.core." + selectedCore.getId()))
             );
         }
+        
+        DevLogger.logMethodExit(this, "craftWand");
     }
 }
 

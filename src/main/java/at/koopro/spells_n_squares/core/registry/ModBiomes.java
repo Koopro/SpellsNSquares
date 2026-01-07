@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.registry;
 
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;

@@ -1,8 +1,8 @@
 package at.koopro.spells_n_squares.datagen;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
-import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
+// import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet; // TODO: Re-enable when TreeBlockSet is implemented
+// import at.koopro.spells_n_squares.core.registry.ModTreeBlocks; // TODO: Re-enable when ModTreeBlocks is implemented
 import com.google.gson.JsonObject;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -32,13 +32,16 @@ public class TreeBlockModelProvider implements DataProvider {
     public CompletableFuture<?> run(CachedOutput cache) {
         List<CompletableFuture<?>> futures = new ArrayList<>();
         
-        for (TreeBlockSet set : ModTreeBlocks.getAllTreeSets()) {
-            futures.addAll(generateTreeBlockModels(cache, set));
-        }
+        // TODO: Re-enable when TreeBlockSet and ModTreeBlocks are implemented
+        // for (TreeBlockSet set : ModTreeBlocks.getAllTreeSets()) {
+        //     futures.addAll(generateTreeBlockModels(cache, set));
+        // }
         
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
     
+    // TODO: Re-enable when TreeBlockSet is implemented
+    /*
     private List<CompletableFuture<?>> generateTreeBlockModels(CachedOutput cache, TreeBlockSet set) {
         List<CompletableFuture<?>> futures = new ArrayList<>();
         String woodId = set.getWoodId();
@@ -84,6 +87,7 @@ public class TreeBlockModelProvider implements DataProvider {
         
         return futures;
     }
+    */
     
     // ===== BLOCKSTATE GENERATORS =====
     

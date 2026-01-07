@@ -1,13 +1,11 @@
 package at.koopro.spells_n_squares.core.api.addon;
 
-import at.koopro.spells_n_squares.core.api.IPlayerClassManager;
 import at.koopro.spells_n_squares.core.api.ISpellManager;
 import at.koopro.spells_n_squares.core.api.ISpellRegistry;
 import at.koopro.spells_n_squares.core.api.addon.events.AddonEventBus;
 import at.koopro.spells_n_squares.core.registry.addon.AddonEntityRegistry;
 import at.koopro.spells_n_squares.core.registry.addon.AddonItemRegistry;
 import at.koopro.spells_n_squares.core.registry.addon.AddonNetworkRegistry;
-import at.koopro.spells_n_squares.core.registry.addon.AddonPlayerClassRegistry;
 import at.koopro.spells_n_squares.core.registry.addon.AddonSpellRegistry;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -19,7 +17,6 @@ import net.neoforged.fml.ModContainer;
 public final class AddonContext {
     private final String addonId;
     private final ISpellManager spellManager;
-    private final IPlayerClassManager playerClassManager;
     private final ISpellRegistry spellRegistry;
     private final AddonEventBus eventBus;
     private final IEventBus modEventBus;
@@ -28,12 +25,10 @@ public final class AddonContext {
     private final AddonItemRegistry itemRegistryHelper;
     private final AddonEntityRegistry entityRegistryHelper;
     private final AddonNetworkRegistry networkRegistryHelper;
-    private final AddonPlayerClassRegistry playerClassRegistryHelper;
     
     public AddonContext(
             String addonId,
             ISpellManager spellManager,
-            IPlayerClassManager playerClassManager,
             ISpellRegistry spellRegistry,
             AddonEventBus eventBus,
             IEventBus modEventBus,
@@ -41,7 +36,6 @@ public final class AddonContext {
     ) {
         this.addonId = addonId;
         this.spellManager = spellManager;
-        this.playerClassManager = playerClassManager;
         this.spellRegistry = spellRegistry;
         this.eventBus = eventBus;
         this.modEventBus = modEventBus;
@@ -50,7 +44,6 @@ public final class AddonContext {
         this.itemRegistryHelper = new AddonItemRegistry(addonId);
         this.entityRegistryHelper = new AddonEntityRegistry(addonId);
         this.networkRegistryHelper = new AddonNetworkRegistry();
-        this.playerClassRegistryHelper = new AddonPlayerClassRegistry(addonId);
     }
     
     /**
@@ -67,14 +60,6 @@ public final class AddonContext {
      */
     public ISpellManager getSpellManager() {
         return spellManager;
-    }
-    
-    /**
-     * Gets the player class manager API.
-     * @return The player class manager
-     */
-    public IPlayerClassManager getPlayerClassManager() {
-        return playerClassManager;
     }
     
     /**
@@ -141,19 +126,4 @@ public final class AddonContext {
         return networkRegistryHelper;
     }
     
-    /**
-     * Gets the player class registry helper for easy player class registration.
-     * @return The player class registry helper
-     */
-    public AddonPlayerClassRegistry getPlayerClassRegistryHelper() {
-        return playerClassRegistryHelper;
-    }
 }
-
-
-
-
-
-
-
-

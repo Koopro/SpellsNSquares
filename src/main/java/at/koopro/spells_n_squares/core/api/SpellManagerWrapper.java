@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.api;
 
-import at.koopro.spells_n_squares.features.spell.SpellManager;
+import at.koopro.spells_n_squares.features.spell.manager.SpellManager;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;

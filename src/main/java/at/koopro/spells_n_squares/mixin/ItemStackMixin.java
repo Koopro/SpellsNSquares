@@ -1,8 +1,8 @@
 package at.koopro.spells_n_squares.mixin;
 
-import at.koopro.spells_n_squares.features.spell.SpellManager;
+import at.koopro.spells_n_squares.features.spell.manager.SpellManager;
 import at.koopro.spells_n_squares.features.spell.client.ClientSpellData;
-import at.koopro.spells_n_squares.features.wand.WandItem;
+import at.koopro.spells_n_squares.features.wand.core.WandItem;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

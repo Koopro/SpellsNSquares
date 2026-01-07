@@ -1,11 +1,7 @@
 package at.koopro.spells_n_squares.core.data;
 
-import at.koopro.spells_n_squares.features.playerclass.data.PlayerClassData;
-import at.koopro.spells_n_squares.features.wand.WandData;
-import at.koopro.spells_n_squares.modules.magic.internal.AnimagusData;
-import at.koopro.spells_n_squares.modules.magic.internal.PatronusData;
-import at.koopro.spells_n_squares.modules.spell.internal.SpellData;
-import at.koopro.spells_n_squares.modules.tutorial.internal.TutorialData;
+import at.koopro.spells_n_squares.features.wand.core.WandData;
+import at.koopro.spells_n_squares.services.spell.internal.SpellData;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentType;
@@ -38,42 +34,25 @@ public final class PlayerDataComponent {
      * 
      * Currently includes:
      * - Spell data (slots, learned spells, cooldowns, active hold spell)
-     * - Player class data
      * - Wand data (core, wood, attunement status)
-     * - Tutorial data (tutorial progress)
-     * - Animagus data (form, registration info)
-     * - Patronus data (form, discovery info)
-     * 
-     * Additional modules will be added as they migrate.
+     * - Identity data (blood status, magical race/type)
      */
     public record PlayerData(
         SpellData spells,
-        PlayerClassData.PlayerClassComponent classes,
         WandData.WandDataComponent wandData,
-        TutorialData tutorial,
-        AnimagusData animagus,
-        PatronusData patronus
+        PlayerIdentityData.IdentityData identity
     ) {
         public static final Codec<PlayerData> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                 SpellData.CODEC
                     .optionalFieldOf("spells", SpellData.empty())
                     .forGetter(PlayerData::spells),
-                PlayerClassData.PlayerClassComponent.CODEC
-                    .optionalFieldOf("classes", PlayerClassData.PlayerClassComponent.createDefault())
-                    .forGetter(PlayerData::classes),
                 WandData.WandDataComponent.CODEC
                     .optionalFieldOf("wandData", new WandData.WandDataComponent("", "", false))
                     .forGetter(PlayerData::wandData),
-                TutorialData.CODEC
-                    .optionalFieldOf("tutorial", TutorialData.empty())
-                    .forGetter(PlayerData::tutorial),
-                AnimagusData.CODEC
-                    .optionalFieldOf("animagus", AnimagusData.empty())
-                    .forGetter(PlayerData::animagus),
-                PatronusData.CODEC
-                    .optionalFieldOf("patronus", PatronusData.empty())
-                    .forGetter(PlayerData::patronus)
+                PlayerIdentityData.IdentityData.CODEC
+                    .optionalFieldOf("identity", PlayerIdentityData.IdentityData.empty())
+                    .forGetter(PlayerData::identity)
             ).apply(instance, PlayerData::new)
         );
         
@@ -83,11 +62,19 @@ public final class PlayerDataComponent {
         public static PlayerData empty() {
             return new PlayerData(
                 SpellData.empty(),
-                PlayerClassData.PlayerClassComponent.createDefault(),
                 new WandData.WandDataComponent("", "", false),
-                TutorialData.empty(),
-                AnimagusData.empty(),
-                PatronusData.empty()
+                PlayerIdentityData.IdentityData.empty()
+            );
+        }
+        
+        /**
+         * Creates default player data based on player gender.
+         */
+        public static PlayerData defaultForGender(boolean isMale) {
+            return new PlayerData(
+                SpellData.empty(),
+                new WandData.WandDataComponent("", "", false),
+                PlayerIdentityData.IdentityData.defaultForGender(isMale)
             );
         }
     }

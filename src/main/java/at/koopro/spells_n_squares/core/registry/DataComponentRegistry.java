@@ -1,32 +1,7 @@
 package at.koopro.spells_n_squares.core.registry;
 
-import at.koopro.spells_n_squares.features.artifacts.DeluminatorData;
-import at.koopro.spells_n_squares.features.artifacts.ElderWandData;
-import at.koopro.spells_n_squares.features.artifacts.GobletOfFireData;
-import at.koopro.spells_n_squares.features.artifacts.MaraudersMapData;
-import at.koopro.spells_n_squares.features.artifacts.MirrorOfErisedData;
-import at.koopro.spells_n_squares.features.artifacts.PensieveData;
-import at.koopro.spells_n_squares.features.artifacts.PhilosophersStoneData;
-import at.koopro.spells_n_squares.features.artifacts.RemembrallData;
-import at.koopro.spells_n_squares.features.artifacts.ResurrectionStoneData;
-import at.koopro.spells_n_squares.features.artifacts.SortingHatData;
-import at.koopro.spells_n_squares.features.artifacts.TimeTurnerItem;
-import at.koopro.spells_n_squares.features.cloak.CloakChargeData;
-import at.koopro.spells_n_squares.features.creatures.CreatureData;
-import at.koopro.spells_n_squares.features.economy.CurrencyData;
-import at.koopro.spells_n_squares.features.enchantments.EnchantmentSystem;
-import at.koopro.spells_n_squares.features.flashlight.FlashlightItem;
-import at.koopro.spells_n_squares.features.gear.SocketData;
-import at.koopro.spells_n_squares.features.ghosts.GhostData;
-import at.koopro.spells_n_squares.features.playerclass.PlayerClassData;
-import at.koopro.spells_n_squares.features.portraits.PortraitData;
-import at.koopro.spells_n_squares.features.potions.PotionData;
-import at.koopro.spells_n_squares.features.storage.BagInventoryData;
 import at.koopro.spells_n_squares.features.storage.PocketDimensionData;
-import at.koopro.spells_n_squares.features.storage.TrunkInventoryData;
-import at.koopro.spells_n_squares.features.transportation.BroomstickData;
-import at.koopro.spells_n_squares.features.transportation.PortkeyData;
-import at.koopro.spells_n_squares.features.wand.WandData;
+import at.koopro.spells_n_squares.features.wand.core.WandData;
 import net.neoforged.bus.api.IEventBus;
 
 /**
@@ -48,52 +23,18 @@ public final class DataComponentRegistry {
         // Core data components
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         
-        // Artifacts
-        DeluminatorData.DATA_COMPONENTS.register(modEventBus);
-        ElderWandData.DATA_COMPONENTS.register(modEventBus);
-        GobletOfFireData.DATA_COMPONENTS.register(modEventBus);
-        MaraudersMapData.DATA_COMPONENTS.register(modEventBus);
-        MirrorOfErisedData.DATA_COMPONENTS.register(modEventBus);
-        PensieveData.DATA_COMPONENTS.register(modEventBus);
-        PhilosophersStoneData.DATA_COMPONENTS.register(modEventBus);
-        RemembrallData.DATA_COMPONENTS.register(modEventBus);
-        ResurrectionStoneData.DATA_COMPONENTS.register(modEventBus);
-        SortingHatData.DATA_COMPONENTS.register(modEventBus);
-        TimeTurnerItem.DATA_COMPONENTS.register(modEventBus);
-        
-        // Equipment & Gear
-        FlashlightItem.DATA_COMPONENTS.register(modEventBus);
+        // Wand
         WandData.DATA_COMPONENTS.register(modEventBus);
-        CloakChargeData.DATA_COMPONENTS.register(modEventBus);
-        SocketData.DATA_COMPONENTS.register(modEventBus);
         
-        // Storage
-        BagInventoryData.DATA_COMPONENTS.register(modEventBus);
-        TrunkInventoryData.DATA_COMPONENTS.register(modEventBus);
+        // Storage (Pocket Dimensions only)
         PocketDimensionData.DATA_COMPONENTS.register(modEventBus);
         
-        // Transportation
-        PortkeyData.DATA_COMPONENTS.register(modEventBus);
-        BroomstickData.DATA_COMPONENTS.register(modEventBus);
+        // Player Model
+        at.koopro.spells_n_squares.core.data.PlayerModelDataComponent.DATA_COMPONENTS.register(modEventBus);
         
-        // Portraits
-        PortraitData.DATA_COMPONENTS.register(modEventBus);
-        
-        // Ghosts
-        GhostData.DATA_COMPONENTS.register(modEventBus);
-        
-        // Creatures & Systems
-        EnchantmentSystem.DATA_COMPONENTS.register(modEventBus);
-        CreatureData.DATA_COMPONENTS.register(modEventBus);
-        
-        // Economy
-        CurrencyData.DATA_COMPONENTS.register(modEventBus);
-        
-        // Potions
-        PotionData.DATA_COMPONENTS.register(modEventBus);
-        
-        // Player Classes
-        PlayerClassData.DATA_COMPONENTS.register(modEventBus);
+        // Artifacts (Philosopher's Stone and Immortality)
+        at.koopro.spells_n_squares.features.artifact.PhilosophersStoneData.DATA_COMPONENTS.register(modEventBus);
+        at.koopro.spells_n_squares.features.artifact.ImmortalityData.DATA_COMPONENTS.register(modEventBus);
     }
 }
 

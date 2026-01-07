@@ -1,10 +1,12 @@
 package at.koopro.spells_n_squares.features.spell.client;
 
-import at.koopro.spells_n_squares.features.spell.SpellManager;
-import at.koopro.spells_n_squares.features.playerclass.PlayerClass;
+import at.koopro.spells_n_squares.core.util.collection.CollectionFactory;
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
+import at.koopro.spells_n_squares.features.spell.client.RecentSpellsManager;
+import at.koopro.spells_n_squares.features.spell.client.SpellUsageStatistics;
+import at.koopro.spells_n_squares.features.spell.manager.SpellManager;
 import net.minecraft.resources.Identifier;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -16,16 +18,17 @@ public class ClientSpellData {
     private static final Identifier[] clientSpellSlots = new Identifier[SpellManager.MAX_SLOTS];
     
     // Client-side spell cooldowns (spell ID -> remaining ticks)
-    private static final Map<Identifier, Integer> clientCooldowns = new HashMap<>();
-    
-    // Client-side player class
-    private static PlayerClass clientPlayerClass = PlayerClass.NONE;
+    private static final Map<Identifier, Integer> clientCooldowns = CollectionFactory.createMap();
     
     // Currently selected spell slot (for casting)
     private static int selectedSlot = SpellManager.SLOT_TOP;
     
     // Whether player is currently holding a spell
     private static boolean holdingSpell = false;
+    
+    // Favorite spells (spell IDs that are favorited)
+    private static final java.util.Set<Identifier> favoriteSpells = CollectionFactory.createSet();
+    private static boolean favoritesLoaded = false;
     
     /**
      * Gets the spell ID in the specified slot.
@@ -56,10 +59,17 @@ public class ClientSpellData {
      * @param slots Array of spell IDs (length must be MAX_SLOTS)
      */
     public static void updateSpellSlots(Identifier[] slots) {
+        DevLogger.logMethodEntry(ClientSpellData.class, "updateSpellSlots");
         if (slots == null || slots.length != SpellManager.MAX_SLOTS) {
+            DevLogger.logWarn(ClientSpellData.class, "updateSpellSlots", 
+                "Invalid slots array: " + (slots == null ? "null" : "length=" + slots.length));
+            DevLogger.logMethodExit(ClientSpellData.class, "updateSpellSlots");
             return;
         }
         System.arraycopy(slots, 0, clientSpellSlots, 0, SpellManager.MAX_SLOTS);
+        DevLogger.logStateChange(ClientSpellData.class, "updateSpellSlots", 
+            "Updated spell slots from server");
+        DevLogger.logMethodExit(ClientSpellData.class, "updateSpellSlots");
     }
     
     /**
@@ -111,8 +121,34 @@ public class ClientSpellData {
         if (cooldowns == null) {
             return;
         }
+        
+        // Track newly added cooldowns as recently used spells
+        for (Map.Entry<Identifier, Integer> entry : cooldowns.entrySet()) {
+            Identifier spellId = entry.getKey();
+            // Skip entries with null keys to prevent NullPointerException
+            if (spellId == null) {
+                continue;
+            }
+            Integer newCooldown = entry.getValue();
+            Integer oldCooldown = clientCooldowns.get(spellId);
+            
+            // If this is a new cooldown (wasn't on cooldown before), record as recently used
+            if (oldCooldown == null || oldCooldown <= 0) {
+                if (newCooldown != null && newCooldown > 0) {
+                    RecentSpellsManager.recordSpellUsed(spellId);
+                    SpellUsageStatistics.recordSpellUsed(spellId);
+                }
+            }
+        }
+        
         clientCooldowns.clear();
-        clientCooldowns.putAll(cooldowns);
+        // Filter out null keys before putAll to prevent NullPointerException
+        for (Map.Entry<Identifier, Integer> entry : cooldowns.entrySet()) {
+            Identifier spellId = entry.getKey();
+            if (spellId != null) {
+                clientCooldowns.put(spellId, entry.getValue());
+            }
+        }
     }
     
     /**
@@ -131,27 +167,14 @@ public class ClientSpellData {
     }
     
     /**
-     * Sets the player class for the client.
-     * @param playerClass The player class
-     */
-    public static void setPlayerClass(PlayerClass playerClass) {
-        clientPlayerClass = playerClass != null ? playerClass : PlayerClass.NONE;
-    }
-    
-    /**
-     * Gets the player class for the client.
-     * @return The player class
-     */
-    public static PlayerClass getPlayerClass() {
-        return clientPlayerClass;
-    }
-    
-    /**
      * Gets the currently selected spell slot.
      * @return The selected slot index
      */
     public static int getSelectedSlot() {
-        return selectedSlot;
+        DevLogger.logMethodEntry(ClientSpellData.class, "getSelectedSlot");
+        int result = selectedSlot;
+        DevLogger.logReturnValue(ClientSpellData.class, "getSelectedSlot", result);
+        return result;
     }
     
     /**
@@ -159,9 +182,15 @@ public class ClientSpellData {
      * @param slot The slot index to select
      */
     public static void setSelectedSlot(int slot) {
+        DevLogger.logMethodEntry(ClientSpellData.class, "setSelectedSlot", "slot=" + slot);
         if (SpellManager.isValidSlot(slot)) {
             selectedSlot = slot;
+            DevLogger.logStateChange(ClientSpellData.class, "setSelectedSlot", 
+                "Selected slot changed to " + slot);
+        } else {
+            DevLogger.logWarn(ClientSpellData.class, "setSelectedSlot", "Invalid slot: " + slot);
         }
+        DevLogger.logMethodExit(ClientSpellData.class, "setSelectedSlot");
     }
     
     /**
@@ -181,6 +210,58 @@ public class ClientSpellData {
     }
     
     /**
+     * Ensures favorites are loaded from disk.
+     */
+    private static void ensureFavoritesLoaded() {
+        if (!favoritesLoaded) {
+            java.util.Set<Identifier> loaded = FavoritesPersistence.loadFavorites();
+            favoriteSpells.clear();
+            favoriteSpells.addAll(loaded);
+            favoritesLoaded = true;
+        }
+    }
+    
+    /**
+     * Checks if a spell is favorited.
+     * @param spellId The spell ID
+     * @return true if the spell is favorited
+     */
+    public static boolean isFavorite(Identifier spellId) {
+        ensureFavoritesLoaded();
+        return spellId != null && favoriteSpells.contains(spellId);
+    }
+    
+    /**
+     * Toggles the favorite status of a spell.
+     * @param spellId The spell ID
+     * @return true if the spell is now favorited, false if it was unfavorited
+     */
+    public static boolean toggleFavorite(Identifier spellId) {
+        ensureFavoritesLoaded();
+        if (spellId == null) {
+            return false;
+        }
+        boolean wasFavorite = favoriteSpells.contains(spellId);
+        if (wasFavorite) {
+            favoriteSpells.remove(spellId);
+        } else {
+            favoriteSpells.add(spellId);
+        }
+        // Save to disk
+        FavoritesPersistence.saveFavorites(favoriteSpells);
+        return !wasFavorite;
+    }
+    
+    /**
+     * Gets all favorite spell IDs.
+     * @return A set of favorite spell IDs
+     */
+    public static java.util.Set<Identifier> getFavorites() {
+        ensureFavoritesLoaded();
+        return CollectionFactory.createSetFrom(favoriteSpells);
+    }
+    
+    /**
      * Clears all client spell data.
      */
     public static void clear() {
@@ -188,7 +269,16 @@ public class ClientSpellData {
             clientSpellSlots[i] = null;
         }
         clientCooldowns.clear();
-        clientPlayerClass = PlayerClass.NONE;
+        favoriteSpells.clear();
+        favoritesLoaded = false; // Reset so favorites reload on next access
         selectedSlot = SpellManager.SLOT_TOP;
+    }
+    
+    /**
+     * Initializes favorites by loading from disk.
+     * Should be called when the client starts or when the player logs in.
+     */
+    public static void initializeFavorites() {
+        ensureFavoritesLoaded();
     }
 }

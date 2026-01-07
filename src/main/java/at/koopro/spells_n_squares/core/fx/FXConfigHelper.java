@@ -1,6 +1,7 @@
 package at.koopro.spells_n_squares.core.fx;
 
 import at.koopro.spells_n_squares.core.config.Config;
+import at.koopro.spells_n_squares.core.util.math.MathUtils;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -41,7 +42,7 @@ public final class FXConfigHelper {
             return false;
         }
         
-        double distance = player.position().distanceTo(position);
+        double distance = MathUtils.distance(player.position(), position);
         return distance <= Config.getMaxParticleDistance();
     }
     
@@ -53,7 +54,7 @@ public final class FXConfigHelper {
             return 0.0;
         }
         
-        double distance = player.position().distanceTo(position);
+        double distance = MathUtils.distance(player.position(), position);
         int maxDistance = Config.getMaxParticleDistance();
         
         if (distance > maxDistance) {
@@ -87,5 +88,35 @@ public final class FXConfigHelper {
     public static boolean useHighQualityEffects() {
         return Config.getEffectQuality() == Config.EffectQuality.HIGH || 
                Config.getEffectQuality() == Config.EffectQuality.ULTRA;
+    }
+    
+    /**
+     * Checks if a particle position is likely off-screen based on distance and angle.
+     * This is a simple heuristic - full frustum culling would require camera data.
+     * 
+     * @param player The player to check visibility relative to
+     * @param position The particle position
+     * @return true if particle should be culled (not rendered)
+     */
+    public static boolean shouldCullParticle(Player player, Vec3 position) {
+        if (player == null || position == null) {
+            return true; // Cull if invalid
+        }
+        
+        // Distance-based culling (already handled by shouldRenderParticles, but double-check)
+        double distance = MathUtils.distance(player.position(), position);
+        if (distance > Config.getMaxParticleDistance()) {
+            return true;
+        }
+        
+        // For very far particles, use more aggressive culling
+        // At 80% of max distance, start reducing particle count more aggressively
+        double maxDistance = Config.getMaxParticleDistance();
+        if (distance > maxDistance * 0.8) {
+            // Random culling for far particles (50% chance)
+            return Math.random() > 0.5;
+        }
+        
+        return false;
     }
 }

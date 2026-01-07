@@ -1,7 +1,7 @@
 package at.koopro.spells_n_squares.features.storage;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.core.util.EventUtils;
+import at.koopro.spells_n_squares.core.util.event.EventUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;

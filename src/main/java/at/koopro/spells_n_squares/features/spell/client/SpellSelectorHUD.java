@@ -3,24 +3,22 @@ package at.koopro.spells_n_squares.features.spell.client;
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.client.KeyStateTracker;
 import at.koopro.spells_n_squares.core.registry.ModTags;
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
-import at.koopro.spells_n_squares.features.spell.Spell;
-import at.koopro.spells_n_squares.features.spell.SpellManager;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
+import at.koopro.spells_n_squares.core.util.text.StringUtils;
+import at.koopro.spells_n_squares.features.spell.base.Spell;
+import at.koopro.spells_n_squares.features.spell.manager.SpellManager;
 import at.koopro.spells_n_squares.core.registry.SpellRegistry;
-import at.koopro.spells_n_squares.features.spell.client.SpellSelectionScreen;
+import at.koopro.spells_n_squares.core.util.event.SafeEventHandler;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /**
  * Renders a spell selector HUD element that displays movement keybinds (W, S, A, D)
@@ -93,10 +91,10 @@ public class SpellSelectorHUD {
         }
         
         // Also check by direct item reference as fallback
-        if (!mainHand.isEmpty() && mainHand.is(at.koopro.spells_n_squares.features.wand.WandRegistry.DEMO_WAND.get())) {
+        if (!mainHand.isEmpty() && mainHand.is(at.koopro.spells_n_squares.features.wand.registry.WandRegistry.DEMO_WAND.get())) {
             return true;
         }
-        if (!offHand.isEmpty() && offHand.is(at.koopro.spells_n_squares.features.wand.WandRegistry.DEMO_WAND.get())) {
+        if (!offHand.isEmpty() && offHand.is(at.koopro.spells_n_squares.features.wand.registry.WandRegistry.DEMO_WAND.get())) {
             return true;
         }
         
@@ -113,89 +111,91 @@ public class SpellSelectorHUD {
             return;
         }
 
-        // Only process spell-related inputs when holding a wand
-        if (!isHoldingWand(mc)) {
-            // Reset mouse state tracker when not holding wand
-            lastLeftMouseState = false;
-            return;
-        }
+        SafeEventHandler.execute(() -> {
+            // Only process spell-related inputs when holding a wand
+            if (!isHoldingWand(mc)) {
+                // Reset mouse state tracker when not holding wand
+                lastLeftMouseState = false;
+                return;
+            }
 
-        // Tick client-side cooldowns
-        ClientSpellData.tickCooldowns();
+            // Tick client-side cooldowns
+            ClientSpellData.tickCooldowns();
 
-        // Detect key press (transition from not pressed to pressed) and switch selection
-        if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_TOP)) {
-            selectedField = SpellManager.SLOT_TOP;
-            ClientSpellData.setSelectedSlot(SpellManager.SLOT_TOP);
-        } else if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_BOTTOM)) {
-            selectedField = SpellManager.SLOT_BOTTOM;
-            ClientSpellData.setSelectedSlot(SpellManager.SLOT_BOTTOM);
-        } else if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_LEFT)) {
-            selectedField = SpellManager.SLOT_LEFT;
-            ClientSpellData.setSelectedSlot(SpellManager.SLOT_LEFT);
-        } else if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_RIGHT)) {
-            selectedField = SpellManager.SLOT_RIGHT;
-            ClientSpellData.setSelectedSlot(SpellManager.SLOT_RIGHT);
-        }
+            // Detect key press (transition from not pressed to pressed) and switch selection
+            if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_SELECTOR_TOP)) {
+                selectedField = SpellManager.SLOT_TOP;
+                ClientSpellData.setSelectedSlot(SpellManager.SLOT_TOP);
+            } else if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_SELECTOR_BOTTOM)) {
+                selectedField = SpellManager.SLOT_BOTTOM;
+                ClientSpellData.setSelectedSlot(SpellManager.SLOT_BOTTOM);
+            } else if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_SELECTOR_LEFT)) {
+                selectedField = SpellManager.SLOT_LEFT;
+                ClientSpellData.setSelectedSlot(SpellManager.SLOT_LEFT);
+            } else if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_SELECTOR_RIGHT)) {
+                selectedField = SpellManager.SLOT_RIGHT;
+                ClientSpellData.setSelectedSlot(SpellManager.SLOT_RIGHT);
+            }
 
-        // Handle spell casting
-        KeyMapping castKey = at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_CAST;
-        boolean isCastKeyPressed = castKey.isDown();
-        boolean wasCastKeyJustPressed = keyTracker.wasJustPressed(castKey);
-        
-        // Track left mouse button state for shoot detection
-        KeyMapping attackKey = mc.options.keyAttack;
-        boolean currentLeftMouseState = attackKey.isDown();
-        
-        if (mc.player != null && mc.level != null) {
-            int slotToCast = ClientSpellData.getSelectedSlot();
-            Identifier spellId = ClientSpellData.getSpellInSlot(slotToCast);
+            // Handle spell casting
+            KeyMapping castKey = at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_CAST;
+            boolean isCastKeyPressed = castKey.isDown();
+            boolean wasCastKeyJustPressed = keyTracker.wasJustPressed(castKey);
             
-            if (spellId != null) {
-                Spell spell = SpellRegistry.get(spellId);
+            // Track left mouse button state for shoot detection
+            KeyMapping attackKey = mc.options.keyAttack;
+            boolean currentLeftMouseState = attackKey.isDown();
+            
+            if (mc.player != null && mc.level != null) {
+                int slotToCast = ClientSpellData.getSelectedSlot();
+                Identifier spellId = ClientSpellData.getSpellInSlot(slotToCast);
                 
-                // Check if this is a hold-to-cast spell
-                if (spell != null && spell.isHoldToCast()) {
-                    // Handle hold-to-cast spells
-                    if (wasCastKeyJustPressed && !ClientSpellData.isHoldingSpell()) {
-                        // Start holding the spell (only if not already holding)
-                        at.koopro.spells_n_squares.features.spell.network.SpellCastPayload payload = 
-                            new at.koopro.spells_n_squares.features.spell.network.SpellCastPayload(slotToCast);
-                        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
-                        ClientSpellData.setHoldingSpell(true);
-                    } else if (!isCastKeyPressed && ClientSpellData.isHoldingSpell()) {
-                        // Stop holding the spell
-                        at.koopro.spells_n_squares.features.spell.network.SpellCastPayload payload = 
-                            new at.koopro.spells_n_squares.features.spell.network.SpellCastPayload(-1); // -1 means stop
-                        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
-                        ClientSpellData.setHoldingSpell(false);
-                    }
+                if (spellId != null) {
+                    Spell spell = SpellRegistry.get(spellId);
                     
-                    // Detect left-click while holding a spell to shoot entities/blocks away
-                    if (currentLeftMouseState && !lastLeftMouseState && ClientSpellData.isHoldingSpell()) {
-                        // Left-click detected while holding spell - shoot entities away
-                        at.koopro.spells_n_squares.features.spell.network.SpellShootPayload shootPayload = 
-                            new at.koopro.spells_n_squares.features.spell.network.SpellShootPayload();
-                        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(shootPayload);
-                    }
-                } else {
-                    // Normal one-time cast spell
-                    if (wasCastKeyJustPressed) {
-                        at.koopro.spells_n_squares.features.spell.network.SpellCastPayload payload = 
-                            new at.koopro.spells_n_squares.features.spell.network.SpellCastPayload(slotToCast);
-                        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
+                    // Check if this is a hold-to-cast spell
+                    if (spell != null && spell.isHoldToCast()) {
+                        // Handle hold-to-cast spells
+                        if (wasCastKeyJustPressed && !ClientSpellData.isHoldingSpell()) {
+                            // Start holding the spell (only if not already holding)
+                            at.koopro.spells_n_squares.features.spell.network.SpellCastPayload payload = 
+                                new at.koopro.spells_n_squares.features.spell.network.SpellCastPayload(slotToCast);
+                            net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
+                            ClientSpellData.setHoldingSpell(true);
+                        } else if (!isCastKeyPressed && ClientSpellData.isHoldingSpell()) {
+                            // Stop holding the spell
+                            at.koopro.spells_n_squares.features.spell.network.SpellCastPayload payload = 
+                                new at.koopro.spells_n_squares.features.spell.network.SpellCastPayload(-1); // -1 means stop
+                            net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
+                            ClientSpellData.setHoldingSpell(false);
+                        }
+                        
+                        // Detect left-click while holding a spell to shoot entities/blocks away
+                        if (currentLeftMouseState && !lastLeftMouseState && ClientSpellData.isHoldingSpell()) {
+                            // Left-click detected while holding spell - shoot entities away
+                            at.koopro.spells_n_squares.features.spell.network.SpellShootPayload shootPayload = 
+                                new at.koopro.spells_n_squares.features.spell.network.SpellShootPayload();
+                            net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(shootPayload);
+                        }
+                    } else {
+                        // Normal one-time cast spell
+                        if (wasCastKeyJustPressed) {
+                            at.koopro.spells_n_squares.features.spell.network.SpellCastPayload payload = 
+                                new at.koopro.spells_n_squares.features.spell.network.SpellCastPayload(slotToCast);
+                            net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
+                        }
                     }
                 }
             }
-        }
-        
-        // Update mouse state tracker
-        lastLeftMouseState = currentLeftMouseState;
-        
-        // Handle spell selection screen
-        if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTION_SCREEN) && mc.player != null) {
-            mc.setScreen(new SpellSelectionScreen());
-        }
+            
+            // Update mouse state tracker
+            lastLeftMouseState = currentLeftMouseState;
+            
+            // Handle spell selection screen
+            if (keyTracker.wasJustPressed(at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_SELECTION_SCREEN) && mc.player != null) {
+                mc.setScreen(new SpellSelectionScreen());
+            }
+        }, "ticking spell selector HUD", mc.player);
     }
 
     /**
@@ -208,25 +208,26 @@ public class SpellSelectorHUD {
             return;
         }
         
-        // Don't render HUD when a screen is open (except inventory)
-        if (mc.screen != null && !(mc.screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen)) {
-            return;
-        }
-        
-        // Only render HUD when holding a wand
-        if (!isHoldingWand(mc)) {
-            return;
-        }
-        
-        GuiGraphics guiGraphics = event.getGuiGraphics();
+        SafeEventHandler.execute(() -> {
+            // Don't render HUD when a screen is open (except inventory)
+            if (mc.screen != null && !(mc.screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen)) {
+                return;
+            }
+            
+            // Only render HUD when holding a wand
+            if (!isHoldingWand(mc)) {
+                return;
+            }
+            
+            GuiGraphics guiGraphics = event.getGuiGraphics();
 
-        // Render all HUD elements
-        int hudX = getHudX(mc);
-        int hudY = getHudY(mc);
-        
-        renderHudTexture(guiGraphics, mc);
-        renderSpellText(guiGraphics, mc);
-        renderSelectionIndicator(guiGraphics);
+            // Render all HUD elements
+            renderHudTexture(guiGraphics, mc);
+            renderSpellText(guiGraphics, mc);
+            renderSelectionIndicator(guiGraphics);
+            renderWandCompatibilityMeter(guiGraphics, mc);
+            renderComboIndicators(guiGraphics, mc);
+        }, "rendering spell selector HUD", mc.player);
     }
     
     /**
@@ -286,7 +287,6 @@ public class SpellSelectorHUD {
         
         Identifier spellId = ClientSpellData.getSpellInSlot(slot);
         boolean isOnCooldown = spellId != null && ClientSpellData.isOnCooldown(spellId);
-        boolean isSelected = slot == selectedField;
         int cooldownTicks = spellId != null ? ClientSpellData.getCooldown(spellId) : 0;
         
         // If a spell is assigned, render its icon
@@ -424,7 +424,7 @@ public class SpellSelectorHUD {
         int bgColor,
         int borderColor
     ) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return;
         }
 
@@ -462,10 +462,10 @@ public class SpellSelectorHUD {
      */
     private static KeyMapping getKeybindForSlot(int slot) {
         return switch (slot) {
-            case SpellManager.SLOT_TOP -> at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_TOP;
-            case SpellManager.SLOT_BOTTOM -> at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_BOTTOM;
-            case SpellManager.SLOT_LEFT -> at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_LEFT;
-            case SpellManager.SLOT_RIGHT -> at.koopro.spells_n_squares.init.client.ModKeybinds.SPELL_SELECTOR_RIGHT;
+            case SpellManager.SLOT_TOP -> at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_SELECTOR_TOP;
+            case SpellManager.SLOT_BOTTOM -> at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_SELECTOR_BOTTOM;
+            case SpellManager.SLOT_LEFT -> at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_SELECTOR_LEFT;
+            case SpellManager.SLOT_RIGHT -> at.koopro.spells_n_squares.core.base.init.client.ModKeybinds.SPELL_SELECTOR_RIGHT;
             default -> null;
         };
     }
@@ -565,6 +565,125 @@ public class SpellSelectorHUD {
             SELECT_SIZE, SELECT_SIZE,
             -1
         );
+    }
+    
+    /**
+     * Renders a wand compatibility meter showing how well the current wand works with the selected spell.
+     */
+    private static void renderWandCompatibilityMeter(GuiGraphics guiGraphics, Minecraft mc) {
+        if (mc.player == null) {
+            return;
+        }
+        
+        // Get current wand from player's hand
+        net.minecraft.world.item.ItemStack wandStack = mc.player.getMainHandItem();
+        if (wandStack.isEmpty() || !wandStack.is(ModTags.WANDS)) {
+            wandStack = mc.player.getOffhandItem();
+            if (wandStack.isEmpty() || !wandStack.is(ModTags.WANDS)) {
+                return; // No wand in hand
+            }
+        }
+        
+        // Get selected spell
+        int selectedSlot = ClientSpellData.getSelectedSlot();
+        Identifier spellId = ClientSpellData.getSpellInSlot(selectedSlot);
+        if (spellId == null) {
+            return;
+        }
+        
+        // Calculate compatibility
+        float compatibility = at.koopro.spells_n_squares.features.wand.compatibility.WandCompatibilityHelper.calculateCompatibility(
+            wandStack, spellId);
+        
+        // Render compatibility bar (small bar above HUD)
+        int hudX = getHudX(mc);
+        int hudY = getHudY(mc);
+        int barX = hudX + HUD_SIZE / 2 - 20; // Center of HUD, offset for bar width
+        int barY = hudY - 8; // Above HUD
+        
+        int barWidth = 40;
+        int barHeight = 4;
+        
+        // Background
+        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0x80000000);
+        
+        // Compatibility fill (color-coded: red=low, yellow=medium, green=high)
+        int fillWidth = (int) (barWidth * compatibility);
+        int fillColor;
+        if (compatibility < 0.4f) {
+            fillColor = 0xFF0000; // Red
+        } else if (compatibility < 0.7f) {
+            fillColor = 0xFFFF00; // Yellow
+        } else {
+            fillColor = 0x00FF00; // Green
+        }
+        guiGraphics.fill(barX, barY, barX + fillWidth, barY + barHeight, 0xFF000000 | fillColor);
+        
+        // Border
+        guiGraphics.fill(barX, barY, barX + barWidth, barY + 1, 0xFFFFFFFF); // Top
+        guiGraphics.fill(barX, barY + barHeight - 1, barX + barWidth, barY + barHeight, 0xFFFFFFFF); // Bottom
+        guiGraphics.fill(barX, barY, barX + 1, barY + barHeight, 0xFFFFFFFF); // Left
+        guiGraphics.fill(barX + barWidth - 1, barY, barX + barWidth, barY + barHeight, 0xFFFFFFFF); // Right
+    }
+    
+    /**
+     * Renders spell combo indicators when a combo is active.
+     */
+    private static void renderComboIndicators(GuiGraphics guiGraphics, Minecraft mc) {
+        if (mc.player == null) {
+            return;
+        }
+        
+        // Check for active combos (recent spell casts)
+        java.util.List<at.koopro.spells_n_squares.features.spell.combo.SpellComboSystem.ComboEntry> comboHistory = 
+            at.koopro.spells_n_squares.features.spell.combo.SpellComboSystem.getComboHistory(mc.player);
+        
+        if (comboHistory == null || comboHistory.isEmpty()) {
+            return;
+        }
+        
+        // Check if there's an active combo (recent enough)
+        long currentTick = mc.level != null ? mc.level.getGameTime() : 0;
+        long recentThreshold = 100; // 5 seconds
+        boolean hasActiveCombo = comboHistory.stream()
+            .anyMatch(entry -> currentTick - entry.timestamp() < recentThreshold);
+        
+        if (!hasActiveCombo) {
+            return;
+        }
+        
+        // Render combo indicator (small icon/text next to HUD)
+        int hudX = getHudX(mc);
+        int hudY = getHudY(mc);
+        int comboX = hudX + HUD_SIZE + 4; // To the right of HUD
+        int comboY = hudY + HUD_SIZE / 2 - 8; // Vertically centered
+        
+        // Render combo count badge
+        String comboText = "x" + comboHistory.size();
+        int textWidth = mc.font.width(comboText);
+        int textHeight = mc.font.lineHeight;
+        int padding = 4;
+        
+        int bgX = comboX;
+        int bgY = comboY - textHeight / 2;
+        int bgWidth = textWidth + padding * 2;
+        int bgHeight = textHeight + padding * 2;
+        
+        // Background with glow effect
+        int bgColor = 0xAAFFD700; // Gold with transparency
+        guiGraphics.fill(bgX, bgY, bgX + bgWidth, bgY + bgHeight, bgColor);
+        
+        // Border
+        int borderColor = 0xFFFFD700; // Gold
+        guiGraphics.fill(bgX, bgY, bgX + bgWidth, bgY + 1, borderColor); // Top
+        guiGraphics.fill(bgX, bgY + bgHeight - 1, bgX + bgWidth, bgY + bgHeight, borderColor); // Bottom
+        guiGraphics.fill(bgX, bgY, bgX + 1, bgY + bgHeight, borderColor); // Left
+        guiGraphics.fill(bgX + bgWidth - 1, bgY, bgX + bgWidth, bgY + bgHeight, borderColor); // Right
+        
+        // Text
+        int textX = bgX + padding;
+        int textY = bgY + padding;
+        guiGraphics.drawString(mc.font, comboText, textX, textY, 0xFFFFFFFF, true);
     }
 }
 

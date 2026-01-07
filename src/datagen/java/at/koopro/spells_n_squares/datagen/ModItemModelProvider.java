@@ -2,23 +2,26 @@ package at.koopro.spells_n_squares.datagen;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.ModItems;
-import at.koopro.spells_n_squares.features.artifacts.ArtifactsRegistry;
-import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
-import at.koopro.spells_n_squares.features.building.BuildingRegistry;
-import at.koopro.spells_n_squares.features.cloak.CloakRegistry;
-// import at.koopro.spells_n_squares.features.combat.CombatRegistry; // TODO: Re-enable when CombatRegistry is implemented
-// import at.koopro.spells_n_squares.features.communication.CommunicationRegistry; // TODO: Re-enable when CommunicationRegistry is implemented
-import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
-// import at.koopro.spells_n_squares.features.education.EducationRegistry; // TODO: Re-enable when EducationRegistry is implemented
-import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
-import at.koopro.spells_n_squares.features.flashlight.FlashlightRegistry;
-import at.koopro.spells_n_squares.features.navigation.NavigationRegistry;
-import at.koopro.spells_n_squares.features.potions.PotionsRegistry;
-// import at.koopro.spells_n_squares.features.quidditch.QuidditchRegistry; // TODO: Re-enable when QuidditchRegistry is implemented
-import at.koopro.spells_n_squares.features.robes.RobesRegistry;
 import at.koopro.spells_n_squares.features.storage.StorageRegistry;
-import at.koopro.spells_n_squares.features.transportation.TransportationRegistry;
-import at.koopro.spells_n_squares.features.wand.WandRegistry;
+
+// Future feature registries (commented out until features are implemented)
+// When implementing a feature, uncomment the corresponding registry import and add it to the list below
+// import at.koopro.spells_n_squares.features.artifacts.ArtifactsRegistry;
+// import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
+// import at.koopro.spells_n_squares.features.building.BuildingRegistry;
+// import at.koopro.spells_n_squares.features.cloak.CloakRegistry;
+// import at.koopro.spells_n_squares.features.combat.CombatRegistry;
+// import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+// import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
+// import at.koopro.spells_n_squares.features.education.EducationRegistry;
+// import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
+// import at.koopro.spells_n_squares.features.flashlight.FlashlightRegistry;
+// import at.koopro.spells_n_squares.features.navigation.NavigationRegistry;
+// import at.koopro.spells_n_squares.features.potions.PotionsRegistry;
+// import at.koopro.spells_n_squares.features.quidditch.QuidditchRegistry;
+// import at.koopro.spells_n_squares.features.robes.RobesRegistry;
+// import at.koopro.spells_n_squares.features.transportation.TransportationRegistry;
+import at.koopro.spells_n_squares.features.wand.registry.WandRegistry;
 import com.google.gson.JsonObject;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
@@ -56,23 +59,24 @@ public class ModItemModelProvider implements DataProvider {
         // Collect all item registries from feature registries
         List<DeferredRegister.Items> itemRegistries = List.of(
             ModItems.ITEMS,  // Generic items
-            FlashlightRegistry.ITEMS,
             WandRegistry.ITEMS,
-            CloakRegistry.ITEMS,
-            ArtifactsRegistry.ITEMS,
-            StorageRegistry.ITEMS,
-            TransportationRegistry.ITEMS,
-            // CommunicationRegistry.ITEMS, // TODO: Re-enable when CommunicationRegistry is implemented
-            AutomationRegistry.ITEMS,
-            BuildingRegistry.ITEMS,
-            NavigationRegistry.ITEMS,
-            RobesRegistry.ITEMS,
-            PotionsRegistry.ITEMS,
-            // QuidditchRegistry.ITEMS, // TODO: Re-enable when QuidditchRegistry is implemented
-            EconomyRegistry.ITEMS,
-            // EducationRegistry.ITEMS, // TODO: Re-enable when EducationRegistry is implemented
-            // CombatRegistry.ITEMS, // TODO: Re-enable when CombatRegistry is implemented
-            EnchantmentsRegistry.ITEMS
+            StorageRegistry.ITEMS
+            // Future feature registries (uncomment when features are implemented):
+            // ArtifactsRegistry.ITEMS,
+            // AutomationRegistry.ITEMS,
+            // BuildingRegistry.ITEMS,
+            // CloakRegistry.ITEMS,
+            // CombatRegistry.ITEMS,
+            // CommunicationRegistry.ITEMS,
+            // EconomyRegistry.ITEMS,
+            // EducationRegistry.ITEMS,
+            // EnchantmentsRegistry.ITEMS,
+            // FlashlightRegistry.ITEMS,
+            // NavigationRegistry.ITEMS,
+            // PotionsRegistry.ITEMS,
+            // QuidditchRegistry.ITEMS,
+            // RobesRegistry.ITEMS,
+            // TransportationRegistry.ITEMS
         );
         
         // Generate models for all items from all registries

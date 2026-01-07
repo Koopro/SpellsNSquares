@@ -1,49 +1,57 @@
 package at.koopro.spells_n_squares.features.wand;
 
+import at.koopro.spells_n_squares.core.menu.BaseModMenu;
 import at.koopro.spells_n_squares.core.registry.ModMenus;
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
+import at.koopro.spells_n_squares.core.util.math.MathUtils;
+import at.koopro.spells_n_squares.core.util.math.PositionUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 
 /**
  * Container menu for the wand lathe GUI.
  * Handles wand crafting by combining wood type and core.
  */
-public class WandLatheMenu extends AbstractContainerMenu {
+public class WandLatheMenu extends BaseModMenu {
     private final BlockPos lathePos;
-    private final Player player;
     
     // Client-side constructor
     public WandLatheMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buffer) {
-        super(ModMenus.WAND_LATHE_MENU.get(), containerId);
+        super(ModMenus.WAND_LATHE_MENU.get(), containerId, playerInventory);
         this.lathePos = buffer.readBlockPos();
-        this.player = playerInventory.player;
+        DevLogger.logMethodEntry(this, "WandLatheMenu", 
+            "containerId=" + containerId + 
+            ", lathePos=" + DevLogger.formatPos(lathePos) + " (client-side)");
     }
     
     // Server-side constructor
     public WandLatheMenu(int containerId, Inventory playerInventory, BlockPos lathePos) {
-        super(ModMenus.WAND_LATHE_MENU.get(), containerId);
+        super(ModMenus.WAND_LATHE_MENU.get(), containerId, playerInventory);
         this.lathePos = lathePos;
-        this.player = playerInventory.player;
+        DevLogger.logMethodEntry(this, "WandLatheMenu", 
+            "containerId=" + containerId + 
+            ", lathePos=" + DevLogger.formatPos(lathePos) + " (server-side)");
     }
     
     @Override
-    public boolean stillValid(Player player) {
+    protected boolean isValid(Player player) {
+        DevLogger.logMethodEntry(this, "isValid", 
+            "player=" + (player != null ? player.getName().getString() : "null") +
+            ", lathePos=" + DevLogger.formatPos(lathePos));
         // Check if player is still near the wand lathe
         if (lathePos == null) {
+            DevLogger.logMethodExit(this, "isValid", false);
             return false;
         }
-        return player.distanceToSqr(lathePos.getX() + 0.5, lathePos.getY() + 0.5, lathePos.getZ() + 0.5) <= 64.0;
+        boolean result = MathUtils.distanceSquared(player.position(), PositionUtils.toVec3(lathePos)) <= 64.0;
+        DevLogger.logReturnValue(this, "isValid", result);
+        return result;
     }
     
     public BlockPos getLathePos() {
         return lathePos;
-    }
-    
-    public Player getPlayer() {
-        return player;
     }
     
     @Override
@@ -52,6 +60,8 @@ public class WandLatheMenu extends AbstractContainerMenu {
         return net.minecraft.world.item.ItemStack.EMPTY;
     }
 }
+
+
 
 
 

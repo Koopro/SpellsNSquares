@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.features.wand.client;
 
-import at.koopro.spells_n_squares.features.wand.WandItem;
+import at.koopro.spells_n_squares.features.wand.core.WandItem;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
 public class WandItemRenderer extends GeoItemRenderer<WandItem> {

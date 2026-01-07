@@ -2,10 +2,7 @@ package at.koopro.spells_n_squares.core.registry;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
@@ -17,9 +14,4 @@ public class ModBlocks {
     
     // Generic blocks would be registered here
     // Currently empty as all blocks belong to specific features
-    
-    private static BlockBehaviour.Properties createProperties(Identifier id) {
-        ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, id);
-        return BlockBehaviour.Properties.of().setId(key);
-    }
 }

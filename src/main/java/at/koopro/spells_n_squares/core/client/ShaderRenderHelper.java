@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.client;
 
-import at.koopro.spells_n_squares.features.fx.ShaderEffectHandler;
+import at.koopro.spells_n_squares.features.fx.handler.ShaderEffectHandler;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 
@@ -34,6 +34,9 @@ public final class ShaderRenderHelper {
      *
      * - If the lumos orb shader is available, returns an emissive shader-based render type.
      * - Otherwise, falls back to the existing glow texture render type.
+     * 
+     * Note: Unchecked cast is necessary due to generic type erasure when returning different RenderType implementations.
+     * This is safe as callers know the expected type.
      */
     @SuppressWarnings("unchecked")
     public static <T> T getLumosOrbRenderType() {
@@ -53,6 +56,8 @@ public final class ShaderRenderHelper {
      * @param preferredShaderId Shader identifier to prefer when available
      * @param fallbackTexture   Texture identifier to use when shader is unavailable
      * @return A render type that uses the shader if possible, otherwise the texture
+     * 
+     * Note: Unchecked cast is necessary due to generic type erasure when returning different RenderType implementations.
      */
     @SuppressWarnings("unchecked")
     public static <T> T getTranslucentEmissiveOrTexture(Identifier preferredShaderId, Identifier fallbackTexture) {
@@ -72,6 +77,8 @@ public final class ShaderRenderHelper {
      *
      * - If the energy ball shader is available, returns a custom shader-based render type.
      * - Otherwise, falls back to the lumos orb render type or texture-based glow.
+     * 
+     * Note: Unchecked cast is necessary due to generic type erasure when returning different RenderType implementations.
      */
     @SuppressWarnings("unchecked")
     public static <T> T getEnergyBallRenderType() {

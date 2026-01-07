@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.core.data.migration;
 
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import org.slf4j.Logger;
@@ -98,26 +99,41 @@ public final class DataMigrationSystem {
      * @return True if migration was successful, false otherwise
      */
     public static boolean migrateIfNeeded(CompoundTag data, String playerName) {
+        DevLogger.logDataOperation(DataMigrationSystem.class, "migrateIfNeeded", "MIGRATE", 
+            "player=" + playerName);
+        DevLogger.logMethodEntry(DataMigrationSystem.class, "migrateIfNeeded", 
+            "player=" + playerName);
+        
         if (data == null) {
+            DevLogger.logMethodExit(DataMigrationSystem.class, "migrateIfNeeded", false);
             return false;
         }
 
         int currentVersion = getDataVersion(data);
         int targetVersion = getCurrentDataVersion();
+        DevLogger.logParameter(DataMigrationSystem.class, "migrateIfNeeded", "currentVersion", currentVersion);
+        DevLogger.logParameter(DataMigrationSystem.class, "migrateIfNeeded", "targetVersion", targetVersion);
 
         if (currentVersion == targetVersion) {
             // Already at current version, no migration needed
+            DevLogger.logDebug(DataMigrationSystem.class, "migrateIfNeeded", "Already at current version");
+            DevLogger.logMethodExit(DataMigrationSystem.class, "migrateIfNeeded", true);
             return true;
         }
 
         if (currentVersion > targetVersion) {
             LOGGER.warn("Player {} has data version {} which is newer than current version {}. " +
                     "This may indicate a mod downgrade. Proceeding with caution.", playerName, currentVersion, targetVersion);
+            DevLogger.logWarn(DataMigrationSystem.class, "migrateIfNeeded", 
+                "Data version newer than current: " + currentVersion + " > " + targetVersion);
             // Still allow loading, but don't migrate forward
+            DevLogger.logMethodExit(DataMigrationSystem.class, "migrateIfNeeded", true);
             return true;
         }
 
         LOGGER.info("Migrating player data for {} from version {} to version {}", playerName, currentVersion, targetVersion);
+        DevLogger.logStateChange(DataMigrationSystem.class, "migrateIfNeeded", 
+            "Migrating from " + currentVersion + " to " + targetVersion);
 
         // Apply migrations sequentially
         int version = currentVersion;
@@ -130,22 +146,35 @@ public final class DataMigrationSystem {
             }
 
             LOGGER.debug("Applying migration {} -> {}: {}", version, version + 1, migration.getDescription());
+            DevLogger.logDebug(DataMigrationSystem.class, "migrateIfNeeded", 
+                "Applying migration " + version + " -> " + (version + 1) + ": " + migration.getDescription());
 
             try {
                 if (!migration.migrate(data)) {
                     LOGGER.error("Migration from version {} to {} failed for player {}", version, version + 1, playerName);
+                    DevLogger.logError(DataMigrationSystem.class, "migrateIfNeeded", 
+                        "Migration failed: " + version + " -> " + (version + 1), null);
+                    DevLogger.logMethodExit(DataMigrationSystem.class, "migrateIfNeeded", false);
                     return false;
                 }
                 version++;
                 setDataVersion(data, version);
+                DevLogger.logStateChange(DataMigrationSystem.class, "migrateIfNeeded", 
+                    "Migration applied, version now " + version);
             } catch (Exception e) {
                 LOGGER.error("Exception during migration from version {} to {} for player {}: {}",
                         version, version + 1, playerName, e.getMessage(), e);
+                DevLogger.logError(DataMigrationSystem.class, "migrateIfNeeded", 
+                    "Exception during migration: " + version + " -> " + (version + 1), e);
+                DevLogger.logMethodExit(DataMigrationSystem.class, "migrateIfNeeded", false);
                 return false;
             }
         }
 
         LOGGER.info("Successfully migrated player data for {} to version {}", playerName, targetVersion);
+        DevLogger.logStateChange(DataMigrationSystem.class, "migrateIfNeeded", 
+            "Successfully migrated to version " + targetVersion);
+        DevLogger.logMethodExit(DataMigrationSystem.class, "migrateIfNeeded", true);
         return true;
     }
 

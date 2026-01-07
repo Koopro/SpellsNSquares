@@ -1,13 +1,9 @@
 package at.koopro.spells_n_squares.core.data;
 
 import at.koopro.spells_n_squares.core.data.migration.DataMigrationSystem;
-import at.koopro.spells_n_squares.features.playerclass.data.PlayerClassData;
-import at.koopro.spells_n_squares.features.spell.SpellSlotData;
-import at.koopro.spells_n_squares.features.wand.WandData;
-import at.koopro.spells_n_squares.modules.magic.internal.AnimagusData;
-import at.koopro.spells_n_squares.modules.magic.internal.PatronusData;
-import at.koopro.spells_n_squares.modules.spell.internal.SpellData;
-import at.koopro.spells_n_squares.modules.tutorial.internal.TutorialData;
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
+import at.koopro.spells_n_squares.features.wand.core.WandData;
+import at.koopro.spells_n_squares.services.spell.internal.SpellData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -29,11 +25,18 @@ public final class PlayerDataHelper {
      * Automatically migrates data if it's from an older version.
      */
     public static PlayerDataComponent.PlayerData get(Player player) {
+        DevLogger.logDataOperation(PlayerDataHelper.class, "get", "LOAD", 
+            "player=" + (player != null ? player.getName().getString() : "null"));
+        DevLogger.logMethodEntry(PlayerDataHelper.class, "get", 
+            "player=" + (player != null ? player.getName().getString() : "null"));
+        
         if (player == null) {
+            DevLogger.logMethodExit(PlayerDataHelper.class, "get", "empty (null player)");
             return PlayerDataComponent.PlayerData.empty();
         }
-        if (at.koopro.spells_n_squares.core.util.PlayerValidationUtils.isClientSide(player)) {
+        if (at.koopro.spells_n_squares.core.util.player.PlayerValidationUtils.isClientSide(player)) {
             // On client, return default (data syncs from server)
+            DevLogger.logMethodExit(PlayerDataHelper.class, "get", "empty (client-side)");
             return PlayerDataComponent.PlayerData.empty();
         }
         
@@ -41,11 +44,13 @@ public final class PlayerDataHelper {
         var tagOpt = persistentData.getCompound(PERSISTENT_DATA_KEY);
         
         if (tagOpt.isEmpty()) {
+            DevLogger.logMethodExit(PlayerDataHelper.class, "get", "empty (no data)");
             return PlayerDataComponent.PlayerData.empty();
         }
         
         var tag = tagOpt.get();
         if (tag.isEmpty()) {
+            DevLogger.logMethodExit(PlayerDataHelper.class, "get", "empty (empty tag)");
             return PlayerDataComponent.PlayerData.empty();
         }
         
@@ -53,19 +58,33 @@ public final class PlayerDataHelper {
         CompoundTag dataToParse = tag;
         if (!DataMigrationSystem.migrateIfNeeded(dataToParse, player.getName().getString())) {
             LOGGER.warn("Data migration failed for player {}, attempting to load anyway", player.getName().getString());
+            DevLogger.logWarn(PlayerDataHelper.class, "get", "Data migration failed");
         } else if (dataToParse != tag) {
             // Migration modified the data, save it back
             persistentData.put(PERSISTENT_DATA_KEY, dataToParse);
+            DevLogger.logStateChange(PlayerDataHelper.class, "get", "Data migrated and saved");
         }
         
         try {
-            return PlayerDataComponent.PlayerData.CODEC.parse(
+            PlayerDataComponent.PlayerData result = PlayerDataComponent.PlayerData.CODEC.parse(
                 net.minecraft.nbt.NbtOps.INSTANCE,
                 dataToParse
             ).result().orElse(PlayerDataComponent.PlayerData.empty());
+            
+            // Validate loaded data
+            if (result != null) {
+                // Basic validation: ensure result is not corrupted
+                // Additional validation can be added here if needed
+                // For now, the Codec parsing already validates the structure
+            }
+            
+            DevLogger.logMethodExit(PlayerDataHelper.class, "get", result != null ? "data" : "empty");
+            return result;
         } catch (Exception e) {
             LOGGER.warn("Failed to load player data for player {}, using default", 
                 player.getName().getString(), e);
+            DevLogger.logError(PlayerDataHelper.class, "get", "Failed to load player data", e);
+            DevLogger.logMethodExit(PlayerDataHelper.class, "get", "empty (error)");
             return PlayerDataComponent.PlayerData.empty();
         }
     }
@@ -75,10 +94,17 @@ public final class PlayerDataHelper {
      * Ensures the data version is set to the current version.
      */
     public static void set(Player player, PlayerDataComponent.PlayerData data) {
+        DevLogger.logDataOperation(PlayerDataHelper.class, "set", "SAVE", 
+            "player=" + (player != null ? player.getName().getString() : "null"));
+        DevLogger.logMethodEntry(PlayerDataHelper.class, "set", 
+            "player=" + (player != null ? player.getName().getString() : "null"));
+        
         if (player == null) {
+            DevLogger.logMethodExit(PlayerDataHelper.class, "set");
             return;
         }
-        if (at.koopro.spells_n_squares.core.util.PlayerValidationUtils.isClientSide(player)) {
+        if (at.koopro.spells_n_squares.core.util.player.PlayerValidationUtils.isClientSide(player)) {
+            DevLogger.logMethodExit(PlayerDataHelper.class, "set");
             return; // Only set on server
         }
         
@@ -93,16 +119,22 @@ public final class PlayerDataHelper {
                 if (tag instanceof CompoundTag compoundTag) {
                     DataMigrationSystem.setDataVersion(compoundTag, DataMigrationSystem.getCurrentDataVersion());
                     player.getPersistentData().put(PERSISTENT_DATA_KEY, compoundTag);
+                    DevLogger.logStateChange(PlayerDataHelper.class, "set", "Player data saved");
                 } else {
                     // If it's not a CompoundTag, wrap it or log a warning
                     LOGGER.warn("Player data encoded to non-CompoundTag type: {}", tag.getClass().getName());
+                    DevLogger.logWarn(PlayerDataHelper.class, "set", 
+                        "Non-CompoundTag type: " + tag.getClass().getName());
                     player.getPersistentData().put(PERSISTENT_DATA_KEY, tag);
                 }
             });
         } catch (Exception e) {
             LOGGER.warn("Failed to save player data for player {}", 
                 player.getName().getString(), e);
+            DevLogger.logError(PlayerDataHelper.class, "set", "Failed to save player data", e);
         }
+        
+        DevLogger.logMethodExit(PlayerDataHelper.class, "set");
     }
     
     /**
@@ -131,64 +163,9 @@ public final class PlayerDataHelper {
         update(player, 
             PlayerDataComponent.PlayerData::spells,
             (data, spells) -> new PlayerDataComponent.PlayerData(
-                spells, data.classes(), data.wandData(), data.tutorial(), data.animagus(), data.patronus()
+                spells, data.wandData(), data.identity()
             ),
             spellData);
-    }
-    
-    /**
-     * Gets spell slot data for a player (backward compatibility).
-     * 
-     * @deprecated Use {@link #getSpellData(Player)} and access {@link SpellData#slots()} instead.
-     * This method is kept for backward compatibility with legacy code during migration.
-     * <p>
-     * <b>Note:</b> This method is still in use by {@code SpellSlotData} and {@code ServerEventHandler}.
-     * Do not remove until all callers have been migrated to use {@link #getSpellData(Player)}.
-     * 
-     * @param player The player
-     * @return The spell slot component
-     */
-    @Deprecated(forRemoval = true)
-    public static SpellSlotData.SpellSlotComponent getSpellSlotData(Player player) {
-        return get(player).spells().slots();
-    }
-    
-    /**
-     * Updates spell slot data for a player (backward compatibility).
-     * 
-     * @deprecated Use {@link #setSpellData(Player, SpellData)} with {@link SpellData#withSlots(SpellSlotData.SpellSlotComponent)} instead.
-     * This method is kept for backward compatibility with legacy code during migration.
-     * <p>
-     * <b>Note:</b> This method is still in use by {@code SpellSlotData}.
-     * Do not remove until all callers have been migrated to use {@link #setSpellData(Player, SpellData)}.
-     * 
-     * @param player The player
-     * @param spellSlotData The spell slot data to set
-     */
-    @Deprecated(forRemoval = true)
-    public static void setSpellSlotData(Player player, SpellSlotData.SpellSlotComponent spellSlotData) {
-        SpellData current = getSpellData(player);
-        SpellData updated = current.withSlots(spellSlotData);
-        setSpellData(player, updated);
-    }
-    
-    /**
-     * Gets player class data for a player.
-     */
-    public static PlayerClassData.PlayerClassComponent getPlayerClassData(Player player) {
-        return get(player).classes();
-    }
-    
-    /**
-     * Updates player class data for a player.
-     */
-    public static void setPlayerClassData(Player player, PlayerClassData.PlayerClassComponent classData) {
-        update(player, 
-            PlayerDataComponent.PlayerData::classes,
-            (data, classes) -> new PlayerDataComponent.PlayerData(
-                data.spells(), classes, data.wandData(), data.tutorial(), data.animagus(), data.patronus()
-            ),
-            classData);
     }
     
     /**
@@ -205,66 +182,60 @@ public final class PlayerDataHelper {
         update(player, 
             PlayerDataComponent.PlayerData::wandData,
             (data, wand) -> new PlayerDataComponent.PlayerData(
-                data.spells(), data.classes(), wand, data.tutorial(), data.animagus(), data.patronus()
+                data.spells(), wand, data.identity()
             ),
             wandData);
     }
     
     /**
-     * Gets tutorial data for a player.
+     * Gets identity data for a player.
      */
-    public static TutorialData getTutorialData(Player player) {
-        return get(player).tutorial();
+    public static PlayerIdentityData.IdentityData getIdentityData(Player player) {
+        return get(player).identity();
     }
     
     /**
-     * Updates tutorial data for a player.
+     * Updates identity data for a player.
      */
-    public static void setTutorialData(Player player, TutorialData tutorialData) {
+    public static void setIdentityData(Player player, PlayerIdentityData.IdentityData identity) {
         update(player, 
-            PlayerDataComponent.PlayerData::tutorial,
-            (data, tutorial) -> new PlayerDataComponent.PlayerData(
-                data.spells(), data.classes(), data.wandData(), tutorial, data.animagus(), data.patronus()
+            PlayerDataComponent.PlayerData::identity,
+            (data, ident) -> new PlayerDataComponent.PlayerData(
+                data.spells(), data.wandData(), ident
             ),
-            tutorialData);
+            identity);
     }
     
     /**
-     * Gets Animagus data for a player.
+     * Gets blood status for a player.
      */
-    public static AnimagusData getAnimagusData(Player player) {
-        return get(player).animagus();
+    public static PlayerIdentityData.BloodStatus getBloodStatus(Player player) {
+        return getIdentityData(player).bloodStatus();
     }
     
     /**
-     * Updates Animagus data for a player.
+     * Gets magical type for a player.
      */
-    public static void setAnimagusData(Player player, AnimagusData animagusData) {
-        update(player, 
-            PlayerDataComponent.PlayerData::animagus,
-            (data, animagus) -> new PlayerDataComponent.PlayerData(
-                data.spells(), data.classes(), data.wandData(), data.tutorial(), animagus, data.patronus()
-            ),
-            animagusData);
+    public static PlayerIdentityData.MagicalType getMagicalType(Player player) {
+        return getIdentityData(player).magicalType();
     }
     
     /**
-     * Gets Patronus data for a player.
+     * Sets blood status for a player.
      */
-    public static PatronusData getPatronusData(Player player) {
-        return get(player).patronus();
+    public static void setBloodStatus(Player player, PlayerIdentityData.BloodStatus bloodStatus) {
+        PlayerIdentityData.IdentityData current = getIdentityData(player);
+        PlayerIdentityData.IdentityData updated = current.withBloodStatus(bloodStatus);
+        setIdentityData(player, updated);
     }
     
     /**
-     * Updates Patronus data for a player.
+     * Sets magical type for a player.
      */
-    public static void setPatronusData(Player player, PatronusData patronusData) {
-        update(player, 
-            PlayerDataComponent.PlayerData::patronus,
-            (data, patronus) -> new PlayerDataComponent.PlayerData(
-                data.spells(), data.classes(), data.wandData(), data.tutorial(), data.animagus(), patronus
-            ),
-            patronusData);
+    public static void setMagicalType(Player player, PlayerIdentityData.MagicalType magicalType) {
+        PlayerIdentityData.IdentityData current = getIdentityData(player);
+        PlayerIdentityData.IdentityData updated = current.withMagicalType(magicalType);
+        setIdentityData(player, updated);
     }
 }
 

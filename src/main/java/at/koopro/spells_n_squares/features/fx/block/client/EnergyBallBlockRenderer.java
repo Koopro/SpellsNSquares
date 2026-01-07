@@ -2,7 +2,7 @@ package at.koopro.spells_n_squares.features.fx.block.client;
 
 import at.koopro.spells_n_squares.core.client.RendererUtils;
 import at.koopro.spells_n_squares.core.client.ShaderRenderHelper;
-import at.koopro.spells_n_squares.features.fx.ShaderEffectHandler;
+import at.koopro.spells_n_squares.features.fx.handler.ShaderEffectHandler;
 import at.koopro.spells_n_squares.features.fx.block.EnergyBallBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;

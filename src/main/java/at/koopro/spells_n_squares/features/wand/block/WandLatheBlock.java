@@ -1,12 +1,12 @@
 package at.koopro.spells_n_squares.features.wand.block;
 
-import at.koopro.spells_n_squares.features.building.block.BaseInteractiveBlock;
+import at.koopro.spells_n_squares.core.util.dev.DevLogger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -14,18 +14,36 @@ import net.minecraft.world.phys.BlockHitResult;
  * Wand Lathe block - a crafting station for creating wands.
  * Players can combine wand wood and cores to craft custom wands.
  */
-public class WandLatheBlock extends BaseInteractiveBlock {
+public class WandLatheBlock extends Block {
     
     public WandLatheBlock(Properties properties) {
         super(properties);
     }
     
     @Override
-    protected InteractionResult onServerInteract(BlockState state, Level level, BlockPos pos, 
-                                                  ServerPlayer serverPlayer, InteractionHand hand, 
-                                                  BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, 
+                                                  net.minecraft.world.entity.player.Player player, 
+                                                  BlockHitResult hitResult) {
+        DevLogger.logBlockInteraction(this, "useWithoutItem", player, pos, state);
+        DevLogger.logMethodEntry(this, "useWithoutItem", 
+            "pos=" + DevLogger.formatPos(pos) + 
+            ", player=" + (player != null ? player.getName().getString() : "null"));
+        
+        if (level.isClientSide()) {
+            DevLogger.logMethodExit(this, "useWithoutItem", InteractionResult.SUCCESS);
+            return InteractionResult.SUCCESS;
+        }
+        
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            DevLogger.logMethodExit(this, "useWithoutItem", InteractionResult.PASS);
+            return InteractionResult.PASS;
+        }
+        
         // Open wand lathe GUI screen
+        DevLogger.logStateChange(this, "useWithoutItem", 
+            "Opening wand lathe menu, pos=" + DevLogger.formatPos(pos));
         serverPlayer.openMenu(new WandLatheMenuProvider(pos));
+        DevLogger.logMethodExit(this, "useWithoutItem", InteractionResult.SUCCESS);
         return InteractionResult.SUCCESS;
     }
     

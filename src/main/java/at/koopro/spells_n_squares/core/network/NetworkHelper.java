@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.network;
 
-import at.koopro.spells_n_squares.core.util.PlayerValidationUtils;
+import at.koopro.spells_n_squares.core.util.player.PlayerValidationUtils;
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;

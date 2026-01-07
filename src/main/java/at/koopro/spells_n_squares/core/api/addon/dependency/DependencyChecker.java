@@ -3,12 +3,10 @@ package at.koopro.spells_n_squares.core.api.addon.dependency;
 import com.mojang.logging.LogUtils;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.loading.moddiscovery.ModInfo;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Validates addon dependencies and checks version compatibility.

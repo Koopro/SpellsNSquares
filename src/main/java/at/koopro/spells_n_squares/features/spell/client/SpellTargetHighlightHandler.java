@@ -2,15 +2,11 @@ package at.koopro.spells_n_squares.features.spell.client;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.registry.SpellRegistry;
-import at.koopro.spells_n_squares.features.spell.Spell;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import at.koopro.spells_n_squares.features.spell.base.Spell;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -29,8 +25,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 
-import java.util.OptionalDouble;
-
 /**
  * Client-side handler for highlighting targeted entities and blocks when holding a spell.
  */
@@ -38,9 +32,7 @@ import java.util.OptionalDouble;
 public class SpellTargetHighlightHandler {
     
     private static final double TARGET_RANGE = 12.0; // Same as Wingardium Leviosa range
-    private static final int HIGHLIGHT_COLOR = 0x80FFD700; // Gold color with transparency (ARGB)
     private static final int VALID_TARGET_COLOR = 0x8000FF00; // Green for valid targets
-    private static final int INVALID_TARGET_COLOR = 0x80FF0000; // Red for invalid targets
     private static final int OUT_OF_RANGE_COLOR = 0x80808080; // Gray for out of range
     
     // Caching for raycast results

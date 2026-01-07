@@ -11,7 +11,6 @@ public final class ModContext {
     
     // Feature API instances
     private static ISpellManager spellManager = SpellManagerWrapper.INSTANCE;
-    private static IPlayerClassManager playerClassManager = PlayerClassManagerWrapper.INSTANCE;
     private static ISpellRegistry spellRegistry = SpellRegistryWrapper.INSTANCE;
     
     /**
@@ -20,14 +19,6 @@ public final class ModContext {
      */
     public static ISpellManager getSpellManager() {
         return spellManager;
-    }
-    
-    /**
-     * Gets the player class manager instance.
-     * @return The player class manager
-     */
-    public static IPlayerClassManager getPlayerClassManager() {
-        return playerClassManager;
     }
     
     /**
@@ -47,14 +38,6 @@ public final class ModContext {
     }
     
     /**
-     * Sets the player class manager instance (for dependency injection/testing).
-     * @param manager The player class manager to use
-     */
-    public static void setPlayerClassManager(IPlayerClassManager manager) {
-        playerClassManager = manager;
-    }
-    
-    /**
      * Sets the spell registry instance (for dependency injection/testing).
      * @param registry The spell registry to use
      */
@@ -68,7 +51,6 @@ public final class ModContext {
      */
     public static void resetToDefaults() {
         spellManager = SpellManagerWrapper.INSTANCE;
-        playerClassManager = PlayerClassManagerWrapper.INSTANCE;
         spellRegistry = SpellRegistryWrapper.INSTANCE;
     }
 }

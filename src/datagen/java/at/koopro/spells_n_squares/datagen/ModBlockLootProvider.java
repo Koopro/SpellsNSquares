@@ -1,14 +1,16 @@
 package at.koopro.spells_n_squares.datagen;
 
-import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
-import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
-import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
-import at.koopro.spells_n_squares.features.building.BuildingRegistry;
-// import at.koopro.spells_n_squares.features.combat.CombatRegistry; // TODO: Re-enable when CombatRegistry is implemented
-// import at.koopro.spells_n_squares.features.communication.CommunicationRegistry; // TODO: Re-enable when CommunicationRegistry is implemented
-import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
-// import at.koopro.spells_n_squares.features.education.EducationRegistry; // TODO: Re-enable when EducationRegistry is implemented
-import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
+// Future feature registries (commented out until features are implemented)
+// When implementing a feature, uncomment the corresponding registry import
+// import at.koopro.spells_n_squares.features.automation.AutomationRegistry;
+// import at.koopro.spells_n_squares.features.building.BuildingRegistry;
+// import at.koopro.spells_n_squares.features.combat.CombatRegistry;
+// import at.koopro.spells_n_squares.features.communication.CommunicationRegistry;
+// import at.koopro.spells_n_squares.features.economy.EconomyRegistry;
+// import at.koopro.spells_n_squares.features.education.EducationRegistry;
+// import at.koopro.spells_n_squares.features.enchantments.EnchantmentsRegistry;
+// import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
+// import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
 import at.koopro.spells_n_squares.features.storage.StorageRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -48,14 +50,17 @@ public class ModBlockLootProvider extends LootTableProvider {
         @Override
         protected void generate() {
             // Generate loot tables for all tree blocks
-            for (TreeBlockSet set : ModTreeBlocks.getAllTreeSets()) {
-                generateTreeBlockLoot(set);
-            }
+            // TODO: Re-enable when TreeBlockSet and ModTreeBlocks are implemented
+            // for (TreeBlockSet set : ModTreeBlocks.getAllTreeSets()) {
+            //     generateTreeBlockLoot(set);
+            // }
             
             // Generate loot tables for all mod blocks
             generateModBlockLoot();
         }
         
+        // TODO: Re-enable when TreeBlockSet is implemented
+        /*
         private void generateTreeBlockLoot(TreeBlockSet set) {
             // Core wood blocks - drop themselves
             dropSelf(set.log().get());
@@ -82,44 +87,48 @@ public class ModBlockLootProvider extends LootTableProvider {
             dropSelf(set.pressurePlate().get());
             dropSelf(set.button().get());
         }
+        */
         
         private void generateModBlockLoot() {
             // Storage blocks - drop themselves
-            dropSelfIfHasItem(StorageRegistry.MAGICAL_TRUNK.get());
-            dropSelfIfHasItem(StorageRegistry.AUTO_SORT_CHEST.get());
+            // TODO: Re-enable when these blocks are added to StorageRegistry
+            // dropSelfIfHasItem(StorageRegistry.MAGICAL_TRUNK.get());
+            // dropSelfIfHasItem(StorageRegistry.AUTO_SORT_CHEST.get());
+            dropSelfIfHasItem(StorageRegistry.NEWTS_CASE.get());
             
+            // Future feature blocks (uncomment when features are implemented):
             // Communication blocks
-            // dropSelfIfHasItem(CommunicationRegistry.NOTICE_BOARD.get()); // TODO: Re-enable when CommunicationRegistry is implemented
+            // dropSelfIfHasItem(CommunicationRegistry.NOTICE_BOARD.get());
             
-            // Automation blocks - drop themselves
-            dropSelfIfHasItem(AutomationRegistry.SELF_STIRRING_CAULDRON.get());
-            dropSelfIfHasItem(AutomationRegistry.MAGICAL_FURNACE.get());
-            dropSelfIfHasItem(AutomationRegistry.MAGICAL_FARM.get());
-            dropSelfIfHasItem(AutomationRegistry.ITEM_COLLECTOR.get());
-            dropSelfIfHasItem(AutomationRegistry.MAGICAL_COMPOSTER.get());
-            dropSelfIfHasItem(AutomationRegistry.RESOURCE_GENERATOR.get());
+            // Automation blocks
+            // dropSelfIfHasItem(AutomationRegistry.SELF_STIRRING_CAULDRON.get());
+            // dropSelfIfHasItem(AutomationRegistry.MAGICAL_FURNACE.get());
+            // dropSelfIfHasItem(AutomationRegistry.MAGICAL_FARM.get());
+            // dropSelfIfHasItem(AutomationRegistry.ITEM_COLLECTOR.get());
+            // dropSelfIfHasItem(AutomationRegistry.MAGICAL_COMPOSTER.get());
+            // dropSelfIfHasItem(AutomationRegistry.RESOURCE_GENERATOR.get());
             
-            // Building blocks - magical lights drop themselves
-            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_WHITE.get());
-            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_BLUE.get());
-            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_GREEN.get());
-            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_RED.get());
-            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_PURPLE.get());
-            dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_GOLD.get());
+            // Building blocks
+            // dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_WHITE.get());
+            // dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_BLUE.get());
+            // dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_GREEN.get());
+            // dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_RED.get());
+            // dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_PURPLE.get());
+            // dropSelfIfHasItem(BuildingRegistry.MAGICAL_LIGHT_GOLD.get());
             
-            // Enchantment blocks - drop themselves
-            dropSelfIfHasItem(EnchantmentsRegistry.ENCHANTMENT_TABLE.get());
+            // Enchantment blocks
+            // dropSelfIfHasItem(EnchantmentsRegistry.ENCHANTMENT_TABLE.get());
             
-            // Education blocks - drop themselves
-            // dropSelfIfHasItem(EducationRegistry.HOUSE_POINTS_HOURGLASS.get()); // TODO: Re-enable when EducationRegistry is implemented
+            // Education blocks
+            // dropSelfIfHasItem(EducationRegistry.HOUSE_POINTS_HOURGLASS.get());
             
-            // Combat blocks - drop themselves
-            // dropSelfIfHasItem(CombatRegistry.DUEL_ARENA.get()); // TODO: Re-enable when CombatRegistry is implemented
+            // Combat blocks
+            // dropSelfIfHasItem(CombatRegistry.DUEL_ARENA.get());
             
-            // Economy blocks - drop themselves
-            dropSelfIfHasItem(EconomyRegistry.TRADING_POST.get());
-            dropSelfIfHasItem(EconomyRegistry.AUTOMATED_SHOP.get());
-            dropSelfIfHasItem(EconomyRegistry.VAULT.get());
+            // Economy blocks
+            // dropSelfIfHasItem(EconomyRegistry.TRADING_POST.get());
+            // dropSelfIfHasItem(EconomyRegistry.AUTOMATED_SHOP.get());
+            // dropSelfIfHasItem(EconomyRegistry.VAULT.get());
             
             // Plant blocks - drop their corresponding items
             // TODO: Re-enable when plant blocks and items are registered in feature registries (MANDRAKE_PLANT, WOLFSBANE_PLANT, GILLYWEED_PLANT, DEVILS_SNARE, VENOMOUS_TENTACULA, WHOMPING_WILLOW)
@@ -160,31 +169,36 @@ public class ModBlockLootProvider extends LootTableProvider {
             List<Block> knownBlocks = new ArrayList<>();
             
             // Add all tree blocks (they all have loot tables)
-            ModTreeBlocks.BLOCKS.getEntries().forEach(holder -> knownBlocks.add((Block) holder.get()));
+            // TODO: Re-enable when ModTreeBlocks is implemented
+            // ModTreeBlocks.BLOCKS.getEntries().forEach(holder -> knownBlocks.add((Block) holder.get()));
             
             // Add mod blocks that we generate loot tables for
-            // TODO: Re-enable when plant blocks are registered in feature registries (MANDRAKE_PLANT, WOLFSBANE_PLANT, GILLYWEED_PLANT)
-            knownBlocks.add(StorageRegistry.MAGICAL_TRUNK.get());
-            knownBlocks.add(StorageRegistry.AUTO_SORT_CHEST.get());
-            // knownBlocks.add(CommunicationRegistry.NOTICE_BOARD.get()); // TODO: Re-enable when CommunicationRegistry is implemented
-            knownBlocks.add(AutomationRegistry.SELF_STIRRING_CAULDRON.get());
-            knownBlocks.add(AutomationRegistry.MAGICAL_FURNACE.get());
-            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_WHITE.get());
-            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_BLUE.get());
-            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_GREEN.get());
-            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_RED.get());
-            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_PURPLE.get());
-            knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_GOLD.get());
-            knownBlocks.add(AutomationRegistry.MAGICAL_FARM.get());
-            knownBlocks.add(AutomationRegistry.ITEM_COLLECTOR.get());
-            knownBlocks.add(AutomationRegistry.MAGICAL_COMPOSTER.get());
-            knownBlocks.add(AutomationRegistry.RESOURCE_GENERATOR.get());
-            knownBlocks.add(EnchantmentsRegistry.ENCHANTMENT_TABLE.get());
+            knownBlocks.add(StorageRegistry.NEWTS_CASE.get());
+            
+            // Future feature blocks (uncomment when features are implemented):
+            // knownBlocks.add(StorageRegistry.MAGICAL_TRUNK.get());
+            // knownBlocks.add(StorageRegistry.AUTO_SORT_CHEST.get());
+            // knownBlocks.add(CommunicationRegistry.NOTICE_BOARD.get());
+            // knownBlocks.add(AutomationRegistry.SELF_STIRRING_CAULDRON.get());
+            // knownBlocks.add(AutomationRegistry.MAGICAL_FURNACE.get());
+            // knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_WHITE.get());
+            // knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_BLUE.get());
+            // knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_GREEN.get());
+            // knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_RED.get());
+            // knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_PURPLE.get());
+            // knownBlocks.add(BuildingRegistry.MAGICAL_LIGHT_GOLD.get());
+            // knownBlocks.add(AutomationRegistry.MAGICAL_FARM.get());
+            // knownBlocks.add(AutomationRegistry.ITEM_COLLECTOR.get());
+            // knownBlocks.add(AutomationRegistry.MAGICAL_COMPOSTER.get());
+            // knownBlocks.add(AutomationRegistry.RESOURCE_GENERATOR.get());
+            // TODO: Re-enable when EnchantmentsRegistry is implemented
+            // knownBlocks.add(EnchantmentsRegistry.ENCHANTMENT_TABLE.get());
             // knownBlocks.add(EducationRegistry.HOUSE_POINTS_HOURGLASS.get()); // TODO: Re-enable when EducationRegistry is implemented
             // knownBlocks.add(CombatRegistry.DUEL_ARENA.get()); // TODO: Re-enable when CombatRegistry is implemented
-            knownBlocks.add(EconomyRegistry.TRADING_POST.get());
-            knownBlocks.add(EconomyRegistry.AUTOMATED_SHOP.get());
-            knownBlocks.add(EconomyRegistry.VAULT.get());
+            // TODO: Re-enable when EconomyRegistry is implemented
+            // knownBlocks.add(EconomyRegistry.TRADING_POST.get());
+            // knownBlocks.add(EconomyRegistry.AUTOMATED_SHOP.get());
+            // knownBlocks.add(EconomyRegistry.VAULT.get());
             // TODO: Re-enable when plant blocks are registered in feature registries (DEVILS_SNARE, VENOMOUS_TENTACULA, WHOMPING_WILLOW)
             
             return knownBlocks;

@@ -1,22 +1,19 @@
 package at.koopro.spells_n_squares.datagen;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
-import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
+// import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet; // TODO: Re-enable when TreeBlockSet is implemented
+// import at.koopro.spells_n_squares.core.registry.ModTreeBlocks; // TODO: Re-enable when ModTreeBlocks is implemented
 import at.koopro.spells_n_squares.datagen.features.FeatureRecipeGenerator;
 import at.koopro.spells_n_squares.datagen.features.PotionsRecipeGenerator;
 // import at.koopro.spells_n_squares.datagen.features.QuidditchRecipeGenerator; // TODO: Re-enable when QuidditchRecipeGenerator is implemented
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -39,15 +36,17 @@ public class ModRecipeProvider extends RecipeProvider {
     @Override
     protected void buildRecipes() {
         // Generate recipes for all tree blocks (generic, not feature-specific)
-        for (TreeBlockSet set : ModTreeBlocks.getAllTreeSets()) {
-            generateTreeRecipes(set);
-        }
+        // TODO: Re-enable when TreeBlockSet and ModTreeBlocks are implemented
+        // for (TreeBlockSet set : ModTreeBlocks.getAllTreeSets()) {
+        //     generateTreeRecipes(set);
+        // }
         
         // Delegate to feature-specific recipe generators
         List<FeatureRecipeGenerator> generators = List.of(
-            new PotionsRecipeGenerator()
-            // new QuidditchRecipeGenerator() // TODO: Re-enable when QuidditchRecipeGenerator is implemented
-            // Add more feature recipe generators as features add recipes
+            new PotionsRecipeGenerator(),
+            new at.koopro.spells_n_squares.datagen.features.ArtifactRecipeGenerator()
+            // Future feature recipe generators (uncomment when features are implemented):
+            // new QuidditchRecipeGenerator()
         );
         
         for (FeatureRecipeGenerator generator : generators) {
@@ -55,6 +54,8 @@ public class ModRecipeProvider extends RecipeProvider {
         }
     }
     
+    // TODO: Re-enable when TreeBlockSet is implemented
+    /*
     private void generateTreeRecipes(TreeBlockSet set) {
         String woodId = set.getWoodId();
         Block log = set.log().get();
@@ -165,6 +166,7 @@ public class ModRecipeProvider extends RecipeProvider {
             .unlockedBy("has_planks", has(planks))
             .save(output, recipeKey(woodId + "_button"));
     }
+    */
     
     private ResourceKey<Recipe<?>> recipeKey(String path) {
         return ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(SpellsNSquares.MODID, path));

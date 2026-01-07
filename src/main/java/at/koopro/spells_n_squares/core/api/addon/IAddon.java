@@ -1,7 +1,6 @@
 package at.koopro.spells_n_squares.core.api.addon;
 
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
 
 /**
  * Base interface for all addons.

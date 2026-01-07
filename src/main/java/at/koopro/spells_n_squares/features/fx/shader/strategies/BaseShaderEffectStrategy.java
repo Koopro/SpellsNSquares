@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.features.fx.shader.strategies;
 
+import at.koopro.spells_n_squares.features.fx.handler.ShaderEffectHandler;
 import at.koopro.spells_n_squares.features.fx.system.PostProcessingManager;
 import net.minecraft.resources.Identifier;
 
@@ -33,7 +34,7 @@ public abstract class BaseShaderEffectStrategy implements ShaderEffectStrategy {
      * @return true if shaders are available
      */
     protected boolean areShadersAvailable() {
-        return at.koopro.spells_n_squares.features.fx.ShaderEffectHandler.areShadersAvailable();
+        return ShaderEffectHandler.areShadersAvailable();
     }
     
     /**

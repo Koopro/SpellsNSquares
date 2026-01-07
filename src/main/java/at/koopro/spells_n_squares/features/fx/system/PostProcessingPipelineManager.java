@@ -1,7 +1,7 @@
 package at.koopro.spells_n_squares.features.fx.system;
 
 import at.koopro.spells_n_squares.core.config.Config;
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
 import com.mojang.blaze3d.pipeline.CompiledRenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderSystem;

@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.core.api;
 
-import at.koopro.spells_n_squares.features.spell.Spell;
+import at.koopro.spells_n_squares.features.spell.base.Spell;
 import net.minecraft.resources.Identifier;
 
 import java.util.Map;
@@ -57,6 +57,13 @@ public interface ISpellRegistry {
      */
     Identifier spellId(String path);
 }
+
+
+
+
+
+
+
 
 
 

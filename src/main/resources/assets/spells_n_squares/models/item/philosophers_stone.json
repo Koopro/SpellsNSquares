@@ -1,0 +1,20 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "texture_size": [
+    8,
+    8
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        31.5,
+        -61.5,
+        0
+      ]
+    }
+  },
+  "textures": {
+    "particle": "spells_n_squares:item/philosopher_stone"
+  }
+}

@@ -1,5 +1,6 @@
 package at.koopro.spells_n_squares.core.client.gui;
 
+import at.koopro.spells_n_squares.core.util.text.StringUtils;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -24,7 +25,7 @@ public final class TextWrappingHelper {
      * @return A list of wrapped text lines
      */
     public static List<String> wrapText(Font font, String text, int maxWidth) {
-        if (text == null || text.isEmpty()) {
+        if (StringUtils.isEmpty(text)) {
             return List.of("");
         }
         

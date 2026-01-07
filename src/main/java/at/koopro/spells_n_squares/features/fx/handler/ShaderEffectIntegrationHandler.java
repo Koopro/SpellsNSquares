@@ -2,9 +2,9 @@ package at.koopro.spells_n_squares.features.fx.handler;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.config.Config;
-import at.koopro.spells_n_squares.core.util.SafeEventHandler;
+import at.koopro.spells_n_squares.core.util.collection.CollectionFactory;
+import at.koopro.spells_n_squares.core.util.event.SafeEventHandler;
 import at.koopro.spells_n_squares.features.fx.system.PostProcessingManager;
-import at.koopro.spells_n_squares.features.creatures.hostile.DementorEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,7 +23,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,21 +32,18 @@ import java.util.Map;
 @EventBusSubscriber(modid = SpellsNSquares.MODID, value = Dist.CLIENT)
 public class ShaderEffectIntegrationHandler {
     
-    private static final double DEMENTOR_EFFECT_RANGE = 12.0; // blocks
-    private static final float DEMENTOR_GRAYSCALE_INTENSITY = 0.4f;
     private static final double BLOCK_LOOK_RANGE = 32.0; // blocks - max distance to detect block player is looking at
     
     // Track which effects were added by this handler (so we don't remove manually added ones)
-    private static boolean dementorGrayscaleActive = false;
     private static boolean nauseaFisheyeActive = false;
     private static boolean darknessInvertedActive = false;
     private static boolean blindnessMosaicActive = false;
     
     // Track which block-based effects are currently active
-    private static final Map<Identifier, Boolean> activeBlockEffects = new HashMap<>();
+    private static final Map<Identifier, Boolean> activeBlockEffects = CollectionFactory.createMap();
     
     // Block-based shader effects: maps block identifier to shader effect configuration
-    private static final Map<Identifier, BlockShaderConfig> blockShaderEffects = new HashMap<>();
+    private static final Map<Identifier, BlockShaderConfig> blockShaderEffects = CollectionFactory.createMap();
     
     /**
      * Configuration for a block-based shader effect.
@@ -100,9 +96,6 @@ public class ShaderEffectIntegrationHandler {
                 return;
             }
             
-            // Check for dementor proximity effect
-            checkDementorProximity(mc.player);
-            
             // Check for status effect-based shader effects
             checkStatusEffectShaders(mc.player);
             
@@ -138,37 +131,6 @@ public class ShaderEffectIntegrationHandler {
                 ShaderEffectHandler.triggerChromaticAberration(0.3f);
             }
         }, "handling living incoming damage for shader effects", event.getEntity() instanceof Player player ? player : null);
-    }
-    
-    /**
-     * Checks if player is near dementors and applies grayscale/inverted colors effect.
-     */
-    private static void checkDementorProximity(Player player) {
-        if (!PostProcessingManager.isPostProcessingShaderAvailable(
-                PostProcessingManager.GRAYSCALE_POST_SHADER)) {
-            return;
-        }
-        
-        // Check for nearby dementors
-        var nearbyDementors = player.level().getEntitiesOfClass(
-            DementorEntity.class,
-            player.getBoundingBox().inflate(DEMENTOR_EFFECT_RANGE)
-        );
-        
-        boolean shouldBeActive = !nearbyDementors.isEmpty();
-        
-        if (shouldBeActive && !dementorGrayscaleActive) {
-            // Apply persistent grayscale effect while near dementors
-            PostProcessingManager.addPersistentEffect(
-                PostProcessingManager.GRAYSCALE_POST_SHADER,
-                DEMENTOR_GRAYSCALE_INTENSITY
-            );
-            dementorGrayscaleActive = true;
-        } else if (!shouldBeActive && dementorGrayscaleActive) {
-            // Only remove if we're the ones who added it
-            PostProcessingManager.removeEffect(PostProcessingManager.GRAYSCALE_POST_SHADER);
-            dementorGrayscaleActive = false;
-        }
     }
     
     /**

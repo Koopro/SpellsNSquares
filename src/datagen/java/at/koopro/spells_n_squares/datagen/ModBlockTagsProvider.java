@@ -1,13 +1,12 @@
 package at.koopro.spells_n_squares.datagen;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
-import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet;
-import at.koopro.spells_n_squares.core.registry.ModTreeBlocks;
+// import at.koopro.spells_n_squares.features.environment.block.TreeBlockSet; // TODO: Re-enable when TreeBlockSet is implemented
+// import at.koopro.spells_n_squares.core.registry.ModTreeBlocks; // TODO: Re-enable when ModTreeBlocks is implemented
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 
 import java.util.concurrent.CompletableFuture;
@@ -27,11 +26,14 @@ public class ModBlockTagsProvider extends IntrinsicHolderTagsProvider<Block> {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         // Register all tree block tags
-        for (TreeBlockSet set : ModTreeBlocks.getAllTreeSets()) {
-            registerTreeBlockTags(set);
-        }
+        // TODO: Re-enable when TreeBlockSet and ModTreeBlocks are implemented
+        // for (TreeBlockSet set : ModTreeBlocks.getAllTreeSets()) {
+        //     registerTreeBlockTags(set);
+        // }
     }
     
+    // TODO: Re-enable when TreeBlockSet is implemented
+    /*
     private void registerTreeBlockTags(TreeBlockSet set) {
         Block log = set.log().get();
         Block strippedLog = set.strippedLog().get();
@@ -90,6 +92,7 @@ public class ModBlockTagsProvider extends IntrinsicHolderTagsProvider<Block> {
         
         tag(BlockTags.MINEABLE_WITH_HOE).add(leaves);
     }
+    */
 }
 
 

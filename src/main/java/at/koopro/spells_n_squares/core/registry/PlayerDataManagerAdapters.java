@@ -1,8 +1,7 @@
 package at.koopro.spells_n_squares.core.registry;
 
-import at.koopro.spells_n_squares.features.playerclass.PlayerClassManager;
-import at.koopro.spells_n_squares.features.spell.LumosManager;
-import at.koopro.spells_n_squares.features.spell.SpellManager;
+import at.koopro.spells_n_squares.features.spell.manager.LumosManager;
+import at.koopro.spells_n_squares.features.spell.manager.SpellManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -29,24 +28,6 @@ public class PlayerDataManagerAdapters {
     }
     
     /**
-     * Adapter for PlayerClassManager.
-     */
-    public static class PlayerClassManagerAdapter implements PlayerDataManager {
-        @Override
-        public void clearPlayerData(Player player) {
-            PlayerClassManager.clearPlayerData(player);
-        }
-        
-        @Override
-        public void syncToClient(ServerPlayer serverPlayer) {
-            // Load classes from data component into memory cache
-            PlayerClassManager.loadPlayerClasses(serverPlayer);
-            // Sync to client
-            PlayerClassManager.syncPlayerClassToClient(serverPlayer);
-        }
-    }
-    
-    /**
      * Adapter for LumosManager.
      */
     public static class LumosManagerAdapter implements PlayerDataManager {
@@ -58,15 +39,6 @@ public class PlayerDataManagerAdapters {
         // LumosManager doesn't need sync as it uses item data components
     }
 }
-
-
-
-
-
-
-
-
-
 
 
 

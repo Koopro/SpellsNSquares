@@ -1,50 +1,50 @@
-/spells_n_squaresdebug fx shader scrolling_stripes test
-/spells_n_squaresdebug fx shader cartoon on
-/spells_n_squaresdebug fx shader chromatic on
-/spells_n_squaresdebug fx shader black_and_white on
-/execute in minecraft:overworld run tp 3922.50 64.00 40168.50
-/execute in minecraft:overworld run tp 0 0 0
-/spells_n_squaresdebug fx shader kaleidoscope
-/spells_n_squaresdebug fx shader kaleidoscope on
-/spells_n_squaresdebug fx shader kaleidoscope off
-/spells_n_squaresdebug fx shader xray on
-/give Dev spells_n_squares:bestiary
-/debug bestiary unlockall
-/debug function auto
-/debug setblock dirt
-/debug start
-/debug stop
-/debug bestiary unlockall
-/give Dev spells_n_squares:time_turner
-/kill
-/time set night
-/xp add @a 100 levels
-/spells_n_squaresdebug fx shader acid_trip
-/spells_n_squaresdebug fx shader acid_trip on
-/spells_n_squaresdebug fx shader acid_trip off
-/spells_n_squaresdebug fx shader fisheye on
-/spells_n_squaresdebug fx shader fisheye off
-/spells_n_squaresdebug fx shader kaleidoscope on
-/spells_n_squaresdebug fx shader kaleidoscope off
-/spells_n_squaresdebug fx shader glitch on
-/spells_n_squaresdebug fx shader glitch off
-/spells_n_squaresdebug fx shader thermal
-/spells_n_squaresdebug fx shader thermal on
-/give Dev minecraft:torch
-/spells_n_squaresdebug fx shader thermal off
-/spells_n_squaresdebug fx shader xray on
-/spells_n_squaresdebug fx shader xray off
-/debug timeturner reset
-/waypoint create auto
-/waypoint create auto1
-/spells_n_squaresdebug fx shader acid_trip
-/spells_n_squaresdebug fx shader acid_trip on
-/spells_n_squaresdebug fx shader acid_trip off
-/spells_n_squaresdebug fx shader cartoon on
-/spells_n_squaresdebug fx shader cartoon off
-/spells_n_squaresdebug fx shader contrast_boost on
-/spells_n_squaresdebug fx shader contrast_boost off
-/spells_n_squaresdebug fx shader invert on
-/spells_n_squaresdebug fx shader invert off
-/give Dev spells_n_squares:time_turner
-/give Dev spells_n_squares:demo_broom
+/neoforge debug_class_loading_transformations
+/neoforge tps spells_n_squares:pocket_dimension
+/sns dummy_player spawn alex
+/sns dummy_player spawn
+/sns dummy_player spawn steve
+/sns dummy_player spawn
+/sns dummy_player spawn alex
+/sns dummy_player model Dev alex
+/sns debug fx shader animated_noise on
+/sns debug fx shader drunk on
+/sns debug fx shader drunk off
+/sns debug fx shader animated_noise off
+/sns debug shader_editor
+/give Dev spells_n_squares:prima_materia
+/give Dev spells_n_squares:white_stone
+/give Dev spells_n_squares:philosophers_stone_stone
+/give Dev spells_n_squares:philosophers_stone
+/tick rate 10000
+/tick rate 10
+/tick rate 20
+/tick rate 10000
+/tick rate 20
+/sns debug model scale Dev 2
+/sns debug model scale Dev 1
+/setblock 225 55 -764 spells_n_squares:elixir_base
+/setblock 225 55 -764 spells_n_squares:elixir_of_life
+/give Dev spells_n_squares:elixir_of_life
+/effect clear
+/sns debug block set
+/sns debug block set auto
+/sns debug identity get Dev
+/sns debug identity list
+/sns debug identity reset
+/sns debug identity reset Dev
+/sns debug identity set Dev PURE_BLOOD
+/sns debug identity set Dev PURE_BLOOD GIANT
+/sns debug identity set Dev PURE_BLOOD GOBLIN
+/sns debug identity get Dev
+/sns debug item
+/setblock 222 55 -759 spells_n_squares:elixir_base
+/setblock 223 55 -759 spells_n_squares:elixir_of_life
+/setblock 224 56 -762 spells_n_squares:elixir_base_cauldron
+/setblock 225 56 -762 spells_n_squares:elixir_of_life_cauldron
+/setblock 222 55 -759 spells_n_squares:elixir_base
+/setblock 224 55 -763 spells_n_squares:elixir_of_life
+/setblock 225 55 -763 spells_n_squares:elixir_base
+/setblock 226 56 -765 spells_n_squares:mailbox
+/setblock 226 57 -765 spells_n_squares:wand_lathe
+/setblock 226 58 -765 spells_n_squares:vault
+/setblock 226 59 -765 spells_n_squares:enchantment_table

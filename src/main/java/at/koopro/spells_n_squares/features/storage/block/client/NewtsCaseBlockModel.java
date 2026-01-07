@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares.features.storage.block.client;
 
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
 import at.koopro.spells_n_squares.features.storage.block.NewtsCaseBlockEntity;
 import net.minecraft.resources.Identifier;
 import software.bernie.geckolib.model.GeoModel;

@@ -35,6 +35,10 @@
 	# Default: 1.0
 	# Range: 0.1 ~ 10.0
 	spellDamageMultiplier = 1.0
+	#Global potion duration multiplier (1.0 = default)
+	# Default: 1.0
+	# Range: 0.1 ~ 5.0
+	potionDurationMultiplier = 1.0
 	enableDarkMagic = true
 	#Creature settings
 	creatureSpawnRate = 1.0
@@ -45,3 +49,26 @@
 	#Education settings
 	enableHousePoints = true
 	enableHomework = true
+
+[development]
+	#Development and debugging logging options
+	#Master switch for verbose development logging. When disabled, all verbose logging is skipped for performance.
+	enableVerboseLogging = true
+	#Log method entry and exit points
+	logMethodEntryExit = true
+	#Log method parameters
+	logParameters = true
+	#Log method return values
+	logReturnValues = true
+	#Log state changes (block states, entity states, etc.)
+	logStateChanges = true
+	#Log network packet send/receive operations
+	logNetworkPackets = true
+	#Log block interaction events
+	logBlockInteractions = true
+	#Log item interaction events
+	logItemInteractions = true
+	#Log entity events (spawn, despawn, updates, etc.)
+	logEntityEvents = true
+	#Log data save/load operations
+	logDataOperations = true

@@ -1,6 +1,6 @@
 package at.koopro.spells_n_squares;
 
-import at.koopro.spells_n_squares.init.ModInitialization;
+import at.koopro.spells_n_squares.core.base.init.ModInitialization;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;

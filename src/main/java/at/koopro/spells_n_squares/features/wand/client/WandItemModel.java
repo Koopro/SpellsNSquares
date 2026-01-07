@@ -1,7 +1,7 @@
 package at.koopro.spells_n_squares.features.wand.client;
 
-import at.koopro.spells_n_squares.core.util.ModIdentifierHelper;
-import at.koopro.spells_n_squares.features.wand.WandItem;
+import at.koopro.spells_n_squares.core.util.registry.ModIdentifierHelper;
+import at.koopro.spells_n_squares.features.wand.core.WandItem;
 import net.minecraft.resources.Identifier;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.base.GeoRenderState;

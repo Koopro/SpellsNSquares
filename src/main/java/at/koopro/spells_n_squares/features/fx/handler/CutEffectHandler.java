@@ -2,7 +2,7 @@ package at.koopro.spells_n_squares.features.fx.handler;
 
 import at.koopro.spells_n_squares.SpellsNSquares;
 import at.koopro.spells_n_squares.core.config.Config;
-import at.koopro.spells_n_squares.core.util.SafeEventHandler;
+import at.koopro.spells_n_squares.core.util.event.SafeEventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.LivingEntity;

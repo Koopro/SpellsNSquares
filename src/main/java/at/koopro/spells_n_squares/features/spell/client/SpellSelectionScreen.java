@@ -1,8 +1,9 @@
 package at.koopro.spells_n_squares.features.spell.client;
 
-import at.koopro.spells_n_squares.features.spell.Spell;
-import at.koopro.spells_n_squares.features.spell.SpellCategory;
-import at.koopro.spells_n_squares.features.spell.SpellManager;
+import at.koopro.spells_n_squares.core.util.collection.CollectionFactory;
+import at.koopro.spells_n_squares.features.spell.base.Spell;
+import at.koopro.spells_n_squares.features.spell.base.SpellCategory;
+import at.koopro.spells_n_squares.features.spell.manager.SpellManager;
 import at.koopro.spells_n_squares.core.registry.SpellRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,14 +12,13 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -28,22 +28,34 @@ import java.util.stream.Collectors;
 public class SpellSelectionScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
     
-    private int selectedSlot = SpellManager.SLOT_TOP;
-    private final List<Identifier> allSpells = new ArrayList<>();
-    private List<Identifier> filteredSpells = new ArrayList<>();
-    private int scrollOffset = 0;
+    private final List<Identifier> allSpells = CollectionFactory.createList();
     
-    // Filter and sort state
-    private String searchText = "";
-    private SpellCategory selectedCategory = SpellCategory.ALL;
-    private SortType sortType = SortType.ALPHABETICAL;
-    private Identifier hoveredSpellId = null;
+    // Lazy loading cache: only load spell data when needed
+    private final Map<Identifier, Spell> spellCache = CollectionFactory.createMap();
+    
+    // State management
+    private final SpellSelectionState uiState = new SpellSelectionState();
+    private final SpellFilterState filterState = new SpellFilterState();
     
     // UI components
     private EditBox searchBox;
-    private final Map<Identifier, Integer> spellButtonPositions = new HashMap<>();
-    private final Map<SpellCategory, Button> categoryButtons = new HashMap<>();
+    private final Map<SpellCategory, Button> categoryButtons = CollectionFactory.createMap();
     private Button sortButton;
+    private final List<Button> spellButtons = CollectionFactory.createList();
+    
+    // Animation state
+    private final AnimationState animationState = new AnimationState();
+    
+    // Preview panel
+    private final SpellPreviewPanel previewPanel = new SpellPreviewPanel();
+    
+    // Help overlay
+    private boolean showHelpOverlay = false;
+    
+    // Double-click tracking
+    private Identifier lastClickedSpellId = null;
+    private long lastClickTime = 0;
+    private static final long DOUBLE_CLICK_TIME_MS = 300; // 300ms for double-click
     
     public SpellSelectionScreen() {
         this(SpellManager.SLOT_TOP);
@@ -55,35 +67,73 @@ public class SpellSelectionScreen extends Screen {
     
     public SpellSelectionScreen(int initialSlot, int initialScrollOffset) {
         super(Component.translatable("gui.spells_n_squares.spell_selection"));
-        this.selectedSlot = initialSlot;
-        this.scrollOffset = initialScrollOffset;
+        uiState.setSelectedSlot(initialSlot);
+        uiState.setScrollOffset(initialScrollOffset);
         
-        // Get all registered spells
-        SpellRegistry.getAll().forEach((id, spell) -> {
-            allSpells.add(id);
-        });
+        // Get all registered spells (with null safety)
+        try {
+            SpellRegistry.getAll().forEach((id, spell) -> {
+                if (id != null) {
+                    allSpells.add(id);
+                }
+            });
+        } catch (Exception e) {
+            LOGGER.error("Error loading spells from registry", e);
+        }
         
-        updateFilteredSpells();
+        try {
+            updateFilteredSpells();
+        } catch (Exception e) {
+            LOGGER.error("Error updating filtered spells in constructor", e);
+        }
+    }
+    
+    /**
+     * Gets a spell with lazy loading and caching.
+     */
+    private Spell getSpell(Identifier spellId) {
+        if (spellId == null) {
+            return null;
+        }
+        return spellCache.computeIfAbsent(spellId, SpellRegistry::get);
     }
     
     /**
      * Updates the filtered and sorted spell list based on current filters.
      */
     private void updateFilteredSpells() {
-        filteredSpells = allSpells.stream()
+        List<Identifier> filtered = allSpells.stream()
             .filter(spellId -> {
-                Spell spell = SpellRegistry.get(spellId);
+                // Skip null spell IDs to prevent NullPointerException
+                if (spellId == null) {
+                    return false;
+                }
+                Spell spell = getSpell(spellId);
                 if (spell == null) return false;
                 
+                // Recent spells filter
+                if (filterState.isShowRecentOnly()) {
+                    java.util.List<Identifier> recentSpells = RecentSpellsManager.getRecentSpells();
+                    if (!recentSpells.contains(spellId)) {
+                        return false;
+                    }
+                }
+                
+                // Favorites filter
+                if (filterState.isShowFavoritesOnly() && !ClientSpellData.isFavorite(spellId)) {
+                    return false;
+                }
+                
                 // Category filter
-                if (selectedCategory != SpellCategory.ALL) {
+                if (filterState.getSelectedCategory() != SpellCategory.ALL) {
                     SpellCategory spellCategory = SpellCategory.fromSpellId(spellId);
-                    if (spellCategory != selectedCategory) {
+                    if (spellCategory != filterState.getSelectedCategory()) {
                         return false;
                     }
                 }
                 
                 // Search filter
+                String searchText = filterState.getSearchText();
                 if (!searchText.isEmpty()) {
                     String spellName = spell.getName().toLowerCase();
                     String search = searchText.toLowerCase();
@@ -97,10 +147,12 @@ public class SpellSelectionScreen extends Screen {
             .sorted(getComparator())
             .collect(Collectors.toList());
         
+        uiState.setFilteredSpells(filtered);
+        
         // Reset scroll if needed
-        int maxScroll = Math.max(0, filteredSpells.size() - getVisibleSpellCount());
-        if (scrollOffset > maxScroll) {
-            scrollOffset = Math.max(0, maxScroll);
+        int maxScroll = Math.max(0, filtered.size() - getVisibleSpellCount());
+        if (uiState.getScrollOffset() > maxScroll) {
+            uiState.setScrollOffset(Math.max(0, maxScroll));
         }
     }
     
@@ -108,21 +160,25 @@ public class SpellSelectionScreen extends Screen {
      * Gets the comparator for the current sort type.
      */
     private Comparator<Identifier> getComparator() {
-        return switch (sortType) {
+        return switch (filterState.getSortType()) {
             case ALPHABETICAL -> Comparator.<Identifier, String>comparing(id -> {
-                Spell spell = SpellRegistry.get(id);
+                if (id == null) return "";
+                Spell spell = getSpell(id);
                 return spell != null ? spell.getName() : id.toString();
             });
             case REVERSE_ALPHABETICAL -> Comparator.<Identifier, String>comparing(id -> {
-                Spell spell = SpellRegistry.get(id);
+                if (id == null) return "";
+                Spell spell = getSpell(id);
                 return spell != null ? spell.getName() : id.toString();
             }).reversed();
             case COOLDOWN_LOW -> Comparator.comparingInt((Identifier id) -> {
-                Spell spell = SpellRegistry.get(id);
+                if (id == null) return Integer.MAX_VALUE;
+                Spell spell = getSpell(id);
                 return spell != null ? spell.getCooldown() : Integer.MAX_VALUE;
             });
             case COOLDOWN_HIGH -> Comparator.<Identifier, Integer>comparing((Identifier id) -> {
-                Spell spell = SpellRegistry.get(id);
+                if (id == null) return 0;
+                Spell spell = getSpell(id);
                 return spell != null ? spell.getCooldown() : 0;
             }).reversed();
         };
@@ -132,11 +188,24 @@ public class SpellSelectionScreen extends Screen {
     protected void init() {
         super.init();
         
+        // Guard against initialization before screen is ready
+        if (this.width <= 0 || this.height <= 0 || this.font == null) {
+            LOGGER.warn("SpellSelectionScreen.init() called before screen is ready (width={}, height={}, font={})", 
+                this.width, this.height, this.font != null);
+            return;
+        }
+        
+        // Initialize animation state
+        long currentTime = System.currentTimeMillis();
+        animationState.initialize(currentTime);
+        
         this.clearWidgets();
-        spellButtonPositions.clear();
+        uiState.clearSpellButtonPositions();
         categoryButtons.clear();
+        spellButtons.clear();
         
         int centerX = this.width / 2;
+        int selectedSlot = uiState.getSelectedSlot();
         
         // Add slot selection buttons at the top
         int[] slots = {SpellManager.SLOT_TOP, SpellManager.SLOT_BOTTOM, SpellManager.SLOT_LEFT, SpellManager.SLOT_RIGHT};
@@ -151,9 +220,9 @@ public class SpellSelectionScreen extends Screen {
                 slot == selectedSlot,
                 buttonX, SpellSelectionScreenConstants.SLOT_BUTTON_Y, buttonWidth,
                 () -> {
-                    selectedSlot = slot;
-                    scrollOffset = 0;
-                    this.minecraft.setScreen(new SpellSelectionScreen(selectedSlot, scrollOffset));
+                    uiState.setSelectedSlot(slot);
+                    uiState.setScrollOffset(0);
+                    this.minecraft.setScreen(new SpellSelectionScreen(uiState.getSelectedSlot(), uiState.getScrollOffset()));
                 }
             ));
         }
@@ -163,27 +232,53 @@ public class SpellSelectionScreen extends Screen {
         searchBox = new EditBox(this.font, searchX, SpellSelectionScreenConstants.SEARCH_BAR_Y,
             SpellSelectionScreenConstants.SEARCH_BAR_WIDTH, SpellSelectionScreenConstants.SEARCH_BAR_HEIGHT,
             Component.translatable("gui.spells_n_squares.search_spells"));
-        searchBox.setValue(searchText);
+        searchBox.setValue(filterState.getSearchText());
         searchBox.setResponder(text -> {
-            searchText = text;
+            filterState.setSearchText(text);
             updateFilteredSpells();
-            this.init(); // Rebuild buttons
+            // Only rebuild if the filtered list actually changed
+            rebuildSpellButtons();
         });
         this.addRenderableWidget(searchBox);
         
         // Add sort button
         int sortX = centerX + SpellSelectionScreenConstants.SEARCH_BAR_WIDTH / 2 + 4;
         sortButton = Button.builder(
-            Component.literal("Sort: " + sortType.getDisplayName()),
+            Component.literal("Sort: " + filterState.getSortType().getDisplayName()),
             button -> {
-                // Cycle through sort types
-                sortType = SortType.values()[(sortType.ordinal() + 1) % SortType.values().length];
+                filterState.cycleSortType();
                 updateFilteredSpells();
-                this.init();
+                rebuildSpellButtons();
             }
         ).bounds(sortX, SpellSelectionScreenConstants.SORT_BUTTON_Y,
             SpellSelectionScreenConstants.SORT_BUTTON_WIDTH, SpellSelectionScreenConstants.SORT_BUTTON_HEIGHT).build();
         this.addRenderableWidget(sortButton);
+        
+        // Add favorites toggle button
+        Button favoritesButton = Button.builder(
+            Component.literal(filterState.isShowFavoritesOnly() ? "★ Favorites" : "☆ All Spells"),
+            button -> {
+                filterState.toggleFavoritesOnly();
+                uiState.resetScrollOnFilterChange();
+                updateFilteredSpells();
+                rebuildSpellButtons();
+            }
+        ).bounds(centerX - SpellSelectionScreenConstants.SEARCH_BAR_WIDTH / 2 - 100, SpellSelectionScreenConstants.SORT_BUTTON_Y,
+            95, SpellSelectionScreenConstants.SORT_BUTTON_HEIGHT).build();
+        this.addRenderableWidget(favoritesButton);
+        
+        // Add recent spells toggle button
+        Button recentButton = Button.builder(
+            Component.literal(filterState.isShowRecentOnly() ? "Recent" : "All"),
+            button -> {
+                filterState.toggleRecentOnly();
+                uiState.resetScrollOnFilterChange();
+                updateFilteredSpells();
+                rebuildSpellButtons();
+            }
+        ).bounds(centerX - SpellSelectionScreenConstants.SEARCH_BAR_WIDTH / 2 - 200, SpellSelectionScreenConstants.SORT_BUTTON_Y,
+            95, SpellSelectionScreenConstants.SORT_BUTTON_HEIGHT).build();
+        this.addRenderableWidget(recentButton);
         
         // Add category tabs
         SpellCategory[] categories = SpellCategory.values();
@@ -195,10 +290,10 @@ public class SpellSelectionScreen extends Screen {
             Button categoryButton = Button.builder(
                 Component.literal(category.getDisplayName()),
                 button -> {
-                    selectedCategory = category;
-                    scrollOffset = 0;
+                    filterState.setSelectedCategory(category);
+                    uiState.resetScrollOnFilterChange();
                     updateFilteredSpells();
-                    this.init();
+                    rebuildSpellButtons();
                 }
             ).bounds(tabX, SpellSelectionScreenConstants.CATEGORY_TAB_Y, 80, SpellSelectionScreenConstants.CATEGORY_TAB_HEIGHT).build();
             
@@ -209,36 +304,41 @@ public class SpellSelectionScreen extends Screen {
         // Calculate visible spell count
         int maxVisibleSpells = getVisibleSpellCount();
         
-        // Calculate button positions
-        int scrollButtonY = this.height - SpellSelectionScreenConstants.SCROLL_BUTTON_Y_OFFSET - SpellSelectionScreenConstants.BUTTON_HEIGHT * 2;
-        int clearButtonY = scrollButtonY + SpellSelectionScreenConstants.BUTTON_HEIGHT + SpellSelectionScreenConstants.BUTTON_SPACING;
-        int closeButtonY = this.height - SpellSelectionScreenConstants.CLOSE_BUTTON_Y_OFFSET;
+        // Calculate button positions dynamically based on screen height
+        // Position buttons from bottom up to ensure they're always visible
+        int closeButtonY = this.height - 5; // 5px from bottom
+        int clearButtonY = closeButtonY - SpellSelectionScreenConstants.BUTTON_HEIGHT - SpellSelectionScreenConstants.BUTTON_SPACING;
+        int scrollButtonY = clearButtonY - SpellSelectionScreenConstants.BUTTON_HEIGHT - SpellSelectionScreenConstants.BUTTON_SPACING;
         int maxSpellButtonY = scrollButtonY - SpellSelectionScreenConstants.BUTTON_SPACING;
         
         // Add scroll buttons
+        int effectiveButtonWidth = getEffectiveButtonWidth();
         Button scrollUpButton = Button.builder(
             Component.literal("▲"),
             button -> {
-                if (scrollOffset > 0) {
-                    scrollOffset--;
+                if (uiState.getScrollOffset() > 0) {
+                    uiState.scrollUp();
+                    animationState.startScrollAnimation(System.currentTimeMillis());
                     this.init();
                 }
             }
-        ).bounds(centerX - SpellSelectionScreenConstants.BUTTON_WIDTH / 2, scrollButtonY,
-            SpellSelectionScreenConstants.BUTTON_WIDTH / 2 - SpellSelectionScreenConstants.BUTTON_SPACING / 2,
+        ).bounds(centerX - effectiveButtonWidth / 2, scrollButtonY,
+            effectiveButtonWidth / 2 - SpellSelectionScreenConstants.BUTTON_SPACING / 2,
             SpellSelectionScreenConstants.BUTTON_HEIGHT).build();
         
+        List<Identifier> filteredSpells = uiState.getFilteredSpells();
         Button scrollDownButton = Button.builder(
             Component.literal("▼"),
             button -> {
                 int maxScroll = Math.max(0, filteredSpells.size() - maxVisibleSpells);
-                if (scrollOffset < maxScroll) {
-                    scrollOffset++;
+                if (uiState.getScrollOffset() < maxScroll) {
+                    uiState.scrollDown(maxScroll);
+                    animationState.startScrollAnimation(System.currentTimeMillis());
                     this.init();
                 }
             }
         ).bounds(centerX + SpellSelectionScreenConstants.BUTTON_SPACING / 2, scrollButtonY,
-            SpellSelectionScreenConstants.BUTTON_WIDTH / 2 - SpellSelectionScreenConstants.BUTTON_SPACING / 2,
+            effectiveButtonWidth / 2 - SpellSelectionScreenConstants.BUTTON_SPACING / 2,
             SpellSelectionScreenConstants.BUTTON_HEIGHT).build();
         
         this.addRenderableWidget(scrollUpButton);
@@ -246,7 +346,7 @@ public class SpellSelectionScreen extends Screen {
         
         // Add spell buttons
         int currentY = SpellSelectionScreenConstants.START_Y_WITH_FILTERS;
-        int startIndex = scrollOffset;
+        int startIndex = uiState.getScrollOffset();
         int endIndex = Math.min(startIndex + maxVisibleSpells, filteredSpells.size());
         
         for (int i = startIndex; i < endIndex; i++) {
@@ -255,7 +355,11 @@ public class SpellSelectionScreen extends Screen {
             }
             
             Identifier spellId = filteredSpells.get(i);
-            Spell spell = SpellRegistry.get(spellId);
+            // Skip null spell IDs to prevent NullPointerException
+            if (spellId == null) {
+                continue;
+            }
+            Spell spell = getSpell(spellId);
             if (spell == null) {
                 continue;
             }
@@ -263,13 +367,21 @@ public class SpellSelectionScreen extends Screen {
             final Identifier finalSpellId = spellId;
             final int buttonY = currentY;
             
-            spellButtonPositions.put(spellId, buttonY);
+            // Record button appearance for fade-in animation
+            animationState.recordSpellButtonAppear(spellId, System.currentTimeMillis());
+            
+            uiState.getSpellButtonPositions().put(spellId, buttonY);
             
             boolean isAssigned = spellId.equals(ClientSpellData.getSpellInSlot(selectedSlot));
             boolean isOnCooldown = ClientSpellData.isOnCooldown(spellId);
+            boolean isFavorite = ClientSpellData.isFavorite(spellId);
+            boolean isKeyboardSelected = (i - startIndex) == uiState.getKeyboardSelectedIndex();
             
             // Build button text
             StringBuilder buttonTextBuilder = new StringBuilder();
+            if (isFavorite) {
+                buttonTextBuilder.append("★ ");
+            }
             buttonTextBuilder.append(spell.getName());
             
             if (isOnCooldown) {
@@ -287,45 +399,28 @@ public class SpellSelectionScreen extends Screen {
             Component buttonComponent = Component.literal(buttonTextBuilder.toString());
             if (isAssigned) {
                 buttonComponent = buttonComponent.copy().withStyle(style -> style.withColor(SpellUIConstants.TEXT_COLOR_ASSIGNED));
+            } else if (isKeyboardSelected) {
+                buttonComponent = buttonComponent.copy().withStyle(style -> style.withColor(0xFFFFFF).withBold(true));
             }
             
             Button spellButton = Button.builder(
                 buttonComponent,
                 button -> {
-                    try {
-                        at.koopro.spells_n_squares.features.spell.network.SpellSlotAssignPayload payload =
-                            new at.koopro.spells_n_squares.features.spell.network.SpellSlotAssignPayload(
-                                selectedSlot,
-                                java.util.Optional.of(finalSpellId)
-                            );
-                        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
-                        
-                        ClientSpellData.setSpellInSlot(selectedSlot, finalSpellId);
-                        
-                        if (this.minecraft != null) {
-                            this.minecraft.execute(() -> {
-                                SpellSelectionScreen newScreen = new SpellSelectionScreen(selectedSlot, this.scrollOffset);
-                                // Preserve filter state
-                                newScreen.searchText = this.searchText;
-                                newScreen.selectedCategory = this.selectedCategory;
-                                newScreen.sortType = this.sortType;
-                                newScreen.updateFilteredSpells();
-                                this.minecraft.setScreen(newScreen);
-                            });
-                        }
-                    } catch (Exception e) {
-                        LOGGER.error("Error assigning spell to slot", e);
-                    }
+                    // Track for double-click detection
+                    trackButtonClick(finalSpellId);
+                    // Single click: assign spell
+                    assignSpellToSlot(finalSpellId);
                 }
-            ).bounds(centerX - SpellSelectionScreenConstants.BUTTON_WIDTH / 2 + SpellUIConstants.ICON_SIZE_SCREEN + 4, buttonY,
-                SpellSelectionScreenConstants.BUTTON_WIDTH - SpellUIConstants.ICON_SIZE_SCREEN - 4,
+            ).bounds(centerX - getEffectiveButtonWidth() / 2 + SpellUIConstants.ICON_SIZE_SCREEN + 4, buttonY,
+                getEffectiveButtonWidth() - SpellUIConstants.ICON_SIZE_SCREEN - 4,
                 SpellSelectionScreenConstants.BUTTON_HEIGHT).build();
             
             this.addRenderableWidget(spellButton);
+            spellButtons.add(spellButton);
             currentY += SpellSelectionScreenConstants.BUTTON_HEIGHT + SpellSelectionScreenConstants.BUTTON_SPACING;
         }
         
-        // Add clear slot button
+        // Add clear slot button (using dynamically calculated position)
         Button clearButton = Button.builder(
             Component.translatable("gui.spells_n_squares.clear_slot"),
             button -> {
@@ -337,31 +432,67 @@ public class SpellSelectionScreen extends Screen {
                 net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
                 
                 ClientSpellData.setSpellInSlot(selectedSlot, null);
-                SpellSelectionScreen newScreen = new SpellSelectionScreen(selectedSlot, this.scrollOffset);
-                newScreen.searchText = this.searchText;
-                newScreen.selectedCategory = this.selectedCategory;
-                newScreen.sortType = this.sortType;
+                SpellSelectionScreen newScreen = new SpellSelectionScreen(selectedSlot, uiState.getScrollOffset());
+                newScreen.filterState.copyFrom(this.filterState);
                 newScreen.updateFilteredSpells();
                 this.minecraft.setScreen(newScreen);
             }
-        ).bounds(centerX - SpellSelectionScreenConstants.BUTTON_WIDTH / 2, clearButtonY,
-            SpellSelectionScreenConstants.BUTTON_WIDTH, SpellSelectionScreenConstants.BUTTON_HEIGHT).build();
+        ).bounds(centerX - getEffectiveButtonWidth() / 2, clearButtonY,
+            getEffectiveButtonWidth(), SpellSelectionScreenConstants.BUTTON_HEIGHT).build();
         
         this.addRenderableWidget(clearButton);
         
-        // Add close button
+        // Add close button (using dynamically calculated position)
         Button closeButton = Button.builder(
             Component.translatable("gui.done"),
             button -> this.minecraft.setScreen(null)
-        ).bounds(centerX - SpellSelectionScreenConstants.BUTTON_WIDTH / 2, closeButtonY,
-            SpellSelectionScreenConstants.BUTTON_WIDTH, SpellSelectionScreenConstants.BUTTON_HEIGHT).build();
+        ).bounds(centerX - getEffectiveButtonWidth() / 2, closeButtonY,
+            getEffectiveButtonWidth(), SpellSelectionScreenConstants.BUTTON_HEIGHT).build();
         
         this.addRenderableWidget(closeButton);
     }
     
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ClientSpellData.tickCooldowns();
+        try {
+            ClientSpellData.tickCooldowns();
+        
+        // Update animation states
+        long currentTime = System.currentTimeMillis();
+        Identifier hoveredSpellId = uiState.getHoveredSpellId();
+        if (hoveredSpellId != null) {
+            animationState.updateHover(hoveredSpellId, true, currentTime);
+            animationState.showTooltip(currentTime);
+        } else {
+            animationState.hideTooltip(currentTime);
+        }
+        
+        // Update hover states for all visible spells
+        java.util.Set<Identifier> visibleSpells = CollectionFactory.createSetFrom(uiState.getSpellButtonPositions().keySet());
+        for (Identifier spellId : visibleSpells) {
+            // Skip null keys to prevent NullPointerException
+            if (spellId == null) {
+                continue;
+            }
+            if (!spellId.equals(hoveredSpellId)) {
+                animationState.updateHover(spellId, false, currentTime);
+            }
+        }
+        
+        // Update selection glow for assigned spells
+        int selectedSlot = uiState.getSelectedSlot();
+        Identifier assignedSpellId = ClientSpellData.getSpellInSlot(selectedSlot);
+        for (Identifier spellId : visibleSpells) {
+            // Skip null keys to prevent NullPointerException
+            if (spellId == null) {
+                continue;
+            }
+            boolean isSelected = spellId.equals(assignedSpellId);
+            animationState.updateSelectionGlow(spellId, isSelected, currentTime);
+        }
+        
+        // Update preview panel
+        previewPanel.setSpell(hoveredSpellId);
         
         SpellSelectionRenderer.renderBackground(guiGraphics, this.width, this.height);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -370,94 +501,320 @@ public class SpellSelectionScreen extends Screen {
         Component titleText = Component.translatable("gui.spells_n_squares.selecting_slot", slotName);
         SpellSelectionRenderer.renderTitle(guiGraphics, this.font, titleText, this.width);
         
-        // Render category tab highlights
+        // Render category tab highlights with enhanced visuals
         for (Map.Entry<SpellCategory, Button> entry : categoryButtons.entrySet()) {
-            if (entry.getKey() == selectedCategory) {
-                Button button = entry.getValue();
-                int color = entry.getKey().getColor();
+            Button button = entry.getValue();
+            boolean isSelected = entry.getKey() == filterState.getSelectedCategory();
+            int color = entry.getKey().getColor();
+            
+            if (isSelected) {
+                // Enhanced selected state with gradient and glow
+                int highlightColor = 0x60 | ((color & 0xFFFFFF) << 8);
                 guiGraphics.fill(button.getX(), button.getY(),
                     button.getX() + button.getWidth(), button.getY() + button.getHeight(),
-                    0x40 | ((color & 0xFFFFFF) << 8)); // Add transparency
+                    highlightColor);
+                
+                // Border highlight
+                int borderColor = 0xFF | ((color & 0xFFFFFF) << 8);
+                guiGraphics.fill(button.getX(), button.getY(),
+                    button.getX() + button.getWidth(), button.getY() + 1, borderColor); // Top
+                guiGraphics.fill(button.getX(), button.getY() + button.getHeight() - 1,
+                    button.getX() + button.getWidth(), button.getY() + button.getHeight(), borderColor); // Bottom
             }
         }
         
-        // Render spell icons with category colors
+        // Render spell icons with category colors and animations
         int centerX = this.width / 2;
-        SpellSelectionRenderer.renderSpellIcons(guiGraphics, this.width, centerX, spellButtonPositions, selectedSlot);
+        SpellSelectionRenderer.renderSpellIcons(guiGraphics, this.width, centerX, uiState.getSpellButtonPositions(), selectedSlot, animationState);
         
-        // Render category color strips on spell buttons
-        for (Map.Entry<Identifier, Integer> entry : spellButtonPositions.entrySet()) {
+        // Render category color strips and keyboard selection highlight on spell buttons with enhanced visuals
+        List<Identifier> filteredSpells = uiState.getFilteredSpells();
+        int effectiveButtonWidth = getEffectiveButtonWidth();
+        for (Map.Entry<Identifier, Integer> entry : uiState.getSpellButtonPositions().entrySet()) {
             Identifier spellId = entry.getKey();
+            // Skip null keys to prevent NullPointerException
+            if (spellId == null) {
+                continue;
+            }
             int buttonY = entry.getValue();
             SpellCategory category = SpellCategory.fromSpellId(spellId);
             int color = category.getColor();
             
-            int stripX = centerX - SpellSelectionScreenConstants.BUTTON_WIDTH / 2;
-            guiGraphics.fill(stripX, buttonY, stripX + 3, buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT, color);
+            // Get hover progress for this button
+            float hoverProgress = animationState.getHoverProgress(spellId);
+            
+            // Enhanced category color strip with hover effect
+            int stripX = centerX - effectiveButtonWidth / 2;
+            int baseStripColor = color;
+            int hoverStripColor = AnimationHelper.lerpColorEased(
+                baseStripColor,
+                0xFFFFFFFF, // Brighter on hover
+                hoverProgress,
+                AnimationHelper.Easing.SMOOTH
+            );
+            guiGraphics.fill(stripX, buttonY, stripX + 3, buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT, hoverStripColor);
+            
+            // Highlight keyboard-selected spell with enhanced glow
+            int visibleIndex = filteredSpells.indexOf(spellId) - uiState.getScrollOffset();
+            if (visibleIndex == uiState.getKeyboardSelectedIndex() && visibleIndex >= 0) {
+                int buttonX = centerX - effectiveButtonWidth / 2 + SpellUIConstants.ICON_SIZE_SCREEN + 4;
+                int buttonWidth = effectiveButtonWidth - SpellUIConstants.ICON_SIZE_SCREEN - 4;
+                // Enhanced glow effect
+                int glowColor = SpellUIConstants.GLOW_COLOR_SELECTED;
+                guiGraphics.fill(buttonX - 2, buttonY - 1, buttonX + buttonWidth + 2, buttonY, glowColor); // Top glow
+                guiGraphics.fill(buttonX - 2, buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT, 
+                    buttonX + buttonWidth + 2, buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT + 1, glowColor); // Bottom glow
+                guiGraphics.fill(buttonX - 2, buttonY, buttonX - 1, buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT, glowColor); // Left glow
+                guiGraphics.fill(buttonX + buttonWidth + 1, buttonY, buttonX + buttonWidth + 2, 
+                    buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT, glowColor); // Right glow
+                guiGraphics.fill(buttonX, buttonY, buttonX + buttonWidth, buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT, 0x40FFFFFF);
+            } else if (hoverProgress > 0.01f) {
+                // Hover highlight
+                int buttonX = centerX - effectiveButtonWidth / 2 + SpellUIConstants.ICON_SIZE_SCREEN + 4;
+                int buttonWidth = effectiveButtonWidth - SpellUIConstants.ICON_SIZE_SCREEN - 4;
+                int hoverColor = ((int) (hoverProgress * 0.15f * 255) << 24) | 0xFFFFFF;
+                guiGraphics.fill(buttonX, buttonY, buttonX + buttonWidth, buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT, hoverColor);
+            }
         }
         
-        // Render tooltip for hovered spell
+        // Render tooltip for hovered spell with fade animation
         if (hoveredSpellId != null) {
-            Spell spell = SpellRegistry.get(hoveredSpellId);
-            if (spell != null) {
-                // Build tooltip text lines
-                List<String> tooltipLines = new ArrayList<>();
-                tooltipLines.add("§f" + spell.getName());
-                tooltipLines.add("§7" + spell.getDescription());
-                tooltipLines.add("§8Category: " + SpellCategory.fromSpellId(hoveredSpellId).getDisplayName());
-                tooltipLines.add("§8Cooldown: " + String.format("%.1f", spell.getCooldown() / 20.0f) + "s");
-                
-                if (hoveredSpellId.equals(ClientSpellData.getSpellInSlot(selectedSlot))) {
-                    tooltipLines.add("§aAssigned to this slot");
-                }
-                
-                // Render tooltip manually
-                int tooltipX = mouseX + 12;
-                int tooltipY = mouseY - 12;
-                int maxWidth = 200;
-                int padding = 4;
-                
-                // Calculate tooltip dimensions
-                int tooltipWidth = 0;
-                for (String line : tooltipLines) {
-                    int lineWidth = this.font.width(line.replaceAll("§[0-9a-fk-or]", ""));
-                    tooltipWidth = Math.max(tooltipWidth, lineWidth);
-                }
-                tooltipWidth = Math.min(tooltipWidth + padding * 2, maxWidth);
-                int tooltipHeight = tooltipLines.size() * this.font.lineHeight + padding * 2;
-                
-                // Adjust position if tooltip would go off screen
-                if (tooltipX + tooltipWidth > this.width) {
-                    tooltipX = mouseX - tooltipWidth - 12;
-                }
-                if (tooltipY + tooltipHeight > this.height) {
-                    tooltipY = this.height - tooltipHeight - 4;
-                }
-                
-                // Draw tooltip background
-                guiGraphics.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, 0xE0000000);
-                guiGraphics.fill(tooltipX + 1, tooltipY + 1, tooltipX + tooltipWidth - 1, tooltipY + tooltipHeight - 1, 0xF0101010);
-                
-                // Draw tooltip text
-                int textY = tooltipY + padding;
-                for (String line : tooltipLines) {
-                    guiGraphics.drawString(this.font, line, tooltipX + padding, textY, 0xFFFFFF, false);
-                    textY += this.font.lineHeight;
-                }
-            }
+            float tooltipAlpha = animationState.getTooltipFadeProgress(currentTime);
+            SpellTooltipRenderer.renderTooltip(
+                guiGraphics, this.font, hoveredSpellId, uiState.getSelectedSlot(),
+                mouseX, mouseY, this.width, this.height, tooltipAlpha
+            );
+        }
+        
+        // Render preview panel
+        previewPanel.render(guiGraphics, this.font, this.width, this.height, uiState.getSelectedSlot(), partialTick);
+        
+        // Render help overlay if enabled
+        if (showHelpOverlay) {
+            renderHelpOverlay(guiGraphics);
+        }
+        
+        // Clean up animation state for spells no longer visible
+        animationState.cleanup(visibleSpells);
+        } catch (Exception e) {
+            LOGGER.error("Error rendering SpellSelectionScreen", e);
+            // Still render the super class to show something
+            super.render(guiGraphics, mouseX, mouseY, partialTick);
+        }
+    }
+    
+    /**
+     * Renders the keyboard shortcuts help overlay.
+     */
+    private void renderHelpOverlay(GuiGraphics guiGraphics) {
+        java.util.List<String> helpLines = CollectionFactory.createList();
+        helpLines.add("§f§lKeyboard Shortcuts");
+        helpLines.add("");
+        helpLines.add("§7Navigation:");
+        helpLines.add("  §e↑/↓ §7- Navigate spell list");
+        helpLines.add("  §eHome/End §7- Jump to first/last");
+        helpLines.add("  §e1-4 §7- Switch slots");
+        helpLines.add("");
+        helpLines.add("§7Actions:");
+        helpLines.add("  §eEnter §7- Assign selected spell");
+        helpLines.add("  §eF §7- Toggle favorite");
+        helpLines.add("  §eEscape §7- Close screen");
+        helpLines.add("  §eF1 §7- Toggle this help");
+        
+        int overlayWidth = 200;
+        int overlayHeight = helpLines.size() * this.font.lineHeight + 16;
+        int overlayX = 10;
+        int overlayY = 10;
+        
+        // Draw background with shadow
+        int shadowColor = 0x80000000;
+        guiGraphics.fill(overlayX + 2, overlayY + 2, overlayX + overlayWidth + 2, overlayY + overlayHeight + 2, shadowColor);
+        
+        int bgColor = 0xF0101010;
+        guiGraphics.fill(overlayX, overlayY, overlayX + overlayWidth, overlayY + overlayHeight, bgColor);
+        
+        // Draw border
+        int borderColor = SpellUIConstants.BORDER_COLOR_ENHANCED;
+        guiGraphics.fill(overlayX, overlayY, overlayX + overlayWidth, overlayY + 1, borderColor); // Top
+        guiGraphics.fill(overlayX, overlayY + overlayHeight - 1, overlayX + overlayWidth, overlayY + overlayHeight, borderColor); // Bottom
+        guiGraphics.fill(overlayX, overlayY, overlayX + 1, overlayY + overlayHeight, borderColor); // Left
+        guiGraphics.fill(overlayX + overlayWidth - 1, overlayY, overlayX + overlayWidth, overlayY + overlayHeight, borderColor); // Right
+        
+        // Draw text
+        int textY = overlayY + 8;
+        for (String line : helpLines) {
+            guiGraphics.drawString(this.font, line, overlayX + 8, textY, 0xFFFFFFFF, false);
+            textY += this.font.lineHeight;
         }
     }
     
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+        List<Identifier> filteredSpells = uiState.getFilteredSpells();
         int maxScroll = Math.max(0, filteredSpells.size() - getVisibleSpellCount());
-        int newScrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - deltaY));
-        if (newScrollOffset != scrollOffset) {
-            scrollOffset = newScrollOffset;
+        int currentScroll = uiState.getScrollOffset();
+        int newScrollOffset = (int) Math.max(0, Math.min(maxScroll, currentScroll - deltaY));
+        if (newScrollOffset != currentScroll) {
+            uiState.setScrollOffset(newScrollOffset);
             this.init();
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
+    }
+    
+    // Track button clicks for double-click detection
+    private void trackButtonClick(Identifier spellId) {
+        long currentTime = System.currentTimeMillis();
+        if (spellId.equals(lastClickedSpellId) && 
+            (currentTime - lastClickTime) < DOUBLE_CLICK_TIME_MS) {
+            // Double-click detected - assign immediately
+            assignSpellToSlot(spellId);
+            lastClickedSpellId = null; // Reset
+        } else {
+            // Single click - track for double-click detection
+            lastClickedSpellId = spellId;
+            lastClickTime = currentTime;
+        }
+    }
+    
+    /**
+     * Gets the spell button positions map (for event handler access).
+     */
+    public Map<Identifier, Integer> getSpellButtonPositions() {
+        return uiState.getSpellButtonPositions();
+    }
+    
+    /**
+     * Rebuilds only the spell buttons section without rebuilding the entire screen.
+     * This is more efficient than calling init() for filter changes.
+     */
+    private void rebuildSpellButtons() {
+        // Remove existing spell buttons
+        for (Button button : spellButtons) {
+            this.removeWidget(button);
+        }
+        spellButtons.clear();
+        
+        // Clear button positions
+        uiState.clearSpellButtonPositions();
+        
+        // Rebuild spell buttons (reuse the logic from init())
+        int maxVisibleSpells = getVisibleSpellCount();
+        // Calculate bottom button positions dynamically (same as in init())
+        int closeButtonY = this.height - 5;
+        int clearButtonY = closeButtonY - SpellSelectionScreenConstants.BUTTON_HEIGHT - SpellSelectionScreenConstants.BUTTON_SPACING;
+        int scrollButtonY = clearButtonY - SpellSelectionScreenConstants.BUTTON_HEIGHT - SpellSelectionScreenConstants.BUTTON_SPACING;
+        int maxSpellButtonY = scrollButtonY - SpellSelectionScreenConstants.BUTTON_SPACING;
+        int currentY = SpellSelectionScreenConstants.START_Y_WITH_FILTERS;
+        int startIndex = uiState.getScrollOffset();
+        List<Identifier> filteredSpells = uiState.getFilteredSpells();
+        int endIndex = Math.min(startIndex + maxVisibleSpells, filteredSpells.size());
+        int selectedSlot = uiState.getSelectedSlot();
+        int centerX = this.width / 2;
+        
+        for (int i = startIndex; i < endIndex; i++) {
+            if (currentY + SpellSelectionScreenConstants.BUTTON_HEIGHT > maxSpellButtonY) {
+                break;
+            }
+            
+            Identifier spellId = filteredSpells.get(i);
+            // Skip null spell IDs to prevent NullPointerException
+            if (spellId == null) {
+                continue;
+            }
+            Spell spell = getSpell(spellId);
+            if (spell == null) {
+                continue;
+            }
+            
+            final Identifier finalSpellId = spellId;
+            final int buttonY = currentY;
+            
+            // Record button appearance for fade-in animation
+            animationState.recordSpellButtonAppear(spellId, System.currentTimeMillis());
+            
+            uiState.getSpellButtonPositions().put(spellId, buttonY);
+            
+            boolean isAssigned = spellId.equals(ClientSpellData.getSpellInSlot(selectedSlot));
+            boolean isOnCooldown = ClientSpellData.isOnCooldown(spellId);
+            boolean isFavorite = ClientSpellData.isFavorite(spellId);
+            boolean isKeyboardSelected = (i - startIndex) == uiState.getKeyboardSelectedIndex();
+            
+            // Build button text
+            StringBuilder buttonTextBuilder = new StringBuilder();
+            if (isFavorite) {
+                buttonTextBuilder.append("★ ");
+            }
+            buttonTextBuilder.append(spell.getName());
+            
+            if (isOnCooldown) {
+                int cooldownTicks = ClientSpellData.getCooldown(spellId);
+                float cooldownSeconds = cooldownTicks / 20.0f;
+                String cooldownText = cooldownSeconds < 1.0f
+                    ? String.format(" (CD: %.1fs)", cooldownSeconds)
+                    : String.format(" (CD: %.0fs)", cooldownSeconds);
+                buttonTextBuilder.append(cooldownText);
+            } else if (spell.getCooldown() > 0) {
+                float maxCooldownSeconds = spell.getCooldown() / 20.0f;
+                buttonTextBuilder.append(String.format(" (CD: %.0fs)", maxCooldownSeconds));
+            }
+            
+            Component buttonComponent = Component.literal(buttonTextBuilder.toString());
+            if (isAssigned) {
+                buttonComponent = buttonComponent.copy().withStyle(style -> style.withColor(SpellUIConstants.TEXT_COLOR_ASSIGNED));
+            } else if (isKeyboardSelected) {
+                buttonComponent = buttonComponent.copy().withStyle(style -> style.withColor(0xFFFFFF).withBold(true));
+            }
+            
+            Button spellButton = Button.builder(
+                buttonComponent,
+                button -> {
+                    // Track for double-click detection
+                    trackButtonClick(finalSpellId);
+                    // Single click: assign spell
+                    assignSpellToSlot(finalSpellId);
+                }
+            ).bounds(centerX - getEffectiveButtonWidth() / 2 + SpellUIConstants.ICON_SIZE_SCREEN + 4, buttonY,
+                getEffectiveButtonWidth() - SpellUIConstants.ICON_SIZE_SCREEN - 4,
+                SpellSelectionScreenConstants.BUTTON_HEIGHT).build();
+            
+            this.addRenderableWidget(spellButton);
+            currentY += SpellSelectionScreenConstants.BUTTON_HEIGHT + SpellSelectionScreenConstants.BUTTON_SPACING;
+        }
+    }
+    
+    /**
+     * Handles right-click on spell buttons (toggle favorite).
+     */
+    public void handleSpellRightClick(Identifier spellId) {
+        ClientSpellData.toggleFavorite(spellId);
+        updateFilteredSpells();
+        this.init();
+    }
+    
+    /**
+     * Gets the spell ID at the given mouse position.
+     */
+    @Nullable
+    private Identifier getSpellAtPosition(double mouseX, double mouseY) {
+        int centerX = this.width / 2;
+        int effectiveButtonWidth = getEffectiveButtonWidth();
+        int buttonX = centerX - effectiveButtonWidth / 2 + SpellUIConstants.ICON_SIZE_SCREEN + 4;
+        int buttonWidth = effectiveButtonWidth - SpellUIConstants.ICON_SIZE_SCREEN - 4;
+        
+        for (Map.Entry<Identifier, Integer> entry : uiState.getSpellButtonPositions().entrySet()) {
+            Identifier spellId = entry.getKey();
+            // Skip null keys to prevent NullPointerException
+            if (spellId == null) {
+                continue;
+            }
+            int buttonY = entry.getValue();
+            if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                mouseY >= buttonY && mouseY <= buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT) {
+                return spellId;
+            }
+        }
+        return null;
     }
     
     @Override
@@ -465,26 +822,65 @@ public class SpellSelectionScreen extends Screen {
         super.mouseMoved(mouseX, mouseY);
         
         // Check if mouse is over a spell button
-        hoveredSpellId = null;
+        uiState.setHoveredSpellId(null);
         int centerX = this.width / 2;
-        int buttonX = centerX - SpellSelectionScreenConstants.BUTTON_WIDTH / 2 + SpellUIConstants.ICON_SIZE_SCREEN + 4;
-        int buttonWidth = SpellSelectionScreenConstants.BUTTON_WIDTH - SpellUIConstants.ICON_SIZE_SCREEN - 4;
+        int effectiveButtonWidth = getEffectiveButtonWidth();
+        int buttonX = centerX - effectiveButtonWidth / 2 + SpellUIConstants.ICON_SIZE_SCREEN + 4;
+        int buttonWidth = effectiveButtonWidth - SpellUIConstants.ICON_SIZE_SCREEN - 4;
         
-        for (Map.Entry<Identifier, Integer> entry : spellButtonPositions.entrySet()) {
+        for (Map.Entry<Identifier, Integer> entry : uiState.getSpellButtonPositions().entrySet()) {
+            Identifier spellId = entry.getKey();
+            // Skip null keys to prevent NullPointerException
+            if (spellId == null) {
+                continue;
+            }
             int buttonY = entry.getValue();
             if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
                 mouseY >= buttonY && mouseY <= buttonY + SpellSelectionScreenConstants.BUTTON_HEIGHT) {
-                hoveredSpellId = entry.getKey();
+                uiState.setHoveredSpellId(spellId);
                 break;
             }
         }
     }
     
+    /**
+     * Gets the effective button width, ensuring it fits on screen.
+     */
+    private int getEffectiveButtonWidth() {
+        int minButtonWidth = 150; // Minimum width for usability
+        int maxButtonWidth = SpellSelectionScreenConstants.BUTTON_WIDTH;
+        int padding = 20; // Padding on each side
+        int availableWidth = this.width - padding * 2;
+        return Math.max(minButtonWidth, Math.min(maxButtonWidth, availableWidth));
+    }
+    
+    /**
+     * Calculates how many spell buttons can fit on screen.
+     */
     private int getVisibleSpellCount() {
-        int availableHeight = this.height - SpellSelectionScreenConstants.START_Y_WITH_FILTERS
-            - SpellSelectionScreenConstants.SCROLL_BUTTON_Y_OFFSET
-            - SpellSelectionScreenConstants.BUTTON_HEIGHT * 3;
-        return Math.max(1, availableHeight / (SpellSelectionScreenConstants.BUTTON_HEIGHT + SpellSelectionScreenConstants.BUTTON_SPACING));
+        if (this.height <= 0) {
+            return 1; // Safe default
+        }
+        int buttonHeightWithSpacing = SpellSelectionScreenConstants.BUTTON_HEIGHT + SpellSelectionScreenConstants.BUTTON_SPACING;
+        if (buttonHeightWithSpacing <= 0) {
+            return 1; // Prevent division by zero
+        }
+        
+        // Calculate available height more accurately
+        int topSpace = SpellSelectionScreenConstants.START_Y_WITH_FILTERS;
+        // Reserve space for bottom buttons: scroll (20) + spacing (4) + clear (20) + spacing (4) + close (20) + padding (5)
+        int bottomSpace = SpellSelectionScreenConstants.BUTTON_HEIGHT * 3 
+            + SpellSelectionScreenConstants.BUTTON_SPACING * 2 
+            + 5; // Small padding at bottom
+        
+        int availableHeight = this.height - topSpace - bottomSpace;
+        
+        // Ensure we have at least some space
+        if (availableHeight < buttonHeightWithSpacing) {
+            return 1; // At least show one button
+        }
+        
+        return Math.max(1, availableHeight / buttonHeightWithSpacing);
     }
     
     private Button createSlotButton(String text, boolean isSelected, int x, int y, int width, Runnable onClick) {
@@ -498,29 +894,170 @@ public class SpellSelectionScreen extends Screen {
             .build();
     }
     
+    /**
+     * Handles slot switching from keyboard.
+     */
+    public void handleSlotSwitch(int slot) {
+        uiState.setSelectedSlot(slot);
+        uiState.setScrollOffset(0);
+        uiState.resetKeyboardSelection();
+        this.init();
+    }
+    
+    /**
+     * Toggles the help overlay.
+     */
+    public void toggleHelpOverlay() {
+        showHelpOverlay = !showHelpOverlay;
+    }
+    
+    /**
+     * Handles keyboard navigation and shortcuts.
+     * Called from event handler.
+     * @return true if the key was handled
+     */
+    public boolean handleKeyboardNavigation(int keyCode) {
+        // Arrow keys: Navigate spell list
+        int maxVisibleSpells = getVisibleSpellCount();
+        List<Identifier> filteredSpells = uiState.getFilteredSpells();
+        int startIndex = uiState.getScrollOffset();
+        int endIndex = Math.min(startIndex + maxVisibleSpells, filteredSpells.size());
+        int maxIndex = endIndex - startIndex - 1;
+        int keyboardSelectedIndex = uiState.getKeyboardSelectedIndex();
+        
+        if (keyCode == GLFW.GLFW_KEY_UP) { // Up arrow
+            if (keyboardSelectedIndex < 0) {
+                uiState.setKeyboardSelectedIndex(0);
+            } else if (keyboardSelectedIndex > 0) {
+                uiState.setKeyboardSelectedIndex(keyboardSelectedIndex - 1);
+            } else if (startIndex > 0) {
+                uiState.scrollUp();
+                this.init();
+            }
+            updatePreviewFromKeyboardSelection();
+            return true;
+        } else if (keyCode == GLFW.GLFW_KEY_DOWN) { // Down arrow
+            if (keyboardSelectedIndex < 0) {
+                uiState.setKeyboardSelectedIndex(0);
+            } else if (keyboardSelectedIndex < maxIndex) {
+                uiState.setKeyboardSelectedIndex(keyboardSelectedIndex + 1);
+            } else {
+                int maxScroll = Math.max(0, filteredSpells.size() - maxVisibleSpells);
+                if (startIndex < maxScroll) {
+                    uiState.scrollDown(maxScroll);
+                    uiState.setKeyboardSelectedIndex(maxIndex);
+                    this.init();
+                }
+            }
+            updatePreviewFromKeyboardSelection();
+            return true;
+        } else if (keyCode == GLFW.GLFW_KEY_HOME) { // Home
+            uiState.setScrollOffset(0);
+            uiState.setKeyboardSelectedIndex(0);
+            this.init();
+            updatePreviewFromKeyboardSelection();
+            return true;
+        } else if (keyCode == GLFW.GLFW_KEY_END) { // End
+            int maxScroll = Math.max(0, filteredSpells.size() - maxVisibleSpells);
+            uiState.setScrollOffset(maxScroll);
+            uiState.setKeyboardSelectedIndex(Math.min(maxIndex, filteredSpells.size() - 1 - maxScroll));
+            this.init();
+            updatePreviewFromKeyboardSelection();
+            return true;
+        }
+        
+        // Enter: Assign selected spell
+        if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+            if (keyboardSelectedIndex >= 0 && keyboardSelectedIndex < endIndex - startIndex) {
+                int selectedIndex = startIndex + keyboardSelectedIndex;
+                if (selectedIndex < filteredSpells.size()) {
+                    Identifier spellId = filteredSpells.get(selectedIndex);
+                    assignSpellToSlot(spellId);
+                    return true;
+                }
+            }
+        }
+        
+        // F: Toggle favorite
+        if (keyCode == GLFW.GLFW_KEY_F) {
+            Identifier targetSpellId = getTargetSpellForAction();
+            if (targetSpellId != null) {
+                ClientSpellData.toggleFavorite(targetSpellId);
+                updateFilteredSpells();
+                this.init();
+                return true;
+            }
+        }
+        
+        // Escape: Close screen
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            if (this.minecraft != null) {
+                this.minecraft.setScreen(null);
+            }
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Gets the target spell for keyboard actions (either keyboard-selected or hovered).
+     */
+    @Nullable
+    private Identifier getTargetSpellForAction() {
+        int keyboardSelectedIndex = uiState.getKeyboardSelectedIndex();
+        if (keyboardSelectedIndex >= 0) {
+            int startIndex = uiState.getScrollOffset();
+            List<Identifier> filteredSpells = uiState.getFilteredSpells();
+            int selectedIndex = startIndex + keyboardSelectedIndex;
+            if (selectedIndex >= 0 && selectedIndex < filteredSpells.size()) {
+                return filteredSpells.get(selectedIndex);
+            }
+        }
+        return uiState.getHoveredSpellId();
+    }
+    
+    /**
+     * Updates preview panel from keyboard selection.
+     */
+    private void updatePreviewFromKeyboardSelection() {
+        Identifier targetSpellId = getTargetSpellForAction();
+        previewPanel.setSpell(targetSpellId);
+    }
+    
+    /**
+     * Assigns a spell to the current slot.
+     */
+    private void assignSpellToSlot(Identifier spellId) {
+        try {
+            int selectedSlot = uiState.getSelectedSlot();
+            at.koopro.spells_n_squares.features.spell.network.SpellSlotAssignPayload payload =
+                new at.koopro.spells_n_squares.features.spell.network.SpellSlotAssignPayload(
+                    selectedSlot,
+                    java.util.Optional.of(spellId)
+                );
+            net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(payload);
+            
+            ClientSpellData.setSpellInSlot(selectedSlot, spellId);
+            
+            if (this.minecraft != null) {
+                this.minecraft.execute(() -> {
+                    SpellSelectionScreen newScreen = new SpellSelectionScreen(selectedSlot, uiState.getScrollOffset());
+                    // Preserve filter state
+                    newScreen.filterState.copyFrom(this.filterState);
+                    newScreen.updateFilteredSpells();
+                    this.minecraft.setScreen(newScreen);
+                });
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error assigning spell to slot", e);
+        }
+    }
+    
     @Override
     public boolean isPauseScreen() {
         return false;
     }
     
-    /**
-     * Sort types for spell list.
-     */
-    private enum SortType {
-        ALPHABETICAL("A-Z"),
-        REVERSE_ALPHABETICAL("Z-A"),
-        COOLDOWN_LOW("CD Low"),
-        COOLDOWN_HIGH("CD High");
-        
-        private final String displayName;
-        
-        SortType(String displayName) {
-            this.displayName = displayName;
-        }
-        
-        public String getDisplayName() {
-            return displayName;
-        }
-    }
 }
 
